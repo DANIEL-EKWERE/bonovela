@@ -8,5 +8,5 @@ class AppConstants {
   // Monetisation (mock).
   static const int freeChapters = 10;
   static const int chapterPrice = 15;
-  static const String currency = '₦';
+  static const String currency = '\$';
 }

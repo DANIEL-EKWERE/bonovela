@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../../core/constants/app_colors.dart';
 import '../controller/reader_controller.dart';
 import '../models/reader_settings.dart';
+import '../../../core/constants/app_icons.dart';
 
 ShapeBorder get _sheetShape =>
     const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16)));
@@ -21,22 +22,21 @@ void showReaderSettings(BuildContext context) {
       final label = TextStyle(color: text.withValues(alpha: 0.6), fontSize: 13);
 
       Widget pill(String title, bool selected, VoidCallback onTap) => Expanded(
-            child: GestureDetector(
-              onTap: onTap,
-              child: Container(
-                height: 36,
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: selected ? AppColors.primary : text.withValues(alpha: 0.15)),
-                  color: selected ? AppColors.primary.withValues(alpha: 0.08) : Colors.transparent,
-                ),
-                child: Text(title,
-                    style: TextStyle(color: selected ? AppColors.primary : text, fontSize: 13)),
-              ),
+        child: GestureDetector(
+          onTap: onTap,
+          child: Container(
+            height: 36,
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: selected ? AppColors.primary : text.withValues(alpha: 0.15)),
+              color: selected ? AppColors.primary.withValues(alpha: 0.08) : Colors.transparent,
             ),
-          );
+            child: Text(title, style: TextStyle(color: selected ? AppColors.primary : text, fontSize: 13)),
+          ),
+        ),
+      );
 
       return SafeArea(
         child: Padding(
@@ -50,7 +50,7 @@ void showReaderSettings(BuildContext context) {
                 children: [
                   IconButton(
                     onPressed: () => c.changeFont(-1),
-                    icon: Icon(Icons.text_decrease_rounded, color: text),
+                    icon: Icon(AppIcons.textSmaller, color: text),
                   ),
                   Expanded(
                     child: Slider(
@@ -63,7 +63,7 @@ void showReaderSettings(BuildContext context) {
                   ),
                   IconButton(
                     onPressed: () => c.changeFont(1),
-                    icon: Icon(Icons.text_increase_rounded, color: text),
+                    icon: Icon(AppIcons.textBigger, color: text),
                   ),
                 ],
               ),
@@ -73,8 +73,11 @@ void showReaderSettings(BuildContext context) {
               Row(
                 children: [
                   for (final (i, h) in ReaderSettings.lineHeights.indexed)
-                    pill(['Compact', 'Normal', 'Relaxed'][i], s.lineHeight == h,
-                        () => c.updateSettings(s.copyWith(lineHeight: h))),
+                    pill(
+                      ['Compact', 'Normal', 'Relaxed'][i],
+                      s.lineHeight == h,
+                      () => c.updateSettings(s.copyWith(lineHeight: h)),
+                    ),
                 ],
               ),
               const SizedBox(height: 16),
@@ -154,8 +157,10 @@ void showReaderContents(BuildContext context) {
                     style: TextStyle(color: theme.text, fontSize: 16, fontWeight: FontWeight.w700),
                   ),
                 ),
-                Text('${c.chapters.length} chapters',
-                    style: TextStyle(color: theme.text.withValues(alpha: 0.6), fontSize: 13)),
+                Text(
+                  '${c.chapters.length} chapters',
+                  style: TextStyle(color: theme.text.withValues(alpha: 0.6), fontSize: 13),
+                ),
               ],
             ),
           ),
@@ -179,7 +184,7 @@ void showReaderContents(BuildContext context) {
                     ),
                   ),
                   trailing: ch.isLocked
-                      ? Icon(Icons.lock_outline_rounded, size: 18, color: theme.text.withValues(alpha: 0.4))
+                      ? Icon(AppIcons.lock, size: 18, color: theme.text.withValues(alpha: 0.4))
                       : null,
                   onTap: () {
                     Get.back();

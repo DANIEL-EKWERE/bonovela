@@ -2,6 +2,14 @@ import 'package:get/get.dart';
 
 import 'auth_middleware.dart';
 
+import '../screen/author_statistics/bindings/author_statistics_binding.dart';
+import '../screen/author_statistics/author_statistics_screen.dart';
+import '../screen/chapter_editor/bindings/chapter_editor_binding.dart';
+import '../screen/chapter_editor/chapter_editor_screen.dart';
+import '../screen/story_chapters/bindings/story_chapters_binding.dart';
+import '../screen/story_chapters/story_chapters_screen.dart';
+import '../screen/story_form/bindings/story_form_binding.dart';
+import '../screen/story_form/story_form_screen.dart';
 import '../screen/auth/auth_screen.dart';
 import '../screen/auth/bindings/auth_binding.dart';
 import '../screen/auth_email/auth_email_screen.dart';
@@ -30,8 +38,8 @@ import '../screen/expense_record/bindings/expense_record_binding.dart';
 import '../screen/expense_record/expense_record_screen.dart';
 import '../screen/follow_list/bindings/follow_list_binding.dart';
 import '../screen/follow_list/follow_list_screen.dart';
-import '../screen/gems/bindings/gems_binding.dart';
-import '../screen/gems/gems_screen.dart';
+import '../screen/vouchers/bindings/vouchers_binding.dart';
+import '../screen/vouchers/vouchers_screen.dart';
 import '../screen/inbox/bindings/inbox_binding.dart';
 import '../screen/inbox/inbox_screen.dart';
 import '../screen/language/bindings/language_binding.dart';
@@ -46,6 +54,8 @@ import '../screen/online_service/bindings/online_service_binding.dart';
 import '../screen/online_service/online_service_screen.dart';
 import '../screen/push_settings/bindings/push_settings_binding.dart';
 import '../screen/push_settings/push_settings_screen.dart';
+import '../screen/rank/bindings/rank_binding.dart';
+import '../screen/rank/rank_screen.dart';
 import '../screen/reader/bindings/reader_binding.dart';
 import '../screen/reader/reader_screen.dart';
 import '../screen/rewards/bindings/rewards_binding.dart';
@@ -97,6 +107,7 @@ class AppRoutes {
   static const reader = '/reader'; // arguments: {'bookId': String, 'chapter': int}
   static const comments = '/comments'; // arguments: book id
   static const search = '/search';
+  static const rank = '/rank';
   static const categories = '/categories';
   static const viewAll = '/view_all'; // arguments: {'title': String, 'books': List<BookModel>}
   static const authorProfile = '/author_profile'; // arguments: author name
@@ -106,8 +117,12 @@ class AppRoutes {
   static const followList = '/follow_list'; // arguments: initial tab index
   static const inbox = '/inbox';
   static const authorCenter = '/author_center';
+  static const storyForm = '/story_form'; // arguments: story id, or null for a new story
+  static const storyChapters = '/story_chapters'; // arguments: story id
+  static const chapterEditor = '/chapter_editor'; // arguments: {'storyId': String, 'chapterId': String?}
+  static const authorStatistics = '/author_statistics'; // arguments: story id
   static const exchange = '/exchange';
-  static const gems = '/gems';
+  static const vouchers = '/vouchers';
 
   // Wallet
   static const wallet = '/wallet';
@@ -147,12 +162,8 @@ class AppRoutes {
     ),
     GetPage(name: reader, page: () => const ReaderScreen(), binding: ReaderBinding()),
     GetPage(name: comments, page: () => const CommentsScreen(), binding: CommentsBinding()),
-    GetPage(
-      name: search,
-      page: () => const SearchScreen(),
-      binding: SearchBinding(),
-      transition: Transition.fadeIn,
-    ),
+    GetPage(name: search, page: () => const SearchScreen(), binding: SearchBinding(), transition: Transition.fadeIn),
+    GetPage(name: rank, page: () => const RankScreen(), binding: RankBinding()),
     GetPage(name: categories, page: () => const CategoriesScreen(), binding: CategoriesBinding()),
     GetPage(name: viewAll, page: () => const ViewAllScreen(), binding: ViewAllBinding()),
     GetPage(
@@ -175,13 +186,17 @@ class AppRoutes {
       binding: AuthorCenterBinding(),
       middlewares: [AuthMiddleware()],
     ),
+    GetPage(name: storyForm, page: () => const StoryFormScreen(), binding: StoryFormBinding()),
+    GetPage(name: storyChapters, page: () => const StoryChaptersScreen(), binding: StoryChaptersBinding()),
+    GetPage(name: chapterEditor, page: () => const ChapterEditorScreen(), binding: ChapterEditorBinding()),
+    GetPage(name: authorStatistics, page: () => const AuthorStatisticsScreen(), binding: AuthorStatisticsBinding()),
     GetPage(
       name: exchange,
       page: () => const ExchangeScreen(),
       binding: ExchangeBinding(),
       middlewares: [AuthMiddleware()],
     ),
-    GetPage(name: gems, page: () => const GemsScreen(), binding: GemsBinding()),
+    GetPage(name: vouchers, page: () => const VouchersScreen(), binding: VouchersBinding()),
 
     GetPage(name: wallet, page: () => const WalletScreen(), binding: WalletBinding()),
     GetPage(name: topUp, page: () => const TopUpScreen(), binding: TopUpBinding()),
@@ -193,11 +208,7 @@ class AppRoutes {
     GetPage(name: bonusHistory, page: () => const BonusHistoryScreen(), binding: BonusHistoryBinding()),
     GetPage(name: chapterUnlocked, page: () => const ChapterUnlockedScreen(), binding: ChapterUnlockedBinding()),
     GetPage(name: expenseRecord, page: () => const ExpenseRecordScreen(), binding: ExpenseRecordBinding()),
-    GetPage(
-      name: autoSubscription,
-      page: () => const AutoSubscriptionScreen(),
-      binding: AutoSubscriptionBinding(),
-    ),
+    GetPage(name: autoSubscription, page: () => const AutoSubscriptionScreen(), binding: AutoSubscriptionBinding()),
     GetPage(name: rewards, page: () => const RewardsScreen(), binding: RewardsBinding()),
     GetPage(name: subscription, page: () => const SubscriptionScreen(), binding: SubscriptionBinding()),
 

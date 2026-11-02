@@ -6,6 +6,7 @@ import '../../core/constants/app_colors.dart';
 import '../../widgets/common.dart';
 import '../../widgets/ui_kit.dart';
 import 'controller/wallet_controller.dart';
+import '../../core/constants/app_icons.dart';
 
 class WalletScreen extends GetView<WalletController> {
   const WalletScreen({super.key});
@@ -87,14 +88,14 @@ class _Balance extends StatelessWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Obx(() => Text('${value.value}',
-                        style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700))),
+                    Obx(
+                      () => Text('${value.value}', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700)),
+                    ),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(label, style: const TextStyle(color: AppColors.textSecondary)),
-                        if (onTap != null)
-                          const Icon(Icons.chevron_right_rounded, size: 16, color: AppColors.textHint),
+                        if (onTap != null) const Icon(AppIcons.chevronRight, size: 16, color: AppColors.textHint),
                       ],
                     ),
                   ],

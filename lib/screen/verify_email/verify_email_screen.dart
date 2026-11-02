@@ -5,6 +5,7 @@ import '../../core/constants/app_colors.dart';
 import '../../widgets/auth_sheet.dart';
 import '../../widgets/common.dart';
 import 'controller/verify_email_controller.dart';
+import '../../core/constants/app_icons.dart';
 
 class VerifyEmailScreen extends GetView<VerifyEmailController> {
   const VerifyEmailScreen({super.key});
@@ -17,7 +18,10 @@ class VerifyEmailScreen extends GetView<VerifyEmailController> {
         TextSpan(
           text: 'Please check your email box at ',
           children: [
-            TextSpan(text: controller.email, style: const TextStyle(color: AppColors.primary)),
+            TextSpan(
+              text: controller.email,
+              style: const TextStyle(color: AppColors.primary),
+            ),
             const TextSpan(text: ' and tap Confirm to complete signing up.'),
           ],
         ),
@@ -25,13 +29,15 @@ class VerifyEmailScreen extends GetView<VerifyEmailController> {
       ),
       children: [
         const SizedBox(height: 48),
-        const Center(child: Icon(Icons.mark_email_unread_outlined, size: 84, color: AppColors.blushDeep)),
+        const Center(child: Icon(AppIcons.mailUnread, size: 84, color: AppColors.blushDeep)),
         const SizedBox(height: 48),
-        Obx(() => GradientButton(
-              label: 'Jump to email box',
-              loading: controller.isVerifying.value,
-              onTap: controller.openMailbox,
-            )),
+        Obx(
+          () => GradientButton(
+            label: 'Jump to email box',
+            loading: controller.isVerifying.value,
+            onTap: controller.openMailbox,
+          ),
+        ),
         const SizedBox(height: 14),
         SizedBox(
           height: 48,
@@ -47,17 +53,17 @@ class VerifyEmailScreen extends GetView<VerifyEmailController> {
         ),
         const SizedBox(height: 12),
         Center(
-          child: Obx(() => TextButton(
-                onPressed: controller.resendIn.value > 0 ? null : controller.resend,
-                child: Text(
-                  controller.resendIn.value > 0
-                      ? 'Resend in ${controller.resendIn.value}s'
-                      : 'Didn\'t get it? Resend email',
-                  style: TextStyle(
-                    color: controller.resendIn.value > 0 ? AppColors.textHint : AppColors.primary,
-                  ),
-                ),
-              )),
+          child: Obx(
+            () => TextButton(
+              onPressed: controller.resendIn.value > 0 ? null : controller.resend,
+              child: Text(
+                controller.resendIn.value > 0
+                    ? 'Resend in ${controller.resendIn.value}s'
+                    : 'Didn\'t get it? Resend email',
+                style: TextStyle(color: controller.resendIn.value > 0 ? AppColors.textHint : AppColors.primary),
+              ),
+            ),
+          ),
         ),
         const Text(
           'Demo: "Jump to email box" confirms the email straight away.',

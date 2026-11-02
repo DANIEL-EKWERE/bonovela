@@ -13,7 +13,7 @@ class WalletTransaction {
   /// Bonus spent alongside coins (expenses only).
   final int bonusUsed;
 
-  /// Real-money price, e.g. "₦1,500". Empty for non-purchases.
+  /// Real-money price, e.g. "\$1.05". Empty for non-purchases.
   final String price;
   final DateTime date;
   final String? bookId;
@@ -35,28 +35,28 @@ class WalletTransaction {
   bool get isExpense => kind == TxKind.unlock || kind == TxKind.gift;
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'kind': kind.name,
-        'title': title,
-        'coins': coins,
-        'bonusUsed': bonusUsed,
-        'price': price,
-        'date': date.toIso8601String(),
-        'bookId': bookId,
-        'chapter': chapter,
-      };
+    'id': id,
+    'kind': kind.name,
+    'title': title,
+    'coins': coins,
+    'bonusUsed': bonusUsed,
+    'price': price,
+    'date': date.toIso8601String(),
+    'bookId': bookId,
+    'chapter': chapter,
+  };
 
   factory WalletTransaction.fromJson(Map j) => WalletTransaction(
-        id: j['id'].toString(),
-        kind: TxKind.values.firstWhere((k) => k.name == j['kind'], orElse: () => TxKind.topUp),
-        title: j['title']?.toString() ?? '',
-        coins: (j['coins'] as num?)?.toInt() ?? 0,
-        bonusUsed: (j['bonusUsed'] as num?)?.toInt() ?? 0,
-        price: j['price']?.toString() ?? '',
-        date: DateTime.tryParse(j['date']?.toString() ?? '') ?? DateTime.now(),
-        bookId: j['bookId']?.toString(),
-        chapter: (j['chapter'] as num?)?.toInt(),
-      );
+    id: j['id'].toString(),
+    kind: TxKind.values.firstWhere((k) => k.name == j['kind'], orElse: () => TxKind.topUp),
+    title: j['title']?.toString() ?? '',
+    coins: (j['coins'] as num?)?.toInt() ?? 0,
+    bonusUsed: (j['bonusUsed'] as num?)?.toInt() ?? 0,
+    price: j['price']?.toString() ?? '',
+    date: DateTime.tryParse(j['date']?.toString() ?? '') ?? DateTime.now(),
+    bookId: j['bookId']?.toString(),
+    chapter: (j['chapter'] as num?)?.toInt(),
+  );
 }
 
 /// Bonus is granted in batches that expire. Spending draws from the batch
@@ -83,36 +83,37 @@ class BonusRecord {
   int get expired => isExpired ? amount - consumed : 0;
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'source': source,
-        'amount': amount,
-        'receivedAt': receivedAt.toIso8601String(),
-        'expiresAt': expiresAt.toIso8601String(),
-        'consumed': consumed,
-      };
+    'id': id,
+    'source': source,
+    'amount': amount,
+    'receivedAt': receivedAt.toIso8601String(),
+    'expiresAt': expiresAt.toIso8601String(),
+    'consumed': consumed,
+  };
 
   factory BonusRecord.fromJson(Map j) => BonusRecord(
-        id: j['id'].toString(),
-        source: j['source']?.toString() ?? '',
-        amount: (j['amount'] as num?)?.toInt() ?? 0,
-        receivedAt: DateTime.tryParse(j['receivedAt']?.toString() ?? '') ?? DateTime.now(),
-        expiresAt: DateTime.tryParse(j['expiresAt']?.toString() ?? '') ?? DateTime.now(),
-        consumed: (j['consumed'] as num?)?.toInt() ?? 0,
-      );
+    id: j['id'].toString(),
+    source: j['source']?.toString() ?? '',
+    amount: (j['amount'] as num?)?.toInt() ?? 0,
+    receivedAt: DateTime.tryParse(j['receivedAt']?.toString() ?? '') ?? DateTime.now(),
+    expiresAt: DateTime.tryParse(j['expiresAt']?.toString() ?? '') ?? DateTime.now(),
+    consumed: (j['consumed'] as num?)?.toInt() ?? 0,
+  );
 }
 
-class GemRecord {
+/// Vouchers earned (reading, top-ups). Spent as votes for books.
+class VoucherRecord {
   final String source;
   final int amount;
   final DateTime date;
 
-  const GemRecord(this.source, this.amount, this.date);
+  const VoucherRecord(this.source, this.amount, this.date);
 
   Map<String, dynamic> toJson() => {'source': source, 'amount': amount, 'date': date.toIso8601String()};
 
-  factory GemRecord.fromJson(Map j) => GemRecord(
-        j['source']?.toString() ?? '',
-        (j['amount'] as num?)?.toInt() ?? 0,
-        DateTime.tryParse(j['date']?.toString() ?? '') ?? DateTime.now(),
-      );
+  factory VoucherRecord.fromJson(Map j) => VoucherRecord(
+    j['source']?.toString() ?? '',
+    (j['amount'] as num?)?.toInt() ?? 0,
+    DateTime.tryParse(j['date']?.toString() ?? '') ?? DateTime.now(),
+  );
 }

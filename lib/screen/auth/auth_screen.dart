@@ -5,6 +5,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_constants.dart';
 import '../../widgets/common.dart';
 import 'controller/auth_controller.dart';
+import '../../core/constants/app_icons.dart';
 
 class AuthScreen extends GetView<AuthController> {
   const AuthScreen({super.key});
@@ -28,10 +29,7 @@ class AuthScreen extends GetView<AuthController> {
               children: [
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: IconButton(
-                    onPressed: Get.back,
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20),
-                  ),
+                  child: IconButton(onPressed: Get.back, icon: const Icon(AppIcons.back, size: 20)),
                 ),
                 // Logo JPG has an off-white background; blend it into the page.
                 ClipRRect(
@@ -78,8 +76,10 @@ class _LastAccountCard extends GetView<AuthController> {
           CircleAvatar(
             radius: 32,
             backgroundColor: AppColors.blushDeep,
-            child: Text(name.isEmpty ? '?' : name[0].toUpperCase(),
-                style: const TextStyle(color: AppColors.plum, fontSize: 26, fontWeight: FontWeight.w600)),
+            child: Text(
+              name.isEmpty ? '?' : name[0].toUpperCase(),
+              style: const TextStyle(color: AppColors.plum, fontSize: 26, fontWeight: FontWeight.w600),
+            ),
           ),
           const SizedBox(height: 10),
           Text(name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
@@ -89,12 +89,14 @@ class _LastAccountCard extends GetView<AuthController> {
             style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
           ),
           const SizedBox(height: 18),
-          Obx(() => GradientButton(
-                label: 'Continue',
-                width: double.infinity,
-                loading: controller.loadingProvider.value == provider,
-                onTap: controller.continueLast,
-              )),
+          Obx(
+            () => GradientButton(
+              label: 'Continue',
+              width: double.infinity,
+              loading: controller.loadingProvider.value == provider,
+              onTap: controller.continueLast,
+            ),
+          ),
           TextButton(
             onPressed: controller.useAnother,
             child: const Text('Use another account', style: TextStyle(color: AppColors.textSecondary)),
@@ -109,47 +111,53 @@ class _Options extends GetView<AuthController> {
   @override
   Widget build(BuildContext context) {
     Widget button(String provider, IconData icon) => Padding(
-          padding: const EdgeInsets.only(bottom: 14),
-          child: Obx(() {
-            final loading = controller.loadingProvider.value == provider;
-            return GestureDetector(
-              onTap: loading ? null : () => controller.social(provider),
-              child: Container(
-                height: 50,
-                decoration: BoxDecoration(gradient: AppColors.buttonGradient, borderRadius: BorderRadius.circular(25)),
-                child: Row(
-                  children: [
-                    const SizedBox(width: 6),
-                    CircleAvatar(radius: 19, backgroundColor: Colors.white, child: Icon(icon, color: AppColors.primary)),
-                    Expanded(
-                      child: loading
-                          ? const Center(
-                              child: SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                              ),
-                            )
-                          : Text('Sign in with $provider',
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
-                    ),
-                    const SizedBox(width: 44),
-                  ],
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Obx(() {
+        final loading = controller.loadingProvider.value == provider;
+        return GestureDetector(
+          onTap: loading ? null : () => controller.social(provider),
+          child: Container(
+            height: 50,
+            decoration: BoxDecoration(gradient: AppColors.buttonGradient, borderRadius: BorderRadius.circular(25)),
+            child: Row(
+              children: [
+                const SizedBox(width: 6),
+                CircleAvatar(
+                  radius: 19,
+                  backgroundColor: Colors.white,
+                  child: Icon(icon, color: AppColors.primary),
                 ),
-              ),
-            );
-          }),
+                Expanded(
+                  child: loading
+                      ? const Center(
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          ),
+                        )
+                      : Text(
+                          'Sign in with $provider',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
+                        ),
+                ),
+                const SizedBox(width: 44),
+              ],
+            ),
+          ),
         );
+      }),
+    );
 
     return Column(
       children: [
-        button('Facebook', Icons.facebook_rounded),
-        button('Google', Icons.g_mobiledata_rounded),
-        button('Apple', Icons.apple_rounded),
+        button('Facebook', AppIcons.facebook),
+        button('Google', AppIcons.google),
+        button('Apple', AppIcons.apple),
         OutlinedButton.icon(
           onPressed: controller.email,
-          icon: const Icon(Icons.mail_outline_rounded),
+          icon: const Icon(AppIcons.mail),
           label: const Text('Sign in with Email'),
           style: OutlinedButton.styleFrom(
             minimumSize: const Size.fromHeight(50),
@@ -170,12 +178,14 @@ class _Terms extends GetView<AuthController> {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Obx(() => Checkbox(
-              value: controller.agreed.value,
-              onChanged: (v) => controller.agreed.value = v ?? false,
-              activeColor: AppColors.primary,
-              shape: const CircleBorder(),
-            )),
+        Obx(
+          () => Checkbox(
+            value: controller.agreed.value,
+            onChanged: (v) => controller.agreed.value = v ?? false,
+            activeColor: AppColors.primary,
+            shape: const CircleBorder(),
+          ),
+        ),
         Expanded(
           child: GestureDetector(
             onTap: controller.openTerms,
@@ -183,9 +193,15 @@ class _Terms extends GetView<AuthController> {
               TextSpan(
                 text: 'I have read and agree to the ',
                 children: [
-                  TextSpan(text: 'Terms of Use', style: TextStyle(color: AppColors.primary)),
+                  TextSpan(
+                    text: 'Terms of Use',
+                    style: TextStyle(color: AppColors.primary),
+                  ),
                   TextSpan(text: ' and '),
-                  TextSpan(text: 'Privacy Policy', style: TextStyle(color: AppColors.primary)),
+                  TextSpan(
+                    text: 'Privacy Policy',
+                    style: TextStyle(color: AppColors.primary),
+                  ),
                 ],
               ),
               style: TextStyle(fontSize: 12, color: AppColors.textSecondary),

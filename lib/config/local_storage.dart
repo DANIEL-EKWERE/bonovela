@@ -9,14 +9,13 @@ class ReadProgress {
 
   const ReadProgress(this.bookId, this.chapter, this.readAt);
 
-  Map<String, dynamic> toJson() =>
-      {'bookId': bookId, 'chapter': chapter, 'readAt': readAt.toIso8601String()};
+  Map<String, dynamic> toJson() => {'bookId': bookId, 'chapter': chapter, 'readAt': readAt.toIso8601String()};
 
   factory ReadProgress.fromJson(Map j) => ReadProgress(
-        j['bookId'].toString(),
-        (j['chapter'] as num?)?.toInt() ?? 1,
-        DateTime.tryParse(j['readAt']?.toString() ?? '') ?? DateTime.now(),
-      );
+    j['bookId'].toString(),
+    (j['chapter'] as num?)?.toInt() ?? 1,
+    DateTime.tryParse(j['readAt']?.toString() ?? '') ?? DateTime.now(),
+  );
 }
 
 /// On-device storage: shelf, reading history, unlocked chapters, search
@@ -39,9 +38,7 @@ class LocalStorage extends GetxService {
   Future<LocalStorage> init() async {
     await GetStorage.init();
     shelf.assignAll((_box.read<List>(_kShelf) ?? []).map((e) => e.toString()));
-    history.assignAll(
-      (_box.read<List>(_kHistory) ?? []).whereType<Map>().map(ReadProgress.fromJson),
-    );
+    history.assignAll((_box.read<List>(_kHistory) ?? []).whereType<Map>().map(ReadProgress.fromJson));
     return this;
   }
 
@@ -58,8 +55,7 @@ class LocalStorage extends GetxService {
   }
 
   // ── History ────────────────────────────────────────────────────────────────
-  ReadProgress? progressFor(String bookId) =>
-      history.firstWhereOrNull((p) => p.bookId == bookId);
+  ReadProgress? progressFor(String bookId) => history.firstWhereOrNull((p) => p.bookId == bookId);
 
   void saveProgress(String bookId, int chapter) {
     history.removeWhere((p) => p.bookId == bookId);
@@ -74,19 +70,19 @@ class LocalStorage extends GetxService {
   }
 
   // ── Search history ─────────────────────────────────────────────────────────
-  List<String> get searchHistory =>
-      (_box.read<List>(_kSearchHistory) ?? []).map((e) => e.toString()).toList();
+  List<String> get searchHistory => (_box.read<List>(_kSearchHistory) ?? []).map((e) => e.toString()).toList();
 
   void addSearch(String query) {
-    final list = searchHistory..remove(query)..insert(0, query);
+    final list = searchHistory
+      ..remove(query)
+      ..insert(0, query);
     _box.write(_kSearchHistory, list.take(10).toList());
   }
 
   void clearSearchHistory() => _box.remove(_kSearchHistory);
 
   // ── Unlocked chapters ──────────────────────────────────────────────────────
-  bool isUnlocked(String bookId, int chapter) =>
-      (_box.read<List>(_kUnlocked) ?? []).contains('$bookId:$chapter');
+  bool isUnlocked(String bookId, int chapter) => (_box.read<List>(_kUnlocked) ?? []).contains('$bookId:$chapter');
 
   void markUnlocked(String bookId, int chapter) {
     final list = (_box.read<List>(_kUnlocked) ?? []).toList()..add('$bookId:$chapter');

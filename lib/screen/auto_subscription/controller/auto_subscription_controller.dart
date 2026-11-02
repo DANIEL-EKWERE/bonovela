@@ -12,9 +12,7 @@ class AutoSubscriptionController extends GetxController {
   /// Paid novels the reader has shelved or opened.
   List<BookModel> get books {
     final ids = <String>{..._storage.shelf, ..._storage.history.map((p) => p.bookId), ..._account.autoUnlockBooks};
-    return [
-      for (final id in ids) ?MockData.books.firstWhereOrNull((b) => b.id == id && !b.isShort),
-    ];
+    return [for (final id in ids) ?MockData.books.firstWhereOrNull((b) => b.id == id && !b.isShort)];
   }
 
   bool isOn(String id) => _account.autoUnlockBooks.contains(id);

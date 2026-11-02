@@ -6,8 +6,10 @@ class Fmt {
     return '$n';
   }
 
-  static String _trim(double v) =>
-      v.toStringAsFixed(1).replaceAll(RegExp(r'\.0$'), '');
+  static String _trim(double v) => v.toStringAsFixed(1).replaceAll(RegExp(r'\.0$'), '');
+
+  /// 5000 → 5,000
+  static String thousands(int n) => n.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => ',');
 
   static String views(int n) => '${compact(n)} Views';
 

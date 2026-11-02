@@ -52,24 +52,26 @@ class ShortController extends GetxController {
 
   List<ShortCollection> get collections {
     List<BookModel> withGenre(String g) => shorts.where((b) => b.genre == g).toList();
-    List<BookModel> withTag(String t) =>
-        shorts.where((b) => b.tags.any((x) => x.contains(t))).toList();
+    List<BookModel> withTag(String t) => shorts.where((b) => b.tags.any((x) => x.contains(t))).toList();
     return [
       ShortCollection('Handpicked Books', 'Chosen by our editors', shorts.take(4).toList()),
       ShortCollection('Werewolves & Vampires', 'Fated bonds, broken hearts', withGenre('Werewolf')),
-      ShortCollection('Betrayal & Comeback', 'Underestimate me, regret it', [...withTag('Revenge'), ...withTag('Regret')]),
+      ShortCollection('Betrayal & Comeback', 'Underestimate me, regret it', [
+        ...withTag('Revenge'),
+        ...withTag('Regret'),
+      ]),
       ShortCollection('Second Life', 'This time, I choose myself', withTag('Rebirth')),
     ].where((c) => c.books.isNotEmpty).toList();
   }
 
-  List<String> get arrivalFilters =>
-      ['All', ...{for (final b in shorts) b.genre}];
+  List<String> get arrivalFilters => [
+    'All',
+    ...{for (final b in shorts) b.genre},
+  ];
 
   /// New arrivals grouped by day, newest first.
   Map<String, List<BookModel>> get arrivalsByDate {
-    final list = shorts
-        .where((b) => arrivalFilter.value == 'All' || b.genre == arrivalFilter.value)
-        .toList()
+    final list = shorts.where((b) => arrivalFilter.value == 'All' || b.genre == arrivalFilter.value).toList()
       ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
     final groups = <String, List<BookModel>>{};
     for (final b in list) {

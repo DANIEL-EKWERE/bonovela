@@ -27,8 +27,7 @@ class CategoriesController extends GetxController {
       if (format.value == 'Novels' && b.isShort) return false;
       if (format.value == 'Shorts' && !b.isShort) return false;
       return true;
-    }).toList()
-      ..sort((a, b) => b.views.compareTo(a.views));
+    }).toList()..sort((a, b) => b.views.compareTo(a.views));
     return list;
   }
 

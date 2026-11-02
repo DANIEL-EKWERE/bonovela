@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../core/constants/app_colors.dart';
+import '../core/constants/app_icons.dart';
 
 /// Short confirmation at the bottom of the screen.
 void toast(String title, [String message = '']) {
@@ -42,7 +43,7 @@ class SubPage extends StatelessWidget {
       backgroundColor: background,
       appBar: AppBar(
         title: Text(title),
-        leading: IconButton(onPressed: Get.back, icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20)),
+        leading: IconButton(onPressed: Get.back, icon: const Icon(AppIcons.back, size: 20)),
         actions: actions,
       ),
       body: body,
@@ -113,7 +114,7 @@ class MenuTile extends StatelessWidget {
             Expanded(child: Text(title, style: const TextStyle(fontSize: 15))),
             if (value != null) Text(value!, style: const TextStyle(fontSize: 14, color: AppColors.textSecondary)),
             ?trailing,
-            if (chevron && onTap != null) const Icon(Icons.chevron_right_rounded, color: AppColors.textHint),
+            if (chevron && onTap != null) const Icon(AppIcons.chevronRight, color: AppColors.textHint),
           ],
         ),
       ),
@@ -163,17 +164,17 @@ class PillButton extends StatelessWidget {
   }
 }
 
-/// Coins / bonus / gems icon with consistent colours.
+/// Coins / bonus / voucher icon with consistent colours.
 class CurrencyIcon extends StatelessWidget {
-  final String kind; // coins | bonus | gems
+  final String kind; // coins | bonus | voucher
   final double size;
 
   const CurrencyIcon(this.kind, {super.key, this.size = 18});
 
   @override
   Widget build(BuildContext context) => switch (kind) {
-    'bonus' => Icon(Icons.stars_rounded, color: AppColors.primary, size: size),
-    'gems' => Icon(Icons.diamond_rounded, color: const Color(0xFF3FB8E6), size: size),
-    _ => Icon(Icons.monetization_on_rounded, color: AppColors.gold, size: size),
+    'bonus' => Icon(AppIcons.bonus, color: AppColors.primary, size: size),
+    'voucher' => Icon(AppIcons.voucher, color: AppColors.voucher, size: size),
+    _ => Icon(AppIcons.coin, color: AppColors.gold, size: size),
   };
 }

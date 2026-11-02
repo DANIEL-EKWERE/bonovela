@@ -143,9 +143,11 @@ class ReaderController extends GetxController {
     _storage.write(_kSettings, s.toJson());
   }
 
-  void changeFont(double delta) => updateSettings(settings.value.copyWith(
-        fontSize: (settings.value.fontSize + delta).clamp(ReaderSettings.minFont, ReaderSettings.maxFont),
-      ));
+  void changeFont(double delta) => updateSettings(
+    settings.value.copyWith(
+      fontSize: (settings.value.fontSize + delta).clamp(ReaderSettings.minFont, ReaderSettings.maxFont),
+    ),
+  );
 
   void toggleNight() {
     final night = ReaderTheme.all.length - 1;

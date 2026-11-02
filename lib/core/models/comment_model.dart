@@ -20,24 +20,24 @@ class CommentModel {
   });
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'bookId': bookId,
-        'userName': userName,
-        'stars': stars,
-        'text': text,
-        'date': date.toIso8601String(),
-        'likes': likes,
-        'isMine': isMine,
-      };
+    'id': id,
+    'bookId': bookId,
+    'userName': userName,
+    'stars': stars,
+    'text': text,
+    'date': date.toIso8601String(),
+    'likes': likes,
+    'isMine': isMine,
+  };
 
   factory CommentModel.fromJson(Map j) => CommentModel(
-        id: j['id'].toString(),
-        bookId: j['bookId'].toString(),
-        userName: j['userName']?.toString() ?? '',
-        stars: (j['stars'] as num?)?.toInt() ?? 5,
-        text: j['text']?.toString() ?? '',
-        date: DateTime.tryParse(j['date']?.toString() ?? '') ?? DateTime.now(),
-        likes: (j['likes'] as num?)?.toInt() ?? 0,
-        isMine: j['isMine'] == true,
-      );
+    id: j['id'].toString(),
+    bookId: j['bookId'].toString(),
+    userName: j['userName']?.toString() ?? '',
+    stars: (j['stars'] as num?)?.toInt() ?? 5,
+    text: j['text']?.toString() ?? '',
+    date: DateTime.tryParse(j['date']?.toString() ?? '') ?? DateTime.now(),
+    likes: (j['likes'] as num?)?.toInt() ?? 0,
+    isMine: j['isMine'] == true,
+  );
 }

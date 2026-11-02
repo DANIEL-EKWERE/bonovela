@@ -21,13 +21,12 @@ class AppColors {
   static const Color tag = plumLight;
   static const Color star = Color(0xFFFF9F1C);
   static const Color gold = Color(0xFFFFB020);
+  static const Color voucher = Color(0xFF7B5CFF);
   static const Color success = Color(0xFF2EB67D);
   static const Color error = Color(0xFFE5484D);
 
   /// Pill buttons (READ, TOP UP, Check in …).
-  static const LinearGradient buttonGradient = LinearGradient(
-    colors: [primaryLight, primary],
-  );
+  static const LinearGradient buttonGradient = LinearGradient(colors: [primaryLight, primary]);
 
   /// Soft blush wash behind the top of the tab screens.
   static const LinearGradient headerGradient = LinearGradient(

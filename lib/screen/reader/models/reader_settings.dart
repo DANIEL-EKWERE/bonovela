@@ -25,12 +25,7 @@ class ReaderSettings {
   final int themeIndex;
   final String fontFamily;
 
-  const ReaderSettings({
-    this.fontSize = 18,
-    this.lineHeight = 1.7,
-    this.themeIndex = 0,
-    this.fontFamily = 'Lora',
-  });
+  const ReaderSettings({this.fontSize = 18, this.lineHeight = 1.7, this.themeIndex = 0, this.fontFamily = 'Lora'});
 
   static const double minFont = 14;
   static const double maxFont = 28;
@@ -39,12 +34,7 @@ class ReaderSettings {
 
   ReaderTheme get theme => ReaderTheme.all[themeIndex.clamp(0, ReaderTheme.all.length - 1)];
 
-  ReaderSettings copyWith({
-    double? fontSize,
-    double? lineHeight,
-    int? themeIndex,
-    String? fontFamily,
-  }) =>
+  ReaderSettings copyWith({double? fontSize, double? lineHeight, int? themeIndex, String? fontFamily}) =>
       ReaderSettings(
         fontSize: fontSize ?? this.fontSize,
         lineHeight: lineHeight ?? this.lineHeight,
@@ -53,11 +43,11 @@ class ReaderSettings {
       );
 
   Map<String, dynamic> toJson() => {
-        'fontSize': fontSize,
-        'lineHeight': lineHeight,
-        'themeIndex': themeIndex,
-        'fontFamily': fontFamily,
-      };
+    'fontSize': fontSize,
+    'lineHeight': lineHeight,
+    'themeIndex': themeIndex,
+    'fontFamily': fontFamily,
+  };
 
   factory ReaderSettings.fromJson(Map? j) {
     if (j == null) return const ReaderSettings();

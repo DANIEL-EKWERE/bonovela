@@ -5,6 +5,7 @@ import '../../core/constants/app_colors.dart';
 import '../../widgets/auth_sheet.dart';
 import '../../widgets/common.dart';
 import 'controller/sign_up_controller.dart';
+import '../../core/constants/app_icons.dart';
 
 class SignUpScreen extends GetView<SignUpController> {
   const SignUpScreen({super.key});
@@ -41,7 +42,7 @@ class SignUpScreen extends GetView<SignUpController> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Icon(
-                        typed && controller.passes(r) ? Icons.check_rounded : Icons.remove_rounded,
+                        typed && controller.passes(r) ? AppIcons.check : AppIcons.dash,
                         size: 16,
                         color: !typed
                             ? AppColors.textHint
@@ -73,21 +74,25 @@ class SignUpScreen extends GetView<SignUpController> {
           obscure: controller.obscureConfirm,
           onChanged: (v) => controller.confirm.value = v,
         ),
-        Obx(() => controller.confirm.value.isNotEmpty && !controller.matches
-            ? const Padding(
-                padding: EdgeInsets.only(top: 6),
-                child: Text('Passwords don\'t match', style: TextStyle(color: AppColors.error, fontSize: 12)),
-              )
-            : const SizedBox.shrink()),
+        Obx(
+          () => controller.confirm.value.isNotEmpty && !controller.matches
+              ? const Padding(
+                  padding: EdgeInsets.only(top: 6),
+                  child: Text('Passwords don\'t match', style: TextStyle(color: AppColors.error, fontSize: 12)),
+                )
+              : const SizedBox.shrink(),
+        ),
         const SizedBox(height: 16),
         Row(
           children: [
-            Obx(() => Checkbox(
-                  value: controller.agreed.value,
-                  onChanged: (v) => controller.agreed.value = v ?? false,
-                  activeColor: AppColors.primary,
-                  shape: const CircleBorder(),
-                )),
+            Obx(
+              () => Checkbox(
+                value: controller.agreed.value,
+                onChanged: (v) => controller.agreed.value = v ?? false,
+                activeColor: AppColors.primary,
+                shape: const CircleBorder(),
+              ),
+            ),
             Expanded(
               child: GestureDetector(
                 onTap: controller.openTerms,
@@ -95,9 +100,15 @@ class SignUpScreen extends GetView<SignUpController> {
                   TextSpan(
                     text: 'I accept the conditions of the ',
                     children: [
-                      TextSpan(text: 'Terms of Use', style: TextStyle(color: AppColors.primary)),
+                      TextSpan(
+                        text: 'Terms of Use',
+                        style: TextStyle(color: AppColors.primary),
+                      ),
                       TextSpan(text: ' and '),
-                      TextSpan(text: 'Privacy Policy', style: TextStyle(color: AppColors.primary)),
+                      TextSpan(
+                        text: 'Privacy Policy',
+                        style: TextStyle(color: AppColors.primary),
+                      ),
                     ],
                   ),
                   style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
@@ -107,11 +118,13 @@ class SignUpScreen extends GetView<SignUpController> {
           ],
         ),
         const SizedBox(height: 20),
-        Obx(() => GradientButton(
-              label: 'Sign up',
-              loading: controller.isSubmitting.value,
-              onTap: controller.canSubmit ? controller.submit : null,
-            )),
+        Obx(
+          () => GradientButton(
+            label: 'Sign up',
+            loading: controller.isSubmitting.value,
+            onTap: controller.canSubmit ? controller.submit : null,
+          ),
+        ),
       ],
     );
   }

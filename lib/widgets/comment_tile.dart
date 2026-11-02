@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/constants/app_colors.dart';
 import '../core/models/comment_model.dart';
 import '../core/utils/formatters.dart';
+import '../core/constants/app_icons.dart';
 
 class StarRow extends StatelessWidget {
   final int stars;
@@ -12,12 +13,12 @@ class StarRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (var i = 1; i <= 5; i++)
-            Icon(i <= stars ? Icons.star_rounded : Icons.star_outline_rounded, color: AppColors.primary, size: size),
-        ],
-      );
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      for (var i = 1; i <= 5; i++)
+        Icon(i <= stars ? AppIcons.starFill : AppIcons.star, color: AppColors.primary, size: size),
+    ],
+  );
 }
 
 /// One review. Used on Book detail and the Reviews screen.
@@ -38,8 +39,10 @@ class CommentTile extends StatelessWidget {
           CircleAvatar(
             radius: 18,
             backgroundColor: comment.isMine ? AppColors.plum : AppColors.blushDeep,
-            child: Text(comment.userName[0],
-                style: TextStyle(color: comment.isMine ? Colors.white : AppColors.plum, fontWeight: FontWeight.w600)),
+            child: Text(
+              comment.userName[0],
+              style: TextStyle(color: comment.isMine ? Colors.white : AppColors.plum, fontWeight: FontWeight.w600),
+            ),
           ),
           const SizedBox(width: 10),
           Expanded(
@@ -70,11 +73,16 @@ class CommentTile extends StatelessWidget {
                       onTap: onLike,
                       child: Row(
                         children: [
-                          Icon(liked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
-                              size: 18, color: liked ? AppColors.primary : AppColors.textHint),
+                          Icon(
+                            liked ? AppIcons.heartFill : AppIcons.heart,
+                            size: 18,
+                            color: liked ? AppColors.primary : AppColors.textHint,
+                          ),
                           const SizedBox(width: 3),
-                          Text('${comment.likes + (liked ? 1 : 0)}',
-                              style: const TextStyle(fontSize: 12, color: AppColors.textHint)),
+                          Text(
+                            '${comment.likes + (liked ? 1 : 0)}',
+                            style: const TextStyle(fontSize: 12, color: AppColors.textHint),
+                          ),
                         ],
                       ),
                     ),

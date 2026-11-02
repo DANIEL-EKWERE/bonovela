@@ -8,7 +8,7 @@ import '../models/inbox_message.dart';
 import '../models/user_model.dart';
 import '../models/wallet_models.dart';
 
-/// Mock account: user, wallet, bonus, gems, rewards, subscription, follows,
+/// Mock account: user, wallet, bonus, vouchers, rewards, subscription, follows,
 /// inbox and app settings. Everything is kept on the device through
 /// [LocalStorage]. Registered once in main.dart.
 class AccountService extends GetxService {
@@ -19,13 +19,16 @@ class AccountService extends GetxService {
   final Rxn<UserModel> user = Rxn<UserModel>();
   final RxInt coins = 0.obs;
   final RxInt bonus = 0.obs; // derived from [bonusRecords]
-  final RxInt gems = 0.obs;
+  final RxInt vouchers = 0.obs;
   final RxList<WalletTransaction> transactions = <WalletTransaction>[].obs;
   final RxList<BonusRecord> bonusRecords = <BonusRecord>[].obs;
-  final RxList<GemRecord> gemHistory = <GemRecord>[].obs;
+  final RxList<VoucherRecord> voucherHistory = <VoucherRecord>[].obs;
   final RxList<InboxMessage> inbox = <InboxMessage>[].obs;
   final RxList<CommentModel> myComments = <CommentModel>[].obs;
   final RxSet<String> following = <String>{}.obs; // author names
+
+  /// Votes this reader has given each book (bookId → votes).
+  final RxMap<String, int> bookVotes = <String, int>{}.obs;
   final RxSet<String> autoUnlockBooks = <String>{}.obs;
   final Rxn<DateTime> plusUntil = Rxn<DateTime>();
 
@@ -44,6 +47,7 @@ class AccountService extends GetxService {
   bool get isLoggedIn => user.value != null;
   bool get isPlus => plusUntil.value?.isAfter(DateTime.now()) ?? false;
   bool get checkedInToday => lastCheckIn.value != null && _sameDay(lastCheckIn.value!, DateTime.now());
+
   /// Days already ticked in the current 7-day cycle. Resets after a missed
   /// day or once a full week has been collected.
   int get activeStreak {
@@ -61,13 +65,15 @@ class AccountService extends GetxService {
     final u = _s.read<Map>('user');
     user.value = u == null ? null : UserModel.fromJson(u);
     coins.value = _s.read<int>('coins') ?? 0;
-    gems.value = _s.read<int>('gems') ?? 0;
+    vouchers.value = _s.read<int>('gems') /* key kept from the gems era */ ?? 0;
     transactions.assignAll(_list('transactions', WalletTransaction.fromJson));
     bonusRecords.assignAll(_list('bonus_records', BonusRecord.fromJson));
-    gemHistory.assignAll(_list('gem_history', GemRecord.fromJson));
+    voucherHistory.assignAll(_list('gem_history', VoucherRecord.fromJson));
     inbox.assignAll(_list('inbox', InboxMessage.fromJson));
     myComments.assignAll(_list('my_comments', CommentModel.fromJson));
     following.assignAll(_strings('following'));
+    final votes = _s.read<Map>('book_votes') ?? {};
+    bookVotes.assignAll(votes.map((k, v) => MapEntry(k.toString(), (v as num).toInt())));
     autoUnlockBooks.assignAll(_strings('auto_unlock'));
     oneTimeTasks.assignAll(_strings('one_time_tasks'));
     final plus = _s.read<String>('plus_until');
@@ -99,13 +105,14 @@ class AccountService extends GetxService {
     _s.write('accounts', _accounts);
     _s.write('last_account', lastAccount.value);
     _s.write('coins', coins.value);
-    _s.write('gems', gems.value);
+    _s.write('gems', vouchers.value);
     _s.write('transactions', transactions.map((t) => t.toJson()).toList());
     _s.write('bonus_records', bonusRecords.map((b) => b.toJson()).toList());
-    _s.write('gem_history', gemHistory.map((g) => g.toJson()).toList());
+    _s.write('gem_history', voucherHistory.map((g) => g.toJson()).toList());
     _s.write('inbox', inbox.map((m) => m.toJson()).toList());
     _s.write('my_comments', myComments.map((c) => c.toJson()).toList());
     _s.write('following', following.toList());
+    _s.write('book_votes', bookVotes);
     _s.write('auto_unlock', autoUnlockBooks.toList());
     _s.write('one_time_tasks', oneTimeTasks.toList());
     _s.write('plus_until', plusUntil.value?.toIso8601String());
@@ -128,9 +135,9 @@ class AccountService extends GetxService {
       'provider': 'email',
     };
     coins.value = 60;
-    transactions.add(WalletTransaction(
-      id: _id(), kind: TxKind.reward, title: 'Welcome gift', coins: 60, date: DateTime.now(),
-    ));
+    transactions.add(
+      WalletTransaction(id: _id(), kind: TxKind.reward, title: 'Welcome gift', coins: 60, date: DateTime.now()),
+    );
     addBonus(20, 'Welcome bonus', days: 7, save: false);
     final now = DateTime.now();
     inbox.addAll([
@@ -243,13 +250,16 @@ class AccountService extends GetxService {
   /// Facebook / Google / Apple: no password, the account is created on first use.
   void socialLogin(String provider) {
     final key = '${provider.toLowerCase()}.reader@bonovela.app';
-    _accounts.putIfAbsent(key, () => {
-          'id': '${1000000 + _rand.nextInt(8999999)}',
-          'name': '$provider Reader',
-          'password': '',
-          'verified': true,
-          'provider': provider,
-        });
+    _accounts.putIfAbsent(
+      key,
+      () => {
+        'id': '${1000000 + _rand.nextInt(8999999)}',
+        'name': '$provider Reader',
+        'password': '',
+        'verified': true,
+        'provider': provider,
+      },
+    );
     _signInAs(key);
   }
 
@@ -307,8 +317,14 @@ class AccountService extends GetxService {
     transactions.insert(
       0,
       WalletTransaction(
-        id: _id(), kind: kind, title: title, coins: -left, bonusUsed: fromBonus,
-        date: DateTime.now(), bookId: bookId, chapter: chapter,
+        id: _id(),
+        kind: kind,
+        title: title,
+        coins: -left,
+        bonusUsed: fromBonus,
+        date: DateTime.now(),
+        bookId: bookId,
+        chapter: chapter,
       ),
     );
     _save();
@@ -317,37 +333,58 @@ class AccountService extends GetxService {
 
   void topUp({required int coinAmount, required int bonusAmount, required String price}) {
     coins.value += coinAmount;
-    transactions.insert(0, WalletTransaction(
-      id: _id(), kind: TxKind.topUp, title: 'Top up $coinAmount coins', coins: coinAmount, price: price,
-      date: DateTime.now(),
-    ));
+    transactions.insert(
+      0,
+      WalletTransaction(
+        id: _id(),
+        kind: TxKind.topUp,
+        title: 'Top up $coinAmount coins',
+        coins: coinAmount,
+        price: price,
+        date: DateTime.now(),
+      ),
+    );
     if (bonusAmount > 0) addBonus(bonusAmount, 'Top-up bonus', days: 30, save: false);
-    addGems(3, 'Top up', save: false);
+    addVouchers(3, 'Top up', save: false);
     _save();
   }
 
   void addBonus(int amount, String source, {int days = 3, bool save = true}) {
     final now = DateTime.now();
-    bonusRecords.insert(0, BonusRecord(
-      id: _id(), source: source, amount: amount, receivedAt: now, expiresAt: now.add(Duration(days: days)),
-    ));
+    bonusRecords.insert(
+      0,
+      BonusRecord(
+        id: _id(),
+        source: source,
+        amount: amount,
+        receivedAt: now,
+        expiresAt: now.add(Duration(days: days)),
+      ),
+    );
     _recomputeBonus();
     if (save) _save();
   }
 
-  void addGems(int amount, String source, {bool save = true}) {
-    gems.value += amount;
-    gemHistory.insert(0, GemRecord(source, amount, DateTime.now()));
+  void addVouchers(int amount, String source, {bool save = true}) {
+    vouchers.value += amount;
+    voucherHistory.insert(0, VoucherRecord(source, amount, DateTime.now()));
     if (save) _save();
   }
 
   void subscribe({required String plan, required String price, required int days}) {
     final base = isPlus ? plusUntil.value! : DateTime.now();
     plusUntil.value = base.add(Duration(days: days));
-    transactions.insert(0, WalletTransaction(
-      id: _id(), kind: TxKind.subscription, title: 'Bonovela Plus · $plan', coins: 0, price: price,
-      date: DateTime.now(),
-    ));
+    transactions.insert(
+      0,
+      WalletTransaction(
+        id: _id(),
+        kind: TxKind.subscription,
+        title: 'Bonovela Plus · $plan',
+        coins: 0,
+        price: price,
+        date: DateTime.now(),
+      ),
+    );
     _save();
   }
 
@@ -405,12 +442,12 @@ class AccountService extends GetxService {
   }
 
   /// Reading-time milestones: claim once a day when [minutes] is reached.
-  bool claimReading(int minutes, {required int bonusAmount, int gemAmount = 0}) {
+  bool claimReading(int minutes, {required int bonusAmount, int voucherAmount = 0}) {
     final key = 'read_$minutes';
     if (readingMinutesToday.value < minutes || taskCount(key) > 0) return false;
     dailyTasks[key] = 1;
     addBonus(bonusAmount, 'Read for $minutes minutes', save: false);
-    if (gemAmount > 0) addGems(gemAmount, 'Reading task', save: false);
+    if (voucherAmount > 0) addVouchers(voucherAmount, 'Reading task', save: false);
     _save();
     return true;
   }
@@ -428,6 +465,32 @@ class AccountService extends GetxService {
     addBonus(amount, 'Code $c', days: 7, save: false);
     _save();
     return amount;
+  }
+
+  // ── Voting & gifts ─────────────────────────────────────────────────────────
+  /// Spends [count] vouchers as votes for a book.
+  bool vote(String bookId, String title, int count) {
+    if (count <= 0 || vouchers.value < count) return false;
+    vouchers.value -= count;
+    voucherHistory.insert(0, VoucherRecord('Voted for $title', -count, DateTime.now()));
+    bookVotes[bookId] = (bookVotes[bookId] ?? 0) + count;
+    _save();
+    return true;
+  }
+
+  /// Sends a gift (paid in coins/bonus); the gift's votes go to the book.
+  bool sendGift({
+    required String bookId,
+    required String title,
+    required String gift,
+    required int price,
+    required int votes,
+  }) {
+    final ok = spend(price, title: '$gift for $title', kind: TxKind.gift, bookId: bookId);
+    if (!ok) return false;
+    bookVotes[bookId] = (bookVotes[bookId] ?? 0) + votes;
+    _save();
+    return true;
   }
 
   // ── Social ─────────────────────────────────────────────────────────────────

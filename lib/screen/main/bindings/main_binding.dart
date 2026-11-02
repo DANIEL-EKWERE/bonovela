@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import '../../discover/bindings/discover_binding.dart';
 import '../../library/bindings/library_binding.dart';
 import '../../profile/bindings/profile_binding.dart';
-import '../../rank/bindings/rank_binding.dart';
+import '../../drama/bindings/drama_binding.dart';
 import '../../short/bindings/short_binding.dart';
 import '../controller/main_controller.dart';
 
@@ -16,7 +16,7 @@ class MainBinding extends Bindings {
     LibraryBinding().dependencies();
     DiscoverBinding().dependencies();
     ShortBinding().dependencies();
-    RankBinding().dependencies();
+    DramaBinding().dependencies();
     ProfileBinding().dependencies();
   }
 }

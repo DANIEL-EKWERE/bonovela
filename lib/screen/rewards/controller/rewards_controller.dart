@@ -22,9 +22,8 @@ class RewardsController extends GetxController {
     if (got > 0) toast('Checked in · day ${streak.value}', '+$got bonus');
   }
 
-  int progress(RewardTask t) => t.repeat == TaskRepeat.once
-      ? (_account.oneTimeTasks.contains(t.key) ? 1 : 0)
-      : _account.taskCount(t.key);
+  int progress(RewardTask t) =>
+      t.repeat == TaskRepeat.once ? (_account.oneTimeTasks.contains(t.key) ? 1 : 0) : _account.taskCount(t.key);
 
   int max(RewardTask t) => t.repeat == TaskRepeat.once ? 1 : t.max;
 
@@ -45,9 +44,9 @@ class RewardsController extends GetxController {
   bool milestoneClaimed(ReadingMilestone m) => _account.taskCount('read_${m.minutes}') > 0;
 
   void claimReading(ReadingMilestone m) {
-    final ok = _account.claimReading(m.minutes, bonusAmount: m.bonus, gemAmount: m.gems);
+    final ok = _account.claimReading(m.minutes, bonusAmount: m.bonus, voucherAmount: m.vouchers);
     if (ok) {
-      toast('Reading reward', '+${m.bonus} bonus${m.gems > 0 ? ' · +${m.gems} gem' : ''}');
+      toast('Reading reward', '+${m.bonus} bonus${m.vouchers > 0 ? ' · +${m.vouchers} voucher' : ''}');
     } else {
       toast('Keep reading', '${m.minutes - readingMinutes.value} more minutes to go');
     }

@@ -5,6 +5,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/services/account_service.dart';
 import '../../widgets/auth_sheet.dart';
 import 'controller/auth_email_controller.dart';
+import '../../core/constants/app_icons.dart';
 
 class AuthEmailScreen extends GetView<AuthEmailController> {
   const AuthEmailScreen({super.key});
@@ -13,11 +14,13 @@ class AuthEmailScreen extends GetView<AuthEmailController> {
   Widget build(BuildContext context) {
     return AuthSheet(
       title: 'Sign in or sign up',
-      action: Obx(() => RoundActionButton(
-            icon: Icons.arrow_forward_rounded,
-            loading: controller.isChecking.value,
-            onTap: controller.isValid ? controller.next : null,
-          )),
+      action: Obx(
+        () => RoundActionButton(
+          icon: AppIcons.arrowRight,
+          loading: controller.isChecking.value,
+          onTap: controller.isValid ? controller.next : null,
+        ),
+      ),
       children: [
         const AuthLabel('Email address'),
         TextField(

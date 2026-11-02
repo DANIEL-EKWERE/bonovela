@@ -5,8 +5,11 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../widgets/common.dart';
+import '../tip/tip_sheet.dart';
 import 'controller/reader_controller.dart';
+import 'models/reader_settings.dart';
 import 'widgets/reader_sheets.dart';
+import '../../core/constants/app_icons.dart';
 
 class ReaderScreen extends GetView<ReaderController> {
   const ReaderScreen({super.key});
@@ -97,8 +100,12 @@ class _Body extends GetView<ReaderController> {
             const SizedBox(height: 8),
             Text(
               ch.title,
-              style: GoogleFonts.getFont(s.fontFamily,
-                  fontSize: s.fontSize + 6, fontWeight: FontWeight.w700, color: theme.text),
+              style: GoogleFonts.getFont(
+                s.fontFamily,
+                fontSize: s.fontSize + 6,
+                fontWeight: FontWeight.w700,
+                color: theme.text,
+              ),
             ),
             const SizedBox(height: 24),
             if (ch.isLocked)
@@ -123,10 +130,20 @@ class _ChapterEnd extends GetView<ReaderController> {
   @override
   Widget build(BuildContext context) {
     final theme = controller.settings.value.theme;
+    return Column(
+      children: [
+        _SupportRow(theme: theme),
+        const SizedBox(height: 20),
+        _endOrNext(theme),
+      ],
+    );
+  }
+
+  Widget _endOrNext(ReaderTheme theme) {
     if (!controller.hasNext) {
       return Column(
         children: [
-          Icon(Icons.auto_stories_rounded, color: theme.text.withValues(alpha: 0.4), size: 36),
+          Icon(AppIcons.shortFill, color: theme.text.withValues(alpha: 0.4), size: 36),
           const SizedBox(height: 8),
           Text(
             controller.book.value?.isCompleted == true
@@ -139,6 +156,42 @@ class _ChapterEnd extends GetView<ReaderController> {
       );
     }
     return GradientButton(label: 'Next Chapter', onTap: controller.next);
+  }
+}
+
+/// "Enjoying it?" — vote or send a gift, shown at the end of every chapter.
+class _SupportRow extends GetView<ReaderController> {
+  final ReaderTheme theme;
+
+  const _SupportRow({required this.theme});
+
+  @override
+  Widget build(BuildContext context) {
+    Widget action(IconData icon, String label, int tab) => Expanded(
+      child: OutlinedButton.icon(
+        onPressed: () => showTipSheet(context, controller.bookId, initialTab: tab),
+        icon: Icon(icon, size: 18, color: AppColors.primary),
+        label: Text(label, style: const TextStyle(color: AppColors.primary)),
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size.fromHeight(42),
+          side: BorderSide(color: AppColors.primary.withValues(alpha: 0.5)),
+          shape: const StadiumBorder(),
+        ),
+      ),
+    );
+
+    return Column(
+      children: [
+        Text(
+          'Enjoying the story? Support the author',
+          style: TextStyle(color: theme.text.withValues(alpha: 0.6), fontSize: 13),
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: [action(AppIcons.voucher, 'Vote', 0), const SizedBox(width: 12), action(AppIcons.gift, 'Gift', 1)],
+        ),
+      ],
+    );
   }
 }
 
@@ -160,7 +213,7 @@ class _LockedCard extends GetView<ReaderController> {
         ),
         child: Column(
           children: [
-            const Icon(Icons.lock_rounded, color: AppColors.primary, size: 36),
+            const Icon(AppIcons.lockFill, color: AppColors.primary, size: 36),
             const SizedBox(height: 10),
             Text(
               'Unlock this chapter to keep reading',
@@ -181,13 +234,12 @@ class _LockedCard extends GetView<ReaderController> {
             Row(
               children: [
                 Expanded(
-                  child: Text('Auto-unlock next chapters',
-                      style: TextStyle(color: s.theme.text.withValues(alpha: 0.7), fontSize: 13)),
+                  child: Text(
+                    'Auto-unlock next chapters',
+                    style: TextStyle(color: s.theme.text.withValues(alpha: 0.7), fontSize: 13),
+                  ),
                 ),
-                Switch(
-                  value: controller.autoUnlock,
-                  onChanged: controller.setAutoUnlock,
-                ),
+                Switch(value: controller.autoUnlock, onChanged: controller.setAutoUnlock),
               ],
             ),
           ],
@@ -197,19 +249,21 @@ class _LockedCard extends GetView<ReaderController> {
   }
 
   Widget _row(String label, String value, Color color) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 3),
-        child: Row(
-          children: [
-            Text(label, style: TextStyle(color: color.withValues(alpha: 0.6), fontSize: 13)),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(value,
-                  textAlign: TextAlign.end,
-                  style: TextStyle(color: color, fontSize: 13, fontWeight: FontWeight.w500)),
-            ),
-          ],
+    padding: const EdgeInsets.symmetric(vertical: 3),
+    child: Row(
+      children: [
+        Text(label, style: TextStyle(color: color.withValues(alpha: 0.6), fontSize: 13)),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            value,
+            textAlign: TextAlign.end,
+            style: TextStyle(color: color, fontSize: 13, fontWeight: FontWeight.w500),
+          ),
         ),
-      );
+      ],
+    ),
+  );
 }
 
 class _TopBar extends GetView<ReaderController> {
@@ -232,7 +286,7 @@ class _TopBar extends GetView<ReaderController> {
               children: [
                 IconButton(
                   onPressed: () => Navigator.of(context).maybePop(),
-                  icon: Icon(Icons.arrow_back_ios_new_rounded, color: theme.text, size: 20),
+                  icon: Icon(AppIcons.back, color: theme.text, size: 20),
                 ),
                 Expanded(
                   child: Text(
@@ -243,9 +297,14 @@ class _TopBar extends GetView<ReaderController> {
                   ),
                 ),
                 IconButton(
+                  tooltip: 'Tip this book',
+                  onPressed: () => showTipSheet(context, controller.bookId),
+                  icon: Icon(AppIcons.gift, color: theme.text),
+                ),
+                IconButton(
                   onPressed: controller.toggleShelf,
                   icon: Icon(
-                    controller.onShelf ? Icons.library_add_check_rounded : Icons.library_add_outlined,
+                    controller.onShelf ? AppIcons.libraryAdded : AppIcons.libraryAdd,
                     color: controller.onShelf ? AppColors.primary : theme.text,
                   ),
                 ),
@@ -268,18 +327,18 @@ class _BottomBar extends GetView<ReaderController> {
       final total = controller.chapters.length;
 
       Widget action(IconData icon, String label, VoidCallback onTap) => Expanded(
-            child: InkResponse(
-              onTap: onTap,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(icon, color: theme.text, size: 22),
-                  const SizedBox(height: 2),
-                  Text(label, style: TextStyle(color: theme.text.withValues(alpha: 0.7), fontSize: 11)),
-                ],
-              ),
-            ),
-          );
+        child: InkResponse(
+          onTap: onTap,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, color: theme.text, size: 22),
+              const SizedBox(height: 2),
+              Text(label, style: TextStyle(color: theme.text.withValues(alpha: 0.7), fontSize: 11)),
+            ],
+          ),
+        ),
+      );
 
       return AnimatedPositioned(
         duration: const Duration(milliseconds: 200),
@@ -296,8 +355,10 @@ class _BottomBar extends GetView<ReaderController> {
                 children: [
                   TextButton(
                     onPressed: controller.hasPrev ? controller.prev : null,
-                    child: Text('Prev',
-                        style: TextStyle(color: theme.text.withValues(alpha: controller.hasPrev ? 1 : 0.3))),
+                    child: Text(
+                      'Prev',
+                      style: TextStyle(color: theme.text.withValues(alpha: controller.hasPrev ? 1 : 0.3)),
+                    ),
                   ),
                   Expanded(
                     child: Column(
@@ -310,25 +371,29 @@ class _BottomBar extends GetView<ReaderController> {
                           borderRadius: BorderRadius.circular(2),
                         ),
                         const SizedBox(height: 4),
-                        Text('Chapter ${controller.number} of $total',
-                            style: TextStyle(color: theme.text.withValues(alpha: 0.6), fontSize: 11)),
+                        Text(
+                          'Chapter ${controller.number} of $total',
+                          style: TextStyle(color: theme.text.withValues(alpha: 0.6), fontSize: 11),
+                        ),
                       ],
                     ),
                   ),
                   TextButton(
                     onPressed: controller.hasNext ? controller.next : null,
-                    child: Text('Next',
-                        style: TextStyle(color: theme.text.withValues(alpha: controller.hasNext ? 1 : 0.3))),
+                    child: Text(
+                      'Next',
+                      style: TextStyle(color: theme.text.withValues(alpha: controller.hasNext ? 1 : 0.3)),
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 6),
               Row(
                 children: [
-                  action(Icons.format_list_bulleted_rounded, 'Contents', () => showReaderContents(context)),
-                  action(Icons.text_fields_rounded, 'Settings', () => showReaderSettings(context)),
+                  action(AppIcons.list, 'Contents', () => showReaderContents(context)),
+                  action(AppIcons.textSettings, 'Settings', () => showReaderSettings(context)),
                   action(
-                    theme.isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+                    theme.isDark ? AppIcons.sun : AppIcons.moon,
                     theme.isDark ? 'Day' : 'Night',
                     controller.toggleNight,
                   ),

@@ -49,6 +49,8 @@ class DiscoverController extends GetxController with GetSingleTickerProviderStat
 
   void openRewards() => Get.toNamed(AppRoutes.rewards);
 
+  void openRanking() => Get.toNamed(AppRoutes.rank);
+
   /// Each tab's feed is assembled from plain book lists.
   Future<List<FeedSection>> _buildFeed(String tab) async {
     switch (tab) {
@@ -58,7 +60,11 @@ class DiscoverController extends GetxController with GetSingleTickerProviderStat
         final fresh = [...all]..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
         return [
           FeedSection(title: 'Top Picks', layout: FeedLayout.rankedColumns, books: popular.take(9).toList()),
-          FeedSection(title: 'Readers Love These', layout: FeedLayout.coverRow, books: _shuffle(all, 1).take(8).toList()),
+          FeedSection(
+            title: 'Readers Love These',
+            layout: FeedLayout.coverRow,
+            books: _shuffle(all, 1).take(8).toList(),
+          ),
           FeedSection(title: 'Just Updated', layout: FeedLayout.detailList, books: fresh.take(6).toList()),
         ];
       case 'New':
@@ -71,12 +77,13 @@ class DiscoverController extends GetxController with GetSingleTickerProviderStat
         ];
       default:
         final books = await _repo.getBooks(genre: tab);
-        final popular = [...books]..sort((a, b) => b.views.compareTo(a.views));
+        final fresh = [...books]..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+        final editors = [...books]..sort((a, b) => b.rating.compareTo(a.rating));
         final completed = books.where((b) => b.isCompleted).toList();
         return [
-          FeedSection(title: 'Most Read', layout: FeedLayout.compactGrid, books: popular.take(6).toList()),
-          if (completed.isNotEmpty)
-            FeedSection(title: 'Completed', layout: FeedLayout.coverRow, books: completed),
+          FeedSection(title: 'New Arrival', layout: FeedLayout.compactGrid, books: fresh.take(6).toList()),
+          FeedSection(title: "Editor's Pick", layout: FeedLayout.hero, books: editors),
+          if (completed.isNotEmpty) FeedSection(title: 'Completed', layout: FeedLayout.coverRow, books: completed),
           FeedSection(title: 'Picks for You', layout: FeedLayout.ratedList, books: _shuffle(books, 4)),
         ];
     }

@@ -6,6 +6,7 @@ import '../../widgets/book_tiles.dart';
 import '../../widgets/common.dart';
 import '../../widgets/ui_kit.dart';
 import 'controller/categories_controller.dart';
+import '../../core/constants/app_icons.dart';
 
 class CategoriesScreen extends GetView<CategoriesController> {
   const CategoriesScreen({super.key});
@@ -42,7 +43,7 @@ class CategoriesScreen extends GetView<CategoriesController> {
             if (results.isEmpty)
               const SliverFillRemaining(
                 hasScrollBody: false,
-                child: EmptyState(icon: Icons.filter_alt_off_rounded, message: 'No stories match these filters.'),
+                child: EmptyState(icon: AppIcons.filterOff, message: 'No stories match these filters.'),
               )
             else
               SliverList.builder(

@@ -39,10 +39,7 @@ class OnlineServiceController extends GetxController {
     final text = inputController.text.trim();
     if (text.isEmpty) return;
     inputController.clear();
-    _exchange(
-      text,
-      'Thanks! Your message has been received. A member of our team will reply here within 72 hours.',
-    );
+    _exchange(text, 'Thanks! Your message has been received. A member of our team will reply here within 72 hours.');
   }
 
   Future<void> _exchange(String question, String answer) async {
@@ -56,14 +53,14 @@ class OnlineServiceController extends GetxController {
   }
 
   void _scrollDown() => WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (scrollController.hasClients) {
-          scrollController.animateTo(
-            scrollController.position.maxScrollExtent,
-            duration: const Duration(milliseconds: 250),
-            curve: Curves.easeOut,
-          );
-        }
-      });
+    if (scrollController.hasClients) {
+      scrollController.animateTo(
+        scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+      );
+    }
+  });
 
   void clearHistory() => _reset();
 }

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../core/constants/app_colors.dart';
 import '../../widgets/ui_kit.dart';
 import 'controller/edit_profile_controller.dart';
+import '../../core/constants/app_icons.dart';
 
 class EditProfileScreen extends GetView<EditProfileController> {
   const EditProfileScreen({super.key});
@@ -11,15 +12,18 @@ class EditProfileScreen extends GetView<EditProfileController> {
   @override
   Widget build(BuildContext context) {
     Widget label(String text) => Padding(
-          padding: const EdgeInsets.only(top: 20, bottom: 8),
-          child: Text(text, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-        );
+      padding: const EdgeInsets.only(top: 20, bottom: 8),
+      child: Text(text, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+    );
 
     return SubPage(
       title: 'Edit Profile',
       background: Colors.white,
       actions: [
-        IconButton(onPressed: controller.save, icon: const Icon(Icons.check_rounded, color: AppColors.primary)),
+        IconButton(
+          onPressed: controller.save,
+          icon: const Icon(AppIcons.check, color: AppColors.primary),
+        ),
       ],
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
@@ -31,17 +35,22 @@ class EditProfileScreen extends GetView<EditProfileController> {
                 CircleAvatar(
                   radius: 36,
                   backgroundColor: AppColors.plum,
-                  child: Text(controller.user.initial,
-                      style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w600)),
+                  child: Text(
+                    controller.user.initial,
+                    style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w600),
+                  ),
                 ),
                 const Spacer(),
                 const Text('Upload Picture', style: TextStyle(fontSize: 15)),
-                const Icon(Icons.chevron_right_rounded, color: AppColors.textHint),
+                const Icon(AppIcons.chevronRight, color: AppColors.textHint),
               ],
             ),
           ),
           label('Name'),
-          TextField(controller: controller.name, decoration: const InputDecoration(hintText: 'Your name')),
+          TextField(
+            controller: controller.name,
+            decoration: const InputDecoration(hintText: 'Your name'),
+          ),
           label('Pen name'),
           TextField(
             controller: controller.penName,

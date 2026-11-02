@@ -6,6 +6,7 @@ import '../../core/utils/formatters.dart';
 import '../../widgets/common.dart';
 import 'controller/subscription_controller.dart';
 import 'models/plan.dart';
+import '../../core/constants/app_icons.dart';
 
 class SubscriptionScreen extends GetView<SubscriptionController> {
   const SubscriptionScreen({super.key});
@@ -18,7 +19,7 @@ class SubscriptionScreen extends GetView<SubscriptionController> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
-        leading: IconButton(onPressed: Get.back, icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20)),
+        leading: IconButton(onPressed: Get.back, icon: const Icon(AppIcons.back, size: 20)),
       ),
       body: ListView(
         padding: EdgeInsets.zero,
@@ -46,13 +47,15 @@ class SubscriptionScreen extends GetView<SubscriptionController> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Obx(() => GradientButton(
-                    label: controller.isPlus
-                        ? 'Extend · ${controller.selected.value.price}'
-                        : 'Subscribe · ${controller.selected.value.price}',
-                    loading: controller.isPaying.value,
-                    onTap: controller.subscribe,
-                  )),
+              Obx(
+                () => GradientButton(
+                  label: controller.isPlus
+                      ? 'Extend · ${controller.selected.value.price}'
+                      : 'Subscribe · ${controller.selected.value.price}',
+                  loading: controller.isPaying.value,
+                  onTap: controller.subscribe,
+                ),
+              ),
               TextButton(
                 onPressed: controller.restore,
                 child: const Text('Restore purchases', style: TextStyle(color: AppColors.textSecondary)),
@@ -86,12 +89,15 @@ class _Header extends GetView<SubscriptionController> {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Bonovela Plus',
-                      style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w800)),
-                  const Text('Unlimited reading of all short stories',
-                      style: TextStyle(color: AppColors.blushDeep)),
-                  const Text('Novel chapters are unlocked with coins.',
-                      style: TextStyle(color: Colors.white54, fontSize: 12)),
+                  const Text(
+                    'Bonovela Plus',
+                    style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w800),
+                  ),
+                  const Text('Unlimited reading of all short stories', style: TextStyle(color: AppColors.blushDeep)),
+                  const Text(
+                    'Novel chapters are unlocked with coins.',
+                    style: TextStyle(color: Colors.white54, fontSize: 12),
+                  ),
                   const SizedBox(height: 14),
                   if (user != null)
                     Row(
@@ -123,7 +129,6 @@ class _Header extends GetView<SubscriptionController> {
               );
             }),
           ),
-          const Icon(Icons.diamond_rounded, color: AppColors.blushDeep, size: 72),
         ],
       ),
     );
@@ -173,23 +178,29 @@ class _PlanCard extends GetView<SubscriptionController> {
                   color: AppColors.primary,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
                 ),
-                child: Text(plan.badge!,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12)),
+                child: Text(
+                  plan.badge!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12),
+                ),
               ),
             Padding(
               padding: EdgeInsets.fromLTRB(6, featured ? 12 : 16, 6, 12),
               child: Column(
                 children: [
-                  Text(plan.name,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontWeight: featured ? FontWeight.w700 : FontWeight.w500, fontSize: 13)),
+                  Text(
+                    plan.name,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontWeight: featured ? FontWeight.w700 : FontWeight.w500, fontSize: 13),
+                  ),
                   const SizedBox(height: 8),
                   Text.rich(
-                    TextSpan(children: [
-                      TextSpan(text: plan.price),
-                      TextSpan(text: plan.period, style: const TextStyle(fontSize: 11)),
-                    ]),
+                    TextSpan(
+                      children: [
+                        TextSpan(text: plan.price),
+                        TextSpan(text: plan.period, style: const TextStyle(fontSize: 11)),
+                      ],
+                    ),
                     style: TextStyle(
                       color: AppColors.primary,
                       fontWeight: FontWeight.w700,
@@ -197,13 +208,20 @@ class _PlanCard extends GetView<SubscriptionController> {
                     ),
                   ),
                   if (plan.oldPrice != null)
-                    Text(plan.oldPrice!,
-                        style: const TextStyle(
-                            fontSize: 11, color: AppColors.textHint, decoration: TextDecoration.lineThrough)),
+                    Text(
+                      plan.oldPrice!,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: AppColors.textHint,
+                        decoration: TextDecoration.lineThrough,
+                      ),
+                    ),
                   const SizedBox(height: 8),
-                  Text(plan.billing,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 10, color: AppColors.textSecondary)),
+                  Text(
+                    plan.billing,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
+                  ),
                 ],
               ),
             ),
@@ -218,9 +236,9 @@ class _Benefits extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const items = [
-      (Icons.auto_stories_rounded, 'All Short Stories Free'),
-      (Icons.block_rounded, 'No Ads in Short Stories'),
-      (Icons.event_available_rounded, 'Cancel Anytime'),
+      (AppIcons.shortFill, 'All Short Stories Free'),
+      (AppIcons.block, 'No Ads in Short Stories'),
+      (AppIcons.calendarCheck, 'Cancel Anytime'),
     ];
     return Column(
       children: [

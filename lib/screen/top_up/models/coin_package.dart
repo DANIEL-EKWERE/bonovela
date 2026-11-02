@@ -2,30 +2,21 @@ class CoinPackage {
   final String id;
   final int coins;
   final int bonus;
-  final int priceNaira;
-  final String? tag; // "Popular", "Best value"
 
-  const CoinPackage({
-    required this.id,
-    required this.coins,
-    required this.bonus,
-    required this.priceNaira,
-    this.tag,
-  });
+  /// Price in US cents, to avoid floating-point money.
+  final int priceCents;
+  final String? tag; // e.g. "Limited-Time Offer"
 
-  String get price => '₦${_thousands(priceNaira)}';
+  const CoinPackage({required this.id, required this.coins, required this.bonus, required this.priceCents, this.tag});
 
-  static String _thousands(int n) => n.toString().replaceAllMapped(
-        RegExp(r'\B(?=(\d{3})+(?!\d))'),
-        (_) => ',',
-      );
+  String get price => '\$${(priceCents ~/ 100)}.${(priceCents % 100).toString().padLeft(2, '0')}';
 
   static const all = [
-    CoinPackage(id: 'c100', coins: 100, bonus: 0, priceNaira: 800),
-    CoinPackage(id: 'c300', coins: 300, bonus: 30, priceNaira: 2300),
-    CoinPackage(id: 'c500', coins: 500, bonus: 75, priceNaira: 3800, tag: 'Popular'),
-    CoinPackage(id: 'c1000', coins: 1000, bonus: 200, priceNaira: 7500),
-    CoinPackage(id: 'c2000', coins: 2000, bonus: 500, priceNaira: 14500, tag: 'Best value'),
-    CoinPackage(id: 'c5000', coins: 5000, bonus: 1500, priceNaira: 35000),
+    CoinPackage(id: 'c50', coins: 50, bonus: 200, priceCents: 55, tag: 'Limited-Time Offer'),
+    CoinPackage(id: 'c100', coins: 100, bonus: 0, priceCents: 105),
+    CoinPackage(id: 'c500', coins: 500, bonus: 50, priceCents: 525),
+    CoinPackage(id: 'c1000', coins: 1000, bonus: 200, priceCents: 1050),
+    CoinPackage(id: 'c2000', coins: 2000, bonus: 600, priceCents: 2100),
+    CoinPackage(id: 'c5000', coins: 5000, bonus: 2000, priceCents: 5250),
   ];
 }

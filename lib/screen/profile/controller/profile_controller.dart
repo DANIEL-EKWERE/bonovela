@@ -12,7 +12,7 @@ class ProfileController extends GetxController {
   Rxn<UserModel> get user => _account.user;
   RxInt get coins => _account.coins;
   RxInt get bonus => _account.bonus;
-  RxInt get gems => _account.gems;
+  RxInt get vouchers => _account.vouchers;
   RxSet<String> get following => _account.following;
   bool get isPlus => _account.isPlus;
   int get unread => _account.unreadCount;

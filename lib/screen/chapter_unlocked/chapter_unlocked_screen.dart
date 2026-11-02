@@ -8,6 +8,7 @@ import '../../widgets/book_cover.dart';
 import '../../widgets/common.dart';
 import '../../widgets/ui_kit.dart';
 import 'controller/chapter_unlocked_controller.dart';
+import '../../core/constants/app_icons.dart';
 
 class ChapterUnlockedScreen extends GetView<ChapterUnlockedController> {
   const ChapterUnlockedScreen({super.key});
@@ -22,7 +23,7 @@ class ChapterUnlockedScreen extends GetView<ChapterUnlockedController> {
         final books = controller.books;
         if (books.isEmpty) {
           return const EmptyState(
-            icon: Icons.lock_open_rounded,
+            icon: AppIcons.lockOpen,
             message: 'Chapters you unlock with coins or bonus will be listed here.',
           );
         }
@@ -52,8 +53,7 @@ class ChapterUnlockedScreen extends GetView<ChapterUnlockedController> {
                             style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
                           ),
                           const SizedBox(height: 4),
-                          Text(Fmt.date(u.lastUnlock),
-                              style: const TextStyle(fontSize: 12, color: AppColors.textHint)),
+                          Text(Fmt.date(u.lastUnlock), style: const TextStyle(fontSize: 12, color: AppColors.textHint)),
                         ],
                       ),
                     ),

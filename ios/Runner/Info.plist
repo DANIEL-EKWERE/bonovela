@@ -45,5 +45,7 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Bonovela uses your photos so you can choose a cover for the stories you write.</string>
 </dict>
 </plist>

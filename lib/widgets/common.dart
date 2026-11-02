@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/constants/app_colors.dart';
+import '../core/constants/app_icons.dart';
 
 /// Pink pill button used for READ, TOP UP, Continue, etc.
 class GradientButton extends StatelessWidget {
@@ -37,11 +38,7 @@ class GradientButton extends StatelessWidget {
             gradient: AppColors.buttonGradient,
             borderRadius: BorderRadius.circular(height / 2),
             boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.25),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
+              BoxShadow(color: AppColors.primary.withValues(alpha: 0.25), blurRadius: 12, offset: const Offset(0, 4)),
             ],
           ),
           child: loading
@@ -85,18 +82,12 @@ class SectionHeader extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: Text(
-              title,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-            ),
+            child: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
           ),
           if (onMore != null)
             GestureDetector(
               onTap: onMore,
-              child: const Text(
-                'More',
-                style: TextStyle(color: AppColors.primary, fontSize: 13),
-              ),
+              child: const Text('More', style: TextStyle(color: AppColors.primary, fontSize: 13)),
             ),
         ],
       ),
@@ -132,14 +123,8 @@ class TagChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-      ),
+      decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(4)),
+      child: Text(label, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
     );
   }
 }
@@ -160,10 +145,10 @@ class RatingStars extends StatelessWidget {
         for (var i = 0; i < 5; i++)
           Icon(
             stars >= i + 1
-                ? Icons.star_rounded
+                ? AppIcons.starFill
                 : stars > i
-                    ? Icons.star_half_rounded
-                    : Icons.star_outline_rounded,
+                ? AppIcons.starHalf
+                : AppIcons.star,
             size: size,
             color: AppColors.star,
           ),
@@ -190,13 +175,10 @@ class SearchBarButton extends StatelessWidget {
       child: Container(
         height: 40,
         padding: const EdgeInsets.symmetric(horizontal: 14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-        ),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
         child: const Row(
           children: [
-            Icon(Icons.search_rounded, color: AppColors.textHint, size: 20),
+            Icon(AppIcons.search, color: AppColors.textHint, size: 20),
             SizedBox(width: 8),
             Text('Search...', style: TextStyle(color: AppColors.textHint)),
           ],
@@ -212,13 +194,7 @@ class EmptyState extends StatelessWidget {
   final String? actionLabel;
   final VoidCallback? onAction;
 
-  const EmptyState({
-    super.key,
-    required this.icon,
-    required this.message,
-    this.actionLabel,
-    this.onAction,
-  });
+  const EmptyState({super.key, required this.icon, required this.message, this.actionLabel, this.onAction});
 
   @override
   Widget build(BuildContext context) {
@@ -250,9 +226,8 @@ class LoadingView extends StatelessWidget {
   const LoadingView({super.key});
 
   @override
-  Widget build(BuildContext context) => const Center(
-        child: CircularProgressIndicator(color: AppColors.primary, strokeWidth: 2.5),
-      );
+  Widget build(BuildContext context) =>
+      const Center(child: CircularProgressIndicator(color: AppColors.primary, strokeWidth: 2.5));
 }
 
 /// Blush gradient that sits behind the top of a tab screen.

@@ -20,7 +20,14 @@ class SubscriptionPlan {
   });
 
   static const all = [
-    SubscriptionPlan(id: 'month', name: 'Monthly', price: '₦3,500', period: '/month', billing: 'Billed monthly', days: 30),
+    SubscriptionPlan(
+      id: 'month',
+      name: 'Monthly',
+      price: '₦3,500',
+      period: '/month',
+      billing: 'Billed monthly',
+      days: 30,
+    ),
     SubscriptionPlan(
       id: 'week',
       name: 'Limited-Time Offer',
@@ -31,6 +38,13 @@ class SubscriptionPlan {
       days: 7,
       badge: '70% OFF',
     ),
-    SubscriptionPlan(id: 'year', name: 'Yearly', price: '₦35,200', period: '/year', billing: 'Billed yearly', days: 365),
+    SubscriptionPlan(
+      id: 'year',
+      name: 'Yearly',
+      price: '₦35,200',
+      period: '/year',
+      billing: 'Billed yearly',
+      days: 365,
+    ),
   ];
 }

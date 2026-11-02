@@ -7,6 +7,5 @@ class TransactionHistoryController extends GetxController {
   final _account = Get.find<AccountService>();
 
   /// Purchases and coin grants — everything that added coins.
-  List<WalletTransaction> get items =>
-      _account.transactions.where((t) => !t.isExpense).toList();
+  List<WalletTransaction> get items => _account.transactions.where((t) => !t.isExpense).toList();
 }

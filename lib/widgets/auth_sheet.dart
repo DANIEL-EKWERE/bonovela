@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../core/constants/app_colors.dart';
+import '../core/constants/app_icons.dart';
 
 /// Layout shared by the email / password steps: a blush strip at the top
 /// and a white rounded sheet with a close button.
@@ -44,7 +45,7 @@ class AuthSheet extends StatelessWidget {
                     padding: EdgeInsets.zero,
                     alignment: Alignment.centerLeft,
                     onPressed: Get.back,
-                    icon: const Icon(Icons.close_rounded, size: 28),
+                    icon: const Icon(AppIcons.close, size: 28),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -73,9 +74,9 @@ class AuthLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(bottom: 8),
-        child: Text(text, style: const TextStyle(fontSize: 16, color: AppColors.textSecondary)),
-      );
+    padding: const EdgeInsets.only(bottom: 8),
+    child: Text(text, style: const TextStyle(fontSize: 16, color: AppColors.textSecondary)),
+  );
 }
 
 /// Round gradient button with an icon (→ or ✓).
@@ -99,7 +100,9 @@ class RoundActionButton extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             gradient: AppColors.buttonGradient,
-            boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 4))],
+            boxShadow: [
+              BoxShadow(color: AppColors.primary.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 4)),
+            ],
           ),
           child: loading
               ? const Padding(
@@ -132,20 +135,21 @@ class PasswordField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() => TextField(
-          controller: controller,
-          obscureText: obscure.value,
-          onChanged: onChanged,
-          onSubmitted: onSubmitted,
-          decoration: InputDecoration(
-            hintText: hint,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
-            suffixIcon: IconButton(
-              onPressed: obscure.toggle,
-              icon: Icon(obscure.value ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                  color: AppColors.textHint),
-            ),
+    return Obx(
+      () => TextField(
+        controller: controller,
+        obscureText: obscure.value,
+        onChanged: onChanged,
+        onSubmitted: onSubmitted,
+        decoration: InputDecoration(
+          hintText: hint,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+          suffixIcon: IconButton(
+            onPressed: obscure.toggle,
+            icon: Icon(obscure.value ? AppIcons.eyeOff : AppIcons.eye, color: AppColors.textHint),
           ),
-        ));
+        ),
+      ),
+    );
   }
 }

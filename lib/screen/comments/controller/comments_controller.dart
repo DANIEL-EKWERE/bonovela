@@ -30,9 +30,9 @@ class CommentsController extends GetxController {
 
   /// Your reviews first, then the sample ones.
   List<CommentModel> get comments => [
-        ..._account.myComments.where((c) => c.bookId == book.id),
-        ...MockData.commentsFor(book),
-      ];
+    ..._account.myComments.where((c) => c.bookId == book.id),
+    ...MockData.commentsFor(book),
+  ];
 
   double get average {
     final list = comments;
@@ -49,15 +49,17 @@ class CommentsController extends GetxController {
     }
     final text = textController.text.trim();
     if (text.isEmpty) return toast('Write something first');
-    _account.addComment(CommentModel(
-      id: DateTime.now().microsecondsSinceEpoch.toString(),
-      bookId: book.id,
-      userName: user.name,
-      stars: stars.value,
-      text: text,
-      date: DateTime.now(),
-      isMine: true,
-    ));
+    _account.addComment(
+      CommentModel(
+        id: DateTime.now().microsecondsSinceEpoch.toString(),
+        bookId: book.id,
+        userName: user.name,
+        stars: stars.value,
+        text: text,
+        date: DateTime.now(),
+        isMine: true,
+      ),
+    );
     textController.clear();
     FocusManager.instance.primaryFocus?.unfocus();
     toast('Review posted');

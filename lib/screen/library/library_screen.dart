@@ -9,6 +9,7 @@ import '../../widgets/book_tiles.dart' as tiles;
 import '../../widgets/common.dart';
 import '../main/controller/main_controller.dart';
 import 'controller/library_controller.dart';
+import '../../core/constants/app_icons.dart';
 
 class LibraryScreen extends GetView<LibraryController> {
   const LibraryScreen({super.key});
@@ -31,8 +32,7 @@ class LibraryScreen extends GetView<LibraryController> {
                     onRefresh: controller.reload,
                     child: CustomScrollView(
                       slivers: [
-                        if (controller.banner.isNotEmpty)
-                          SliverToBoxAdapter(child: _Banner()),
+                        if (controller.banner.isNotEmpty) SliverToBoxAdapter(child: _Banner()),
                         if (controller.tabIndex.value == 0) SliverToBoxAdapter(child: _FilterBar()),
                         controller.tabIndex.value == 0 ? _ShelfGrid() : _ViewedList(),
                       ],
@@ -52,36 +52,36 @@ class _Header extends GetView<LibraryController> {
   @override
   Widget build(BuildContext context) {
     Widget tab(String label, int index) => GestureDetector(
-          onTap: () => controller.tabIndex.value = index,
-          child: Obx(() {
-            final active = controller.tabIndex.value == index;
-            return Padding(
-              padding: const EdgeInsets.only(right: 24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    label,
-                    style: TextStyle(
-                      fontSize: active ? 19 : 17,
-                      fontWeight: active ? FontWeight.w700 : FontWeight.w400,
-                      color: active ? AppColors.textPrimary : AppColors.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Container(
-                    width: 18,
-                    height: 3,
-                    decoration: BoxDecoration(
-                      color: active ? AppColors.primary : Colors.transparent,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ],
+      onTap: () => controller.tabIndex.value = index,
+      child: Obx(() {
+        final active = controller.tabIndex.value == index;
+        return Padding(
+          padding: const EdgeInsets.only(right: 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: active ? 19 : 17,
+                  fontWeight: active ? FontWeight.w700 : FontWeight.w400,
+                  color: active ? AppColors.textPrimary : AppColors.textSecondary,
+                ),
               ),
-            );
-          }),
+              const SizedBox(height: 4),
+              Container(
+                width: 18,
+                height: 3,
+                decoration: BoxDecoration(
+                  color: active ? AppColors.primary : Colors.transparent,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ],
+          ),
         );
+      }),
+    );
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 10, 8, 6),
@@ -92,14 +92,16 @@ class _Header extends GetView<LibraryController> {
           const Spacer(),
           IconButton(
             onPressed: controller.openRewards,
-            icon: const Icon(Icons.card_giftcard_rounded, color: AppColors.primary),
+            icon: const Icon(AppIcons.gift, color: AppColors.primary),
           ),
-          Obx(() => controller.tabIndex.value == 1 && controller.viewedBooks.isNotEmpty
-              ? TextButton(
-                  onPressed: controller.clearHistory,
-                  child: const Text('Clear', style: TextStyle(color: AppColors.textSecondary)),
-                )
-              : const SizedBox.shrink()),
+          Obx(
+            () => controller.tabIndex.value == 1 && controller.viewedBooks.isNotEmpty
+                ? TextButton(
+                    onPressed: controller.clearHistory,
+                    child: const Text('Clear', style: TextStyle(color: AppColors.textSecondary)),
+                  )
+                : const SizedBox.shrink(),
+          ),
         ],
       ),
     );
@@ -113,10 +115,7 @@ class _Banner extends GetView<LibraryController> {
     return Container(
       margin: const EdgeInsets.fromLTRB(12, 4, 12, 10),
       height: 104,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
       child: Column(
         children: [
           Expanded(
@@ -161,22 +160,24 @@ class _Banner extends GetView<LibraryController> {
               },
             ),
           ),
-          Obx(() => Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  for (var i = 0; i < controller.banner.length; i++)
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 6),
-                      width: i == controller.bannerIndex.value ? 14 : 4,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: i == controller.bannerIndex.value ? AppColors.plum : AppColors.divider,
-                        borderRadius: BorderRadius.circular(2),
-                      ),
+          Obx(
+            () => Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                for (var i = 0; i < controller.banner.length; i++)
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 6),
+                    width: i == controller.bannerIndex.value ? 14 : 4,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: i == controller.bannerIndex.value ? AppColors.plum : AppColors.divider,
+                      borderRadius: BorderRadius.circular(2),
                     ),
-                ],
-              )),
+                  ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -225,11 +226,14 @@ class _FilterBar extends GetView<LibraryController> {
                 decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(17)),
                 child: const Row(
                   children: [
-                    Icon(Icons.search_rounded, size: 18, color: AppColors.textHint),
+                    Icon(AppIcons.search, size: 18, color: AppColors.textHint),
                     SizedBox(width: 4),
                     Flexible(
-                      child: Text('Search...',
-                          overflow: TextOverflow.ellipsis, style: TextStyle(color: AppColors.textHint, fontSize: 13)),
+                      child: Text(
+                        'Search...',
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(color: AppColors.textHint, fontSize: 13),
+                      ),
                     ),
                   ],
                 ),
@@ -246,46 +250,48 @@ class _ShelfGrid extends GetView<LibraryController> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-    final books = controller.filteredShelf;
-    if (books.isEmpty && controller.shelfBooks.isNotEmpty) {
-      return SliverFillRemaining(
-        hasScrollBody: false,
-        child: EmptyState(
-          icon: Icons.filter_alt_off_rounded,
-          message: 'No ${controller.filter.value.toLowerCase()} on your shelf yet.',
+      final books = controller.filteredShelf;
+      if (books.isEmpty && controller.shelfBooks.isNotEmpty) {
+        return SliverFillRemaining(
+          hasScrollBody: false,
+          child: EmptyState(
+            icon: AppIcons.filterOff,
+            message: 'No ${controller.filter.value.toLowerCase()} on your shelf yet.',
+          ),
+        );
+      }
+      if (books.isEmpty) {
+        return SliverFillRemaining(
+          hasScrollBody: false,
+          child: EmptyState(
+            icon: AppIcons.book,
+            message: controller.shelfBooks.isEmpty
+                ? 'Your shelf is empty.\nAdd stories you love and they\'ll show up here.'
+                : 'No ${controller.filter.value.toLowerCase()} on your shelf yet.',
+            actionLabel: 'Discover stories',
+            onAction: () => Get.find<MainController>().changeTab(1),
+          ),
+        );
+      }
+      return SliverPadding(
+        padding: const EdgeInsets.fromLTRB(12, 0, 12, 24),
+        sliver: SliverToBoxAdapter(
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+            child: LayoutBuilder(
+              builder: (context, c) {
+                final width = (c.maxWidth - 2 * 14) / 3;
+                return Wrap(
+                  spacing: 14,
+                  runSpacing: 16,
+                  children: [for (final b in books) _ShelfTile(book: b, width: width)],
+                );
+              },
+            ),
+          ),
         ),
       );
-    }
-    if (books.isEmpty) {
-      return SliverFillRemaining(
-        hasScrollBody: false,
-        child: EmptyState(
-          icon: Icons.menu_book_rounded,
-          message: controller.shelfBooks.isEmpty
-              ? 'Your shelf is empty.\nAdd stories you love and they\'ll show up here.'
-              : 'No ${controller.filter.value.toLowerCase()} on your shelf yet.',
-          actionLabel: 'Discover stories',
-          onAction: () => Get.find<MainController>().changeTab(1),
-        ),
-      );
-    }
-    return SliverPadding(
-      padding: const EdgeInsets.fromLTRB(12, 0, 12, 24),
-      sliver: SliverToBoxAdapter(
-        child: Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
-          child: LayoutBuilder(builder: (context, c) {
-            final width = (c.maxWidth - 2 * 14) / 3;
-            return Wrap(
-              spacing: 14,
-              runSpacing: 16,
-              children: [for (final b in books) _ShelfTile(book: b, width: width)],
-            );
-          }),
-        ),
-      ),
-    );
     });
   }
 }
@@ -340,7 +346,7 @@ class _ShelfTile extends GetView<LibraryController> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.info_outline_rounded),
+              leading: const Icon(AppIcons.info),
               title: const Text('Book details'),
               onTap: () {
                 Get.back();
@@ -348,7 +354,7 @@ class _ShelfTile extends GetView<LibraryController> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.delete_outline_rounded, color: AppColors.error),
+              leading: const Icon(AppIcons.delete, color: AppColors.error),
               title: const Text('Remove from library', style: TextStyle(color: AppColors.error)),
               onTap: () {
                 Get.back();
@@ -366,52 +372,55 @@ class _ViewedList extends GetView<LibraryController> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-    final books = controller.viewedBooks;
-    if (books.isEmpty) {
-      return const SliverFillRemaining(
-        hasScrollBody: false,
-        child: EmptyState(icon: Icons.history_rounded, message: 'Books you open will appear here.'),
-      );
-    }
-    return SliverList.builder(
-      itemCount: books.length,
-      itemBuilder: (_, i) {
-        final book = books[i];
-        final chapter = controller.lastChapter(book.id) ?? 1;
-        final readAt = controller.lastReadAt(book.id);
-        return InkWell(
-          onTap: () => controller.openBook(book),
-          child: Container(
-            color: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            child: Row(
-              children: [
-                BookCover(book: book, width: 56),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(book.title,
+      final books = controller.viewedBooks;
+      if (books.isEmpty) {
+        return const SliverFillRemaining(
+          hasScrollBody: false,
+          child: EmptyState(icon: AppIcons.history, message: 'Books you open will appear here.'),
+        );
+      }
+      return SliverList.builder(
+        itemCount: books.length,
+        itemBuilder: (_, i) {
+          final book = books[i];
+          final chapter = controller.lastChapter(book.id) ?? 1;
+          final readAt = controller.lastReadAt(book.id);
+          return InkWell(
+            onTap: () => controller.openBook(book),
+            child: Container(
+              color: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              child: Row(
+                children: [
+                  BookCover(book: book, width: 56),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          book.title,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontWeight: FontWeight.w600)),
-                      const SizedBox(height: 4),
-                      Text('Read to Chapter $chapter / ${book.chapterCount}',
-                          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-                      if (readAt != null)
-                        Text(Fmt.ago(readAt),
-                            style: const TextStyle(fontSize: 11, color: AppColors.textHint)),
-                    ],
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Read to Chapter $chapter / ${book.chapterCount}',
+                          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                        ),
+                        if (readAt != null)
+                          Text(Fmt.ago(readAt), style: const TextStyle(fontSize: 11, color: AppColors.textHint)),
+                      ],
+                    ),
                   ),
-                ),
-                const Icon(Icons.chevron_right_rounded, color: AppColors.textHint),
-              ],
+                  const Icon(AppIcons.chevronRight, color: AppColors.textHint),
+                ],
+              ),
             ),
-          ),
-        );
-      },
-    );
+          );
+        },
+      );
     });
   }
 }

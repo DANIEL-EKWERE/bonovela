@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../core/constants/app_colors.dart';
 import 'controller/onboarding_controller.dart';
+import '../../core/constants/app_icons.dart';
 
 class OnboardingScreen extends GetView<OnboardingController> {
   const OnboardingScreen({super.key});
@@ -29,27 +30,31 @@ class OnboardingScreen extends GetView<OnboardingController> {
                   child: TextButton.icon(
                     onPressed: controller.skip,
                     iconAlignment: IconAlignment.end,
-                    icon: const Icon(Icons.chevron_right_rounded, color: AppColors.textPrimary),
+                    icon: const Icon(AppIcons.chevronRight, color: AppColors.textPrimary),
                     label: const Text('Skip', style: TextStyle(color: AppColors.textPrimary, fontSize: 16)),
                   ),
                 ),
                 const Spacer(flex: 2),
-                const Text('Choose a type',
-                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+                const Text(
+                  'Choose a type',
+                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                ),
                 const SizedBox(height: 6),
-                const Text('We\'ll fill your library with stories you\'ll love.',
-                    style: TextStyle(color: AppColors.textSecondary)),
+                const Text(
+                  'We\'ll fill your library with stories you\'ll love.',
+                  style: TextStyle(color: AppColors.textSecondary),
+                ),
                 const SizedBox(height: 24),
                 _TypeCard(
                   label: 'Female novels',
-                  icon: Icons.face_3_rounded,
+                  icon: AppIcons.female,
                   colors: const [AppColors.primaryLight, AppColors.primary],
                   onTap: () => controller.choose('female'),
                 ),
                 const SizedBox(height: 18),
                 _TypeCard(
                   label: 'Male novels',
-                  icon: Icons.face_6_rounded,
+                  icon: AppIcons.male,
                   colors: const [Color(0xFF8FA8FF), Color(0xFF6C7CF0)],
                   onTap: () => controller.choose('male'),
                 ),
@@ -94,8 +99,10 @@ class _TypeCard extends StatelessWidget {
               padding: const EdgeInsets.only(left: 20),
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: Text(label,
-                    style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w500)),
+                child: Text(
+                  label,
+                  style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w500),
+                ),
               ),
             ),
           ],

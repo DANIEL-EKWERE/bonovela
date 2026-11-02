@@ -6,6 +6,7 @@ import '../../widgets/common.dart';
 import '../../widgets/ui_kit.dart';
 import 'controller/rewards_controller.dart';
 import 'models/reward_task.dart';
+import '../../core/constants/app_icons.dart';
 
 class RewardsScreen extends GetView<RewardsController> {
   const RewardsScreen({super.key});
@@ -18,14 +19,15 @@ class RewardsScreen extends GetView<RewardsController> {
         IconButton(
           onPressed: () => Get.defaultDialog(
             title: 'Rewards rules',
-            middleText: 'Bonus from check-ins and tasks expires after 3 days. Daily tasks reset at midnight. '
+            middleText:
+                'Bonus from check-ins and tasks expires after 3 days. Daily tasks reset at midnight. '
                 'Bonus is spent before coins when unlocking chapters.',
             textConfirm: 'OK',
             confirmTextColor: Colors.white,
             buttonColor: AppColors.primary,
             onConfirm: Get.back,
           ),
-          icon: const Icon(Icons.help_outline_rounded),
+          icon: const Icon(AppIcons.help),
         ),
       ],
       body: ListView(
@@ -79,8 +81,10 @@ class _CheckInHeader extends GetView<RewardsController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Check-In Streak: $streak Day${streak == 1 ? '' : 's'}',
-                      style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700, fontSize: 16)),
+                  Text(
+                    'Check-In Streak: $streak Day${streak == 1 ? '' : 's'}',
+                    style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700, fontSize: 16),
+                  ),
                   const SizedBox(height: 16),
                   Row(
                     children: [
@@ -133,8 +137,7 @@ class _DaySlot extends StatelessWidget {
             color: done ? AppColors.primary : (next ? AppColors.blushDeep : AppColors.blush),
             border: next ? Border.all(color: AppColors.primary, width: 1.5) : null,
           ),
-          child: Icon(done ? Icons.check_rounded : Icons.stars_rounded,
-              color: done ? Colors.white : AppColors.primary, size: 18),
+          child: Icon(done ? AppIcons.check : AppIcons.bonus, color: done ? Colors.white : AppColors.primary, size: 18),
         ),
         const SizedBox(height: 4),
         Text('+$reward', style: const TextStyle(fontSize: 12)),
@@ -159,8 +162,10 @@ class _TaskSection extends GetView<RewardsController> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
-            child: Text(title,
-                style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700, fontSize: 16)),
+            child: Text(
+              title,
+              style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700, fontSize: 16),
+            ),
           ),
           for (final t in tasks)
             Obx(() {
@@ -174,9 +179,11 @@ class _TaskSection extends GetView<RewardsController> {
                     const CurrencyIcon('bonus', size: 16),
                     const SizedBox(width: 4),
                     Flexible(
-                      child: Text('${t.bonus} Bonus${max > 1 ? ' (${controller.progress(t)}/$max)' : ''}',
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                      child: Text(
+                        '${t.bonus} Bonus${max > 1 ? ' (${controller.progress(t)}/$max)' : ''}',
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                      ),
                     ),
                   ],
                 ),
@@ -214,8 +221,10 @@ class _ReadingSection extends GetView<RewardsController> {
               child: Row(
                 children: [
                   const Expanded(
-                    child: Text('Daily Reading Rewards',
-                        style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700, fontSize: 16)),
+                    child: Text(
+                      'Daily Reading Rewards',
+                      style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700, fontSize: 16),
+                    ),
                   ),
                   Text('Today: $minutes min', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
                 ],
@@ -223,25 +232,29 @@ class _ReadingSection extends GetView<RewardsController> {
             ),
             for (final m in ReadingMilestone.all)
               ListTile(
-                leading: const Icon(Icons.menu_book_rounded, color: AppColors.plumLight),
+                leading: const Icon(AppIcons.book, color: AppColors.plumLight),
                 title: Row(
                   children: [
                     const CurrencyIcon('bonus', size: 16),
                     const SizedBox(width: 4),
                     Flexible(
-                      child: Text('${m.bonus} Bonus',
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                      child: Text(
+                        '${m.bonus} Bonus',
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                      ),
                     ),
-                    if (m.gems > 0) ...[
+                    if (m.vouchers > 0) ...[
                       const SizedBox(width: 8),
-                      const CurrencyIcon('gems', size: 16),
-                      Text(' +${m.gems}', style: const TextStyle(fontSize: 13)),
+                      const CurrencyIcon('voucher', size: 16),
+                      Text(' +${m.vouchers}', style: const TextStyle(fontSize: 13)),
                     ],
                   ],
                 ),
-                subtitle: Text('Read for ${m.minutes} mins · ${minutes.clamp(0, m.minutes)} / ${m.minutes}',
-                    style: const TextStyle(fontSize: 12)),
+                subtitle: Text(
+                  'Read for ${m.minutes} mins · ${minutes.clamp(0, m.minutes)} / ${m.minutes}',
+                  style: const TextStyle(fontSize: 12),
+                ),
                 trailing: controller.milestoneClaimed(m)
                     ? const PillButton(label: 'Done')
                     : PillButton(

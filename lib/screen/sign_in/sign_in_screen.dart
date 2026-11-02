@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../core/constants/app_colors.dart';
 import '../../widgets/auth_sheet.dart';
 import 'controller/sign_in_controller.dart';
+import '../../core/constants/app_icons.dart';
 
 class SignInScreen extends GetView<SignInController> {
   const SignInScreen({super.key});
@@ -15,17 +16,21 @@ class SignInScreen extends GetView<SignInController> {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Please fill in the password of the email address.',
-              style: TextStyle(color: AppColors.textSecondary, fontSize: 16)),
+          const Text(
+            'Please fill in the password of the email address.',
+            style: TextStyle(color: AppColors.textSecondary, fontSize: 16),
+          ),
           const SizedBox(height: 4),
           Text(controller.email, style: const TextStyle(color: AppColors.primary, fontSize: 16)),
         ],
       ),
-      action: Obx(() => RoundActionButton(
-            icon: Icons.check_rounded,
-            loading: controller.isSubmitting.value,
-            onTap: controller.password.value.isEmpty ? null : controller.submit,
-          )),
+      action: Obx(
+        () => RoundActionButton(
+          icon: AppIcons.check,
+          loading: controller.isSubmitting.value,
+          onTap: controller.password.value.isEmpty ? null : controller.submit,
+        ),
+      ),
       children: [
         PasswordField(
           controller: controller.passwordController,
@@ -34,12 +39,14 @@ class SignInScreen extends GetView<SignInController> {
           onChanged: controller.onChanged,
           onSubmitted: (_) => controller.submit(),
         ),
-        Obx(() => controller.error.value.isEmpty
-            ? const SizedBox.shrink()
-            : Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Text(controller.error.value, style: const TextStyle(color: AppColors.error, fontSize: 13)),
-              )),
+        Obx(
+          () => controller.error.value.isEmpty
+              ? const SizedBox.shrink()
+              : Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(controller.error.value, style: const TextStyle(color: AppColors.error, fontSize: 13)),
+                ),
+        ),
         Align(
           alignment: Alignment.centerLeft,
           child: TextButton(

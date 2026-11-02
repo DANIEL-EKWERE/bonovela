@@ -16,20 +16,20 @@ class InboxMessage {
   });
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'title': title,
-        'body': body,
-        'date': date.toIso8601String(),
-        'bookId': bookId,
-        'read': read,
-      };
+    'id': id,
+    'title': title,
+    'body': body,
+    'date': date.toIso8601String(),
+    'bookId': bookId,
+    'read': read,
+  };
 
   factory InboxMessage.fromJson(Map j) => InboxMessage(
-        id: j['id'].toString(),
-        title: j['title']?.toString() ?? '',
-        body: j['body']?.toString() ?? '',
-        date: DateTime.tryParse(j['date']?.toString() ?? '') ?? DateTime.now(),
-        bookId: j['bookId']?.toString(),
-        read: j['read'] == true,
-      );
+    id: j['id'].toString(),
+    title: j['title']?.toString() ?? '',
+    body: j['body']?.toString() ?? '',
+    date: DateTime.tryParse(j['date']?.toString() ?? '') ?? DateTime.now(),
+    bookId: j['bookId']?.toString(),
+    read: j['read'] == true,
+  );
 }

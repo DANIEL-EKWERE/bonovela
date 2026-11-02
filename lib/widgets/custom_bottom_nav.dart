@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../core/constants/app_colors.dart';
+import '../core/constants/app_icons.dart';
 
 class CustomBottomNav extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
+
+  /// Tab tagged "Soon" (Drama) until it launches.
+  static const comingSoonIndex = 3;
 
   /// Unread count shown on the Profile tab.
   final int profileBadge;
@@ -12,11 +16,11 @@ class CustomBottomNav extends StatelessWidget {
   const CustomBottomNav({super.key, required this.currentIndex, required this.onTap, this.profileBadge = 0});
 
   static const _items = [
-    (Icons.collections_bookmark_outlined, Icons.collections_bookmark_rounded, 'Library'),
-    (Icons.explore_outlined, Icons.explore_rounded, 'Discover'),
-    (Icons.auto_stories_outlined, Icons.auto_stories_rounded, 'Short'),
-    (Icons.emoji_events_outlined, Icons.emoji_events_rounded, 'Rank'),
-    (Icons.person_outline_rounded, Icons.person_rounded, 'Profile'),
+    (AppIcons.library, AppIcons.libraryFill, 'Library'),
+    (AppIcons.discover, AppIcons.discoverFill, 'Discover'),
+    (AppIcons.short, AppIcons.shortFill, 'Short'),
+    (AppIcons.drama, AppIcons.dramaFill, 'Drama'),
+    (AppIcons.user, AppIcons.userFill, 'Profile'),
   ];
 
   @override
@@ -41,9 +45,13 @@ class CustomBottomNav extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Badge(
-                          isLabelVisible: i == 4 && profileBadge > 0,
-                          label: Text(profileBadge > 99 ? '99+' : '$profileBadge'),
-                          backgroundColor: AppColors.error,
+                          isLabelVisible: i == comingSoonIndex || (i == 4 && profileBadge > 0),
+                          label: Text(
+                            i == comingSoonIndex ? 'Soon' : (profileBadge > 99 ? '99+' : '$profileBadge'),
+                            style: const TextStyle(fontSize: 8, fontWeight: FontWeight.w700),
+                          ),
+                          backgroundColor: i == comingSoonIndex ? AppColors.gold : AppColors.error,
+                          offset: i == comingSoonIndex ? const Offset(14, -4) : null,
                           child: Icon(
                             i == currentIndex ? _items[i].$2 : _items[i].$1,
                             size: 24,

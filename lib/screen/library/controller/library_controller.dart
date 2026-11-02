@@ -24,10 +24,10 @@ class LibraryController extends GetxController {
   static const filters = ['All', 'Novels', 'Shorts'];
 
   List<BookModel> get filteredShelf => switch (filter.value) {
-        'Novels' => shelfBooks.where((b) => !b.isShort).toList(),
-        'Shorts' => shelfBooks.where((b) => b.isShort).toList(),
-        _ => shelfBooks.toList(),
-      };
+    'Novels' => shelfBooks.where((b) => !b.isShort).toList(),
+    'Shorts' => shelfBooks.where((b) => b.isShort).toList(),
+    _ => shelfBooks.toList(),
+  };
 
   /// Picked during onboarding; badged until the reader opens them.
   bool isRecommended(BookModel b) =>
@@ -51,18 +51,14 @@ class LibraryController extends GetxController {
     _catalogue
       ..clear()
       ..addEntries(all.map((b) => MapEntry(b.id, b)));
-    banner.assignAll((all.where((b) => !b.isShort).toList()
-          ..sort((a, b) => b.rating.compareTo(a.rating)))
-        .take(5));
+    banner.assignAll((all.where((b) => !b.isShort).toList()..sort((a, b) => b.rating.compareTo(a.rating))).take(5));
     _resolve();
     isLoading.value = false;
   }
 
   void _resolve() {
     shelfBooks.assignAll(_storage.shelf.map((id) => _catalogue[id]).whereType<BookModel>());
-    viewedBooks.assignAll(
-      _storage.history.map((p) => _catalogue[p.bookId]).whereType<BookModel>(),
-    );
+    viewedBooks.assignAll(_storage.history.map((p) => _catalogue[p.bookId]).whereType<BookModel>());
   }
 
   DateTime? lastReadAt(String bookId) => _storage.progressFor(bookId)?.readAt;

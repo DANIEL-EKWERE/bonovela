@@ -5,10 +5,11 @@ import '../../core/constants/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../widgets/common.dart';
 import '../../widgets/ui_kit.dart';
-import 'controller/gems_controller.dart';
+import 'controller/vouchers_controller.dart';
+import '../../core/constants/app_icons.dart';
 
-class GemsScreen extends GetView<GemsController> {
-  const GemsScreen({super.key});
+class VouchersScreen extends GetView<VouchersController> {
+  const VouchersScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +21,8 @@ class GemsScreen extends GetView<GemsController> {
             pinned: true,
             expandedHeight: 170,
             backgroundColor: AppColors.blushDeep,
-            leading: IconButton(onPressed: Get.back, icon: const Icon(Icons.arrow_back_rounded)),
-            title: const Text('Gems Details'),
+            leading: IconButton(onPressed: Get.back, icon: const Icon(AppIcons.arrowLeft)),
+            title: const Text('Vouchers'),
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: const BoxDecoration(
@@ -31,12 +32,16 @@ class GemsScreen extends GetView<GemsController> {
                 alignment: Alignment.bottomLeft,
                 child: Row(
                   children: [
-                    Obx(() => Text('${controller.gems.value}',
-                        style: const TextStyle(fontSize: 34, color: AppColors.primary, fontWeight: FontWeight.w700))),
+                    Obx(
+                      () => Text(
+                        '${controller.vouchers.value}',
+                        style: const TextStyle(fontSize: 34, color: AppColors.primary, fontWeight: FontWeight.w700),
+                      ),
+                    ),
                     const SizedBox(width: 8),
-                    const Text('Gems left', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                    const Text('Vouchers left', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
                     const Spacer(),
-                    const CurrencyIcon('gems', size: 64),
+                    const CurrencyIcon('voucher', size: 64),
                   ],
                 ),
               ),
@@ -50,12 +55,12 @@ class GemsScreen extends GetView<GemsController> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('How to get gems?', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                      const Text('How to get vouchers?', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
                       const SizedBox(height: 12),
                       _Way(
                         title: 'Reading task',
                         amount: 1,
-                        detail: 'Get 1 gem for 30 minutes of reading every day.',
+                        detail: 'Get 1 voucher for 30 minutes of reading every day.',
                         action: 'GO',
                         onTap: controller.goRead,
                       ),
@@ -63,36 +68,42 @@ class GemsScreen extends GetView<GemsController> {
                       _Way(
                         title: 'Top up',
                         amount: 3,
-                        detail: 'Every time you top up any amount, you get 3 gems.',
+                        detail: 'Every time you top up any amount, you get 3 vouchers.',
                         action: 'TOP UP',
                         onTap: controller.goTopUp,
                       ),
                       const SizedBox(height: 12),
-                      const Text('Gems will be used to vote for and gift your favourite stories.',
-                          style: TextStyle(fontSize: 12, color: AppColors.textHint)),
+                      const Text(
+                        'Use vouchers to vote for your favourite stories. Votes push books up the rankings.',
+                        style: TextStyle(fontSize: 12, color: AppColors.textHint),
+                      ),
                     ],
                   ),
                 ),
                 WhiteCard(
-                  child: Obx(() => Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('History', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
-                          if (controller.history.isEmpty)
-                            const SizedBox(
-                              height: 180,
-                              child: EmptyState(icon: Icons.diamond_outlined, message: 'No records'),
+                  child: Obx(
+                    () => Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('History', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                        if (controller.history.isEmpty)
+                          const SizedBox(
+                            height: 180,
+                            child: EmptyState(icon: AppIcons.diamond, message: 'No records'),
+                          ),
+                        for (final g in controller.history)
+                          ListTile(
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(g.source),
+                            subtitle: Text(Fmt.date(g.date), style: const TextStyle(fontSize: 12)),
+                            trailing: Text(
+                              g.amount > 0 ? '+${g.amount}' : '${g.amount}',
+                              style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700),
                             ),
-                          for (final g in controller.history)
-                            ListTile(
-                              contentPadding: EdgeInsets.zero,
-                              title: Text(g.source),
-                              subtitle: Text(Fmt.date(g.date), style: const TextStyle(fontSize: 12)),
-                              trailing: Text('+${g.amount}',
-                                  style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700)),
-                            ),
-                        ],
-                      )),
+                          ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -110,7 +121,13 @@ class _Way extends StatelessWidget {
   final String action;
   final VoidCallback onTap;
 
-  const _Way({required this.title, required this.amount, required this.detail, required this.action, required this.onTap});
+  const _Way({
+    required this.title,
+    required this.amount,
+    required this.detail,
+    required this.action,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -127,8 +144,8 @@ class _Way extends StatelessWidget {
                   children: [
                     Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
                     const SizedBox(width: 6),
-                    const CurrencyIcon('gems', size: 16),
-                    Text(' +$amount', style: const TextStyle(color: Color(0xFF3FB8E6))),
+                    const CurrencyIcon('voucher', size: 16),
+                    Text(' +$amount', style: const TextStyle(color: AppColors.voucher)),
                   ],
                 ),
                 const SizedBox(height: 4),

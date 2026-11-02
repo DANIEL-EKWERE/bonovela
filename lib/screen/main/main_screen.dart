@@ -7,9 +7,10 @@ import '../../widgets/custom_bottom_nav.dart';
 import '../discover/discover_screen.dart';
 import '../library/library_screen.dart';
 import '../profile/profile_screen.dart';
-import '../rank/rank_screen.dart';
+import '../drama/drama_screen.dart';
 import '../short/short_screen.dart';
 import 'controller/main_controller.dart';
+import '../../core/constants/app_icons.dart';
 
 class MainScreen extends GetView<MainController> {
   const MainScreen({super.key});
@@ -20,21 +21,14 @@ class MainScreen extends GetView<MainController> {
       () => Scaffold(
         body: IndexedStack(
           index: controller.currentIndex.value,
-          children: const [
-            LibraryScreen(),
-            DiscoverScreen(),
-            ShortScreen(),
-            RankScreen(),
-            ProfileScreen(),
-          ],
+          children: const [LibraryScreen(), DiscoverScreen(), ShortScreen(), DramaScreen(), ProfileScreen()],
         ),
         bottomNavigationBar: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             // Library already lists what you're reading; Profile has its own
             // promo slot.
-            if (controller.currentIndex.value != 0 && controller.currentIndex.value != 4)
-              const _ContinueReadingBar(),
+            if (controller.currentIndex.value != 0 && controller.currentIndex.value != 4) const _ContinueReadingBar(),
             CustomBottomNav(
               currentIndex: controller.currentIndex.value,
               onTap: controller.changeTab,
@@ -58,9 +52,7 @@ class _ContinueReadingBar extends GetView<MainController> {
       return Container(
         height: 56,
         padding: const EdgeInsets.only(left: 12, right: 4),
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(colors: [AppColors.plum, AppColors.plumLight]),
-        ),
+        decoration: const BoxDecoration(gradient: LinearGradient(colors: [AppColors.plum, AppColors.plumLight])),
         child: Row(
           children: [
             BookCover(book: book, width: 34, radius: 3),
@@ -87,10 +79,7 @@ class _ContinueReadingBar extends GetView<MainController> {
               onTap: controller.continueReading,
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                ),
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
                 child: const Text(
                   'Continue',
                   style: TextStyle(color: AppColors.plum, fontWeight: FontWeight.w600, fontSize: 13),
@@ -99,7 +88,7 @@ class _ContinueReadingBar extends GetView<MainController> {
             ),
             IconButton(
               onPressed: controller.dismissContinue,
-              icon: const Icon(Icons.close_rounded, color: Colors.white70, size: 18),
+              icon: const Icon(AppIcons.close, color: Colors.white70, size: 18),
             ),
           ],
         ),

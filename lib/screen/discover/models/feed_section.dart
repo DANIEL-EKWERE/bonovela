@@ -30,18 +30,13 @@ class FeedSection {
 
   /// Server shape: {"title": "...", "layout": "cover_row", "books": [...]}
   factory FeedSection.fromJson(Map<String, dynamic> j) => FeedSection(
-        title: j['title']?.toString() ?? '',
-        layout: FeedLayout.values.firstWhere(
-          (l) => l.name == _camel(j['layout']?.toString() ?? ''),
-          orElse: () => FeedLayout.coverRow,
-        ),
-        books: (j['books'] as List? ?? [])
-            .map((e) => BookModel.fromJson(Map<String, dynamic>.from(e)))
-            .toList(),
-      );
+    title: j['title']?.toString() ?? '',
+    layout: FeedLayout.values.firstWhere(
+      (l) => l.name == _camel(j['layout']?.toString() ?? ''),
+      orElse: () => FeedLayout.coverRow,
+    ),
+    books: (j['books'] as List? ?? []).map((e) => BookModel.fromJson(Map<String, dynamic>.from(e))).toList(),
+  );
 
-  static String _camel(String snake) => snake.replaceAllMapped(
-        RegExp(r'_([a-z])'),
-        (m) => m.group(1)!.toUpperCase(),
-      );
+  static String _camel(String snake) => snake.replaceAllMapped(RegExp(r'_([a-z])'), (m) => m.group(1)!.toUpperCase());
 }

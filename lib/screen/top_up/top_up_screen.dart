@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/utils/formatters.dart';
 import '../../widgets/common.dart';
 import '../../widgets/ui_kit.dart';
 import 'controller/top_up_controller.dart';
@@ -18,38 +19,18 @@ class TopUpScreen extends GetView<TopUpController> {
         padding: const EdgeInsets.all(16),
         children: [
           WhiteCard(
-            child: Obx(() => Row(
-                  children: [
-                    const Text('Balance', style: TextStyle(color: AppColors.textSecondary)),
-                    const Spacer(),
-                    const CurrencyIcon('coins'),
-                    const SizedBox(width: 4),
-                    Text('${controller.coins.value}', style: const TextStyle(fontWeight: FontWeight.w700)),
-                    const SizedBox(width: 16),
-                    const CurrencyIcon('bonus'),
-                    const SizedBox(width: 4),
-                    Text('${controller.bonus.value}', style: const TextStyle(fontWeight: FontWeight.w700)),
-                  ],
-                )),
-          ),
-          GestureDetector(
-            onTap: controller.openSubscription,
-            child: Container(
-              margin: const EdgeInsets.only(bottom: 16),
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(colors: [AppColors.plum, AppColors.plumLight]),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Row(
+            child: Obx(
+              () => Row(
                 children: [
-                  Icon(Icons.diamond_rounded, color: AppColors.blushDeep),
-                  SizedBox(width: 10),
-                  Expanded(
-                    child: Text('Bonovela Plus — unlimited short stories',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
-                  ),
-                  Icon(Icons.chevron_right_rounded, color: Colors.white),
+                  const Text('Balance', style: TextStyle(color: AppColors.textSecondary)),
+                  const Spacer(),
+                  const CurrencyIcon('coins'),
+                  const SizedBox(width: 4),
+                  Text('${controller.coins.value}', style: const TextStyle(fontWeight: FontWeight.w700)),
+                  const SizedBox(width: 16),
+                  const CurrencyIcon('bonus'),
+                  const SizedBox(width: 4),
+                  Text('${controller.bonus.value}', style: const TextStyle(fontWeight: FontWeight.w700)),
                 ],
               ),
             ),
@@ -69,16 +50,15 @@ class TopUpScreen extends GetView<TopUpController> {
           const Text(
             '• Coins unlock chapters and never expire.\n'
             '• Bonus from packages expires after 30 days.\n'
-            '• Every top-up also earns 3 gems.\n'
+            '• Every top-up also earns 3 vouchers.\n'
             '• This is a demo: no payment is taken.',
             style: TextStyle(fontSize: 12, color: AppColors.textSecondary, height: 1.7),
           ),
         ],
       ),
-      bottom: Obx(() => GradientButton(
-            label: 'Pay ${controller.selected.value.price}',
-            onTap: () => _showCheckout(context),
-          )),
+      bottom: Obx(
+        () => GradientButton(label: 'Pay ${controller.selected.value.price}', onTap: () => _showCheckout(context)),
+      ),
     );
   }
 
@@ -98,8 +78,10 @@ class TopUpScreen extends GetView<TopUpController> {
               children: [
                 const Text('Payment', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
                 const SizedBox(height: 12),
-                Text('${p.coins} coins${p.bonus > 0 ? ' + ${p.bonus} bonus' : ''}',
-                    style: const TextStyle(color: AppColors.textSecondary)),
+                Text(
+                  '${p.coins} coins${p.bonus > 0 ? ' + ${p.bonus} bonus' : ''}',
+                  style: const TextStyle(color: AppColors.textSecondary),
+                ),
                 const SizedBox(height: 16),
                 RadioGroup<String>(
                   groupValue: controller.method.value,
@@ -160,10 +142,15 @@ class _PackageTile extends GetView<TopUpController> {
                   children: [
                     const CurrencyIcon('coins', size: 26),
                     const SizedBox(height: 4),
-                    Text('${package.coins}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
+                    Text(
+                      Fmt.thousands(package.coins),
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+                    ),
                     if (package.bonus > 0)
-                      Text('+${package.bonus} bonus',
-                          style: const TextStyle(fontSize: 11, color: AppColors.primary)),
+                      Text(
+                        '+${Fmt.thousands(package.bonus)} bonus',
+                        style: const TextStyle(fontSize: 11, color: AppColors.primary),
+                      ),
                     const SizedBox(height: 6),
                     Text(package.price, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
                   ],
@@ -172,12 +159,19 @@ class _PackageTile extends GetView<TopUpController> {
             ),
             if (package.tag != null)
               Positioned(
-                top: -6,
-                left: 0,
+                top: -7,
+                left: 6,
+                right: 6,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                   decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(6)),
-                  child: Text(package.tag!, style: const TextStyle(color: Colors.white, fontSize: 10)),
+                  child: Text(
+                    package.tag!,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w600),
+                  ),
                 ),
               ),
           ],

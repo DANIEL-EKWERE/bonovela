@@ -7,9 +7,9 @@ import '../core/models/book_model.dart';
 import '../core/utils/formatters.dart';
 import 'book_cover.dart';
 import 'common.dart';
+import '../core/constants/app_icons.dart';
 
-void openBook(BookModel book) =>
-    Get.toNamed(AppRoutes.bookDetail, arguments: book.id, preventDuplicates: false);
+void openBook(BookModel book) => Get.toNamed(AppRoutes.bookDetail, arguments: book.id, preventDuplicates: false);
 
 /// Cover with title and tag beneath it. Used in horizontal rows and grids.
 class BookGridTile extends StatelessWidget {
@@ -58,13 +58,7 @@ class BookListTile extends StatelessWidget {
   final bool showRating;
   final bool coverOnRight;
 
-  const BookListTile({
-    super.key,
-    required this.book,
-    this.rank,
-    this.showRating = false,
-    this.coverOnRight = false,
-  });
+  const BookListTile({super.key, required this.book, this.rank, this.showRating = false, this.coverOnRight = false});
 
   @override
   Widget build(BuildContext context) {
@@ -98,18 +92,16 @@ class BookListTile extends StatelessWidget {
               children: [
                 RatingStars(rating: book.rating, size: 13),
                 const Spacer(),
-                const Icon(Icons.visibility_outlined, size: 14, color: AppColors.star),
+                const Icon(AppIcons.eye, size: 14, color: AppColors.star),
                 const SizedBox(width: 3),
-                Text(Fmt.compact(book.views),
-                    style: const TextStyle(fontSize: 11, color: AppColors.star)),
+                Text(Fmt.compact(book.views), style: const TextStyle(fontSize: 11, color: AppColors.star)),
               ],
             )
           else
             Row(
               children: [
                 Expanded(child: TagText(book.tags)),
-                Text(Fmt.views(book.views),
-                    style: const TextStyle(fontSize: 11, color: AppColors.textHint)),
+                Text(Fmt.views(book.views), style: const TextStyle(fontSize: 11, color: AppColors.textHint)),
               ],
             ),
         ],
@@ -122,9 +114,7 @@ class BookListTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: coverOnRight
-              ? [info, const SizedBox(width: 12), cover]
-              : [cover, const SizedBox(width: 12), info],
+          children: coverOnRight ? [info, const SizedBox(width: 12), cover] : [cover, const SizedBox(width: 12), info],
         ),
       ),
     );

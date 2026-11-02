@@ -8,6 +8,7 @@ import '../../widgets/book_cover.dart';
 import '../../widgets/book_tiles.dart';
 import '../../widgets/common.dart';
 import 'controller/rank_controller.dart';
+import '../../core/constants/app_icons.dart';
 
 class RankScreen extends GetView<RankController> {
   const RankScreen({super.key});
@@ -21,8 +22,15 @@ class RankScreen extends GetView<RankController> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-                child: SearchBarButton(onTap: controller.openSearch),
+                padding: const EdgeInsets.fromLTRB(4, 8, 16, 4),
+                child: Row(
+                  children: [
+                    IconButton(onPressed: Get.back, icon: const Icon(AppIcons.back, size: 20)),
+                    const Text('Ranking', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                    const SizedBox(width: 12),
+                    Expanded(child: SearchBarButton(onTap: controller.openSearch)),
+                  ],
+                ),
               ),
               _GenreTabs(),
               Expanded(
@@ -47,43 +55,43 @@ class _GenreTabs extends GetView<RankController> {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 44,
-      child: Obx(() => ListView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            children: [
-              for (final g in controller.genres)
-                GestureDetector(
-                  onTap: () => controller.selectGenre(g),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          g,
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: controller.genre.value == g ? FontWeight.w700 : FontWeight.w400,
-                            color: controller.genre.value == g
-                                ? AppColors.textPrimary
-                                : AppColors.textSecondary,
-                          ),
+      child: Obx(
+        () => ListView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          children: [
+            for (final g in controller.genres)
+              GestureDetector(
+                onTap: () => controller.selectGenre(g),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        g,
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: controller.genre.value == g ? FontWeight.w700 : FontWeight.w400,
+                          color: controller.genre.value == g ? AppColors.textPrimary : AppColors.textSecondary,
                         ),
-                        const SizedBox(height: 3),
-                        Container(
-                          width: 16,
-                          height: 3,
-                          decoration: BoxDecoration(
-                            color: controller.genre.value == g ? AppColors.primary : Colors.transparent,
-                            borderRadius: BorderRadius.circular(2),
-                          ),
+                      ),
+                      const SizedBox(height: 3),
+                      Container(
+                        width: 16,
+                        height: 3,
+                        decoration: BoxDecoration(
+                          color: controller.genre.value == g ? AppColors.primary : Colors.transparent,
+                          borderRadius: BorderRadius.circular(2),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-            ],
-          )),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -94,39 +102,41 @@ class _TypeRail extends GetView<RankController> {
     return Container(
       width: 92,
       color: AppColors.surface,
-      child: Obx(() => ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              for (final t in controller.types)
-                GestureDetector(
-                  onTap: () => controller.selectType(t),
-                  child: Container(
-                    color: controller.type.value == t ? Colors.white : Colors.transparent,
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 3,
-                          height: 16,
-                          margin: const EdgeInsets.only(right: 6),
-                          color: controller.type.value == t ? AppColors.primary : Colors.transparent,
-                        ),
-                        Expanded(
-                          child: Text(
-                            t.label,
-                            style: TextStyle(
-                              fontSize: 12.5,
-                              fontWeight: controller.type.value == t ? FontWeight.w600 : FontWeight.w400,
-                              color: controller.type.value == t ? AppColors.primary : AppColors.textSecondary,
-                            ),
+      child: Obx(
+        () => ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            for (final t in controller.types)
+              GestureDetector(
+                onTap: () => controller.selectType(t),
+                child: Container(
+                  color: controller.type.value == t ? Colors.white : Colors.transparent,
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 14),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 3,
+                        height: 16,
+                        margin: const EdgeInsets.only(right: 6),
+                        color: controller.type.value == t ? AppColors.primary : Colors.transparent,
+                      ),
+                      Expanded(
+                        child: Text(
+                          t.label,
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: controller.type.value == t ? FontWeight.w600 : FontWeight.w400,
+                            color: controller.type.value == t ? AppColors.primary : AppColors.textSecondary,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-            ],
-          )),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -137,7 +147,7 @@ class _RankList extends GetView<RankController> {
     return Obx(() {
       if (controller.isLoading.value) return const LoadingView();
       if (controller.books.isEmpty) {
-        return const EmptyState(icon: Icons.emoji_events_outlined, message: 'Nothing ranked here yet.');
+        return const EmptyState(icon: AppIcons.rank, message: 'Nothing ranked here yet.');
       }
       return RefreshIndicator(
         color: AppColors.primary,
@@ -177,8 +187,7 @@ class _RankList extends GetView<RankController> {
                           Row(
                             children: [
                               Expanded(child: TagText(book.tags)),
-                              const Icon(Icons.local_fire_department_rounded,
-                                  size: 14, color: AppColors.star),
+                              const Icon(AppIcons.fire, size: 14, color: AppColors.star),
                               Text(
                                 Fmt.compact(book.views),
                                 style: const TextStyle(fontSize: 11, color: AppColors.star),

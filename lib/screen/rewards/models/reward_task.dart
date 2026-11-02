@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/constants/app_icons.dart';
 
 enum TaskRepeat { daily, once }
 
@@ -28,7 +29,7 @@ class RewardTask {
       key: 'video',
       title: 'Watch a video',
       description: 'Earn bonus every time you finish watching a short video',
-      icon: Icons.play_circle_outline_rounded,
+      icon: AppIcons.play,
       bonus: 1,
       max: 5,
     ),
@@ -36,7 +37,7 @@ class RewardTask {
       key: 'visit',
       title: 'Explore new stories',
       description: 'Open three different book pages to collect',
-      icon: Icons.travel_explore_rounded,
+      icon: AppIcons.explore,
       bonus: 2,
       max: 3,
     ),
@@ -44,27 +45,43 @@ class RewardTask {
       key: 'share',
       title: 'Share a story',
       description: 'Share any book with a friend',
-      icon: Icons.share_rounded,
+      icon: AppIcons.share,
       bonus: 3,
     ),
   ];
 
   static const social = [
     RewardTask(
-      key: 'facebook', title: 'Follow us on Facebook', description: 'One-time reward',
-      icon: Icons.facebook_rounded, bonus: 3, repeat: TaskRepeat.once,
+      key: 'facebook',
+      title: 'Follow us on Facebook',
+      description: 'One-time reward',
+      icon: AppIcons.facebook,
+      bonus: 3,
+      repeat: TaskRepeat.once,
     ),
     RewardTask(
-      key: 'instagram', title: 'Follow us on Instagram', description: 'One-time reward',
-      icon: Icons.camera_alt_outlined, bonus: 3, repeat: TaskRepeat.once,
+      key: 'instagram',
+      title: 'Follow us on Instagram',
+      description: 'One-time reward',
+      icon: AppIcons.instagram,
+      bonus: 3,
+      repeat: TaskRepeat.once,
     ),
     RewardTask(
-      key: 'tiktok', title: 'Follow us on TikTok', description: 'One-time reward',
-      icon: Icons.music_note_rounded, bonus: 3, repeat: TaskRepeat.once,
+      key: 'tiktok',
+      title: 'Follow us on TikTok',
+      description: 'One-time reward',
+      icon: AppIcons.tiktok,
+      bonus: 3,
+      repeat: TaskRepeat.once,
     ),
     RewardTask(
-      key: 'invite', title: 'Invite a friend', description: 'Get bonus when a friend joins with your link',
-      icon: Icons.person_add_alt_1_rounded, bonus: 50, repeat: TaskRepeat.once,
+      key: 'invite',
+      title: 'Invite a friend',
+      description: 'Get bonus when a friend joins with your link',
+      icon: AppIcons.userAdd,
+      bonus: 50,
+      repeat: TaskRepeat.once,
     ),
   ];
 }
@@ -72,9 +89,9 @@ class RewardTask {
 class ReadingMilestone {
   final int minutes;
   final int bonus;
-  final int gems;
+  final int vouchers;
 
-  const ReadingMilestone(this.minutes, this.bonus, [this.gems = 0]);
+  const ReadingMilestone(this.minutes, this.bonus, [this.vouchers = 0]);
 
   static const all = [ReadingMilestone(15, 5), ReadingMilestone(30, 10, 1), ReadingMilestone(60, 20, 1)];
 }

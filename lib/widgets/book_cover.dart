@@ -59,11 +59,7 @@ class BookCover extends StatelessWidget {
                   ),
                   child: Text(
                     '$rank',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
                   ),
                 ),
               ),
@@ -79,11 +75,7 @@ class BookCover extends StatelessWidget {
                   ),
                   child: Text(
                     badge!,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
@@ -119,11 +111,7 @@ class _Placeholder extends StatelessWidget {
     final palette = AppColors.coverPalettes[book.coverSeed % AppColors.coverPalettes.length];
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: palette,
-        ),
+        gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: palette),
       ),
       padding: EdgeInsets.all(width * 0.08),
       child: Column(
@@ -149,11 +137,7 @@ class _Placeholder extends StatelessWidget {
               book.author.toUpperCase(),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: (width * 0.065).clamp(6, 11),
-                letterSpacing: 1.2,
-              ),
+              style: TextStyle(color: Colors.white70, fontSize: (width * 0.065).clamp(6, 11), letterSpacing: 1.2),
             ),
         ],
       ),

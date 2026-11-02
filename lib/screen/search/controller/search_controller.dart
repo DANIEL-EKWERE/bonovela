@@ -73,6 +73,8 @@ class BookSearchController extends GetxController {
 
   void openCategories() => Get.toNamed(AppRoutes.categories);
 
+  void openRanking() => Get.toNamed(AppRoutes.rank);
+
   void clear() {
     textController.clear();
     onChanged('');

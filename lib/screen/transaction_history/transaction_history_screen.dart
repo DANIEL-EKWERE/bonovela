@@ -7,6 +7,7 @@ import '../../core/utils/formatters.dart';
 import '../../widgets/common.dart';
 import '../../widgets/ui_kit.dart';
 import 'controller/transaction_history_controller.dart';
+import '../../core/constants/app_icons.dart';
 
 class TransactionHistoryScreen extends GetView<TransactionHistoryController> {
   const TransactionHistoryScreen({super.key});
@@ -18,7 +19,7 @@ class TransactionHistoryScreen extends GetView<TransactionHistoryController> {
       body: Obx(() {
         final items = controller.items;
         if (items.isEmpty) {
-          return const EmptyState(icon: Icons.receipt_long_rounded, message: 'No transactions yet.');
+          return const EmptyState(icon: AppIcons.receipt, message: 'No transactions yet.');
         }
         return ListView.builder(
           padding: const EdgeInsets.all(12),
@@ -29,28 +30,29 @@ class TransactionHistoryScreen extends GetView<TransactionHistoryController> {
               margin: const EdgeInsets.only(bottom: 8),
               child: Row(
                 children: [
-                  Icon(
-                    switch (t.kind) {
-                      TxKind.subscription => Icons.diamond_rounded,
-                      TxKind.reward => Icons.card_giftcard_rounded,
-                      _ => Icons.account_balance_wallet_rounded,
-                    },
-                    color: AppColors.primary,
-                  ),
+                  Icon(switch (t.kind) {
+                    TxKind.subscription => AppIcons.diamondFill,
+                    TxKind.reward => AppIcons.gift,
+                    _ => AppIcons.wallet,
+                  }, color: AppColors.primary),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(t.title, style: const TextStyle(fontWeight: FontWeight.w600)),
-                        Text('${Fmt.date(t.date)}${t.price.isNotEmpty ? ' · ${t.price}' : ''}',
-                            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                        Text(
+                          '${Fmt.date(t.date)}${t.price.isNotEmpty ? ' · ${t.price}' : ''}',
+                          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                        ),
                       ],
                     ),
                   ),
                   if (t.coins != 0)
-                    Text('+${t.coins}',
-                        style: const TextStyle(color: AppColors.success, fontWeight: FontWeight.w700)),
+                    Text(
+                      '+${t.coins}',
+                      style: const TextStyle(color: AppColors.success, fontWeight: FontWeight.w700),
+                    ),
                 ],
               ),
             );

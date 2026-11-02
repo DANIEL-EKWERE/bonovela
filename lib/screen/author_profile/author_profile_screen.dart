@@ -7,6 +7,7 @@ import '../../widgets/book_cover.dart';
 import '../../widgets/book_tiles.dart';
 import '../../widgets/common.dart';
 import 'controller/author_profile_controller.dart';
+import '../../core/constants/app_icons.dart';
 
 class AuthorProfileScreen extends GetView<AuthorProfileController> {
   final String author;
@@ -24,8 +25,8 @@ class AuthorProfileScreen extends GetView<AuthorProfileController> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
-        leading: IconButton(onPressed: Get.back, icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20)),
-        actions: [IconButton(onPressed: () => _showMenu(context), icon: const Icon(Icons.more_horiz_rounded))],
+        leading: IconButton(onPressed: Get.back, icon: const Icon(AppIcons.back, size: 20)),
+        actions: [IconButton(onPressed: () => _showMenu(context), icon: const Icon(AppIcons.more))],
       ),
       body: ListView(
         padding: EdgeInsets.zero,
@@ -58,8 +59,10 @@ class AuthorProfileScreen extends GetView<AuthorProfileController> {
                       child: CircleAvatar(
                         radius: 43,
                         backgroundColor: AppColors.plum,
-                        child: Text(author[0],
-                            style: const TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.w600)),
+                        child: Text(
+                          author[0],
+                          style: const TextStyle(color: Colors.white, fontSize: 36, fontWeight: FontWeight.w600),
+                        ),
                       ),
                     ),
                     Transform.translate(
@@ -67,8 +70,10 @@ class AuthorProfileScreen extends GetView<AuthorProfileController> {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
                         decoration: BoxDecoration(color: AppColors.gold, borderRadius: BorderRadius.circular(10)),
-                        child: const Text('Author',
-                            style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600)),
+                        child: const Text(
+                          'Author',
+                          style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
+                        ),
                       ),
                     ),
                   ],
@@ -77,11 +82,18 @@ class AuthorProfileScreen extends GetView<AuthorProfileController> {
             ],
           ),
           const SizedBox(height: 50),
-          Text(author, textAlign: TextAlign.center, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
+          Text(
+            author,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+          ),
           Padding(
             padding: const EdgeInsets.fromLTRB(32, 6, 32, 0),
-            child: Text(controller.bio,
-                textAlign: TextAlign.center, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+            child: Text(
+              controller.bio,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+            ),
           ),
           Container(
             margin: const EdgeInsets.all(20),
@@ -90,16 +102,15 @@ class AuthorProfileScreen extends GetView<AuthorProfileController> {
               border: Border.all(color: AppColors.divider),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Obx(() => Row(
-                  children: [
-                    _Stat(value: Fmt.compact(controller.followers), label: 'Followers'),
-                    _Stat(value: '${controller.books.length}', label: 'Stories'),
-                    _Stat(
-                      value: Fmt.compact(controller.books.fold(0, (s, b) => s + b.views)),
-                      label: 'Reads',
-                    ),
-                  ],
-                )),
+            child: Obx(
+              () => Row(
+                children: [
+                  _Stat(value: Fmt.compact(controller.followers), label: 'Followers'),
+                  _Stat(value: '${controller.books.length}', label: 'Stories'),
+                  _Stat(value: Fmt.compact(controller.books.fold(0, (s, b) => s + b.views)), label: 'Reads'),
+                ],
+              ),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -122,13 +133,17 @@ class AuthorProfileScreen extends GetView<AuthorProfileController> {
                         children: [
                           Text(b.title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
                           const SizedBox(height: 3),
-                          Text('${b.isCompleted ? 'Completed' : 'Ongoing'} · ${Fmt.compact(b.wordCount)} Words',
-                              style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                          Text(
+                            '${b.isCompleted ? 'Completed' : 'Ongoing'} · ${Fmt.compact(b.wordCount)} Words',
+                            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                          ),
                           const SizedBox(height: 6),
-                          Text(b.synopsis,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+                          Text(
+                            b.synopsis,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                          ),
                         ],
                       ),
                     ),
@@ -142,19 +157,21 @@ class AuthorProfileScreen extends GetView<AuthorProfileController> {
       bottomNavigationBar: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(40, 8, 40, 12),
-          child: Obx(() => controller.isFollowing
-              ? OutlinedButton.icon(
-                  onPressed: controller.toggleFollow,
-                  icon: const Icon(Icons.check_rounded),
-                  label: const Text('Following'),
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(48),
-                    foregroundColor: AppColors.textSecondary,
-                    side: const BorderSide(color: AppColors.divider),
-                    shape: const StadiumBorder(),
-                  ),
-                )
-              : GradientButton(label: 'Follow', onTap: controller.toggleFollow)),
+          child: Obx(
+            () => controller.isFollowing
+                ? OutlinedButton.icon(
+                    onPressed: controller.toggleFollow,
+                    icon: const Icon(AppIcons.check),
+                    label: const Text('Following'),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(48),
+                      foregroundColor: AppColors.textSecondary,
+                      side: const BorderSide(color: AppColors.divider),
+                      shape: const StadiumBorder(),
+                    ),
+                  )
+                : GradientButton(label: 'Follow', onTap: controller.toggleFollow),
+          ),
         ),
       ),
     );
@@ -183,7 +200,11 @@ class AuthorProfileScreen extends GetView<AuthorProfileController> {
                     ),
                     const Divider(height: 1),
                     ListTile(
-                      title: const Text('Block', textAlign: TextAlign.center, style: TextStyle(color: AppColors.error)),
+                      title: const Text(
+                        'Block',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: AppColors.error),
+                      ),
                       onTap: () {
                         Get.back();
                         controller.block();
@@ -196,7 +217,11 @@ class AuthorProfileScreen extends GetView<AuthorProfileController> {
               Container(
                 decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
                 child: ListTile(
-                  title: const Text('Cancel', textAlign: TextAlign.center, style: TextStyle(color: AppColors.textHint)),
+                  title: const Text(
+                    'Cancel',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: AppColors.textHint),
+                  ),
                   onTap: Get.back,
                 ),
               ),
@@ -216,11 +241,11 @@ class _Stat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Expanded(
-        child: Column(
-          children: [
-            Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
-            Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
-          ],
-        ),
-      );
+    child: Column(
+      children: [
+        Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
+        Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+      ],
+    ),
+  );
 }

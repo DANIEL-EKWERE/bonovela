@@ -9,12 +9,14 @@ import 'core/constants/app_theme.dart';
 import 'core/repository/book_repository.dart';
 import 'core/repository/mock_book_repository.dart';
 import 'core/services/account_service.dart';
+import 'core/services/author_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Get.putAsync<LocalStorage>(() => LocalStorage().init(), permanent: true);
   await Get.putAsync<AccountService>(() => AccountService().init(), permanent: true);
+  Get.put<AuthorService>(AuthorService().init(), permanent: true);
   Get.put<BookRepository>(MockBookRepository(), permanent: true);
 
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);

@@ -9,9 +9,10 @@ import '../../widgets/book_cover.dart';
 import '../../widgets/book_tiles.dart';
 import '../../widgets/comment_tile.dart';
 import '../../widgets/common.dart';
-import '../../widgets/ui_kit.dart';
+import '../tip/tip_sheet.dart';
 import 'controller/book_detail_controller.dart';
 import 'widgets/chapter_list_sheet.dart';
+import '../../core/constants/app_icons.dart';
 
 class BookDetailScreen extends GetView<BookDetailController> {
   final String bookId;
@@ -31,7 +32,7 @@ class BookDetailScreen extends GetView<BookDetailController> {
       if (book == null) {
         return Scaffold(
           appBar: AppBar(),
-          body: const EmptyState(icon: Icons.search_off_rounded, message: 'This book is no longer available.'),
+          body: const EmptyState(icon: AppIcons.searchOff, message: 'This book is no longer available.'),
         );
       }
       final palette = AppColors.coverPalettes[book.coverSeed % AppColors.coverPalettes.length];
@@ -46,8 +47,8 @@ class BookDetailScreen extends GetView<BookDetailController> {
               ? Text(book.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 15))
               : null,
           actions: [
-            IconButton(onPressed: controller.report, icon: const Icon(Icons.outlined_flag_rounded)),
-            IconButton(onPressed: controller.share, icon: const Icon(Icons.share_outlined)),
+            IconButton(onPressed: controller.report, icon: const Icon(AppIcons.flag)),
+            IconButton(onPressed: controller.share, icon: const Icon(AppIcons.share)),
           ],
         ),
         body: ListView(
@@ -92,12 +93,12 @@ class _Card extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        width: double.infinity,
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: padding,
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
-        child: child,
-      );
+    width: double.infinity,
+    margin: const EdgeInsets.only(bottom: 10),
+    padding: padding,
+    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+    child: child,
+  );
 }
 
 class _Header extends StatelessWidget {
@@ -135,8 +136,10 @@ class _Header extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(book.author, style: const TextStyle(color: Colors.white70, fontSize: 13)),
-                Text('Language: English | ${book.ageRating}+',
-                    style: const TextStyle(color: Colors.white70, fontSize: 13)),
+                Text(
+                  'Language: English | ${book.ageRating}+',
+                  style: const TextStyle(color: Colors.white70, fontSize: 13),
+                ),
                 const SizedBox(height: 12),
                 Text(
                   '${Fmt.compact(book.wordCount)} Words | ${book.isCompleted ? 'Completed' : 'Ongoing'}',
@@ -199,32 +202,38 @@ class _SynopsisCard extends GetView<BookDetailController> {
         children: [
           GestureDetector(
             onTap: () => controller.synopsisExpanded.toggle(),
-            child: Obx(() => Text(
-                  book.synopsis,
-                  maxLines: controller.synopsisExpanded.value ? null : 3,
-                  overflow: controller.synopsisExpanded.value ? null : TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 14, height: 1.5),
-                )),
+            child: Obx(
+              () => Text(
+                book.synopsis,
+                maxLines: controller.synopsisExpanded.value ? null : 3,
+                overflow: controller.synopsisExpanded.value ? null : TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 14, height: 1.5),
+              ),
+            ),
           ),
           const SizedBox(height: 10),
           Wrap(
             spacing: 8,
             runSpacing: 6,
-            children: [for (final t in [book.genre, ...book.tags]) TagChip(t)],
+            children: [
+              for (final t in [book.genre, ...book.tags]) TagChip(t),
+            ],
           ),
           const Divider(height: 24),
           InkWell(
             onTap: () => showChapterList(context, controller),
             child: Row(
               children: [
-                Text('${book.chapterCount} Chapters',
-                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                Text(
+                  '${book.chapterCount} Chapters',
+                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                ),
                 const Spacer(),
                 Text(
                   book.isCompleted ? 'Completed' : 'Updated ${Fmt.ago(book.updatedAt)}',
                   style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
                 ),
-                const Icon(Icons.chevron_right_rounded, color: AppColors.textHint),
+                const Icon(AppIcons.chevronRight, color: AppColors.textHint),
               ],
             ),
           ),
@@ -259,7 +268,10 @@ class _AuthorCard extends GetView<BookDetailController> {
                 CircleAvatar(
                   radius: 20,
                   backgroundColor: AppColors.plum,
-                  child: Text(book.author[0], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                  child: Text(
+                    book.author[0],
+                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                  ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -274,18 +286,20 @@ class _AuthorCard extends GetView<BookDetailController> {
                     ],
                   ),
                 ),
-                Obx(() => controller.followingAuthor
-                    ? OutlinedButton(
-                        onPressed: controller.toggleFollowAuthor,
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColors.textSecondary,
-                          side: const BorderSide(color: AppColors.divider),
-                          shape: const StadiumBorder(),
-                          visualDensity: VisualDensity.compact,
-                        ),
-                        child: const Text('Following'),
-                      )
-                    : GradientButton(label: 'Follow', height: 32, fontSize: 13, onTap: controller.toggleFollowAuthor)),
+                Obx(
+                  () => controller.followingAuthor
+                      ? OutlinedButton(
+                          onPressed: controller.toggleFollowAuthor,
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.textSecondary,
+                            side: const BorderSide(color: AppColors.divider),
+                            shape: const StadiumBorder(),
+                            visualDensity: VisualDensity.compact,
+                          ),
+                          child: const Text('Following'),
+                        )
+                      : GradientButton(label: 'Follow', height: 32, fontSize: 13, onTap: controller.toggleFollowAuthor),
+                ),
               ],
             ),
           ),
@@ -313,62 +327,20 @@ class _SupportCard extends GetView<BookDetailController> {
           const SizedBox(height: 10),
           Row(
             children: [
-              const Icon(Icons.redeem_rounded, color: AppColors.primary, size: 20),
+              const Icon(AppIcons.redeem, color: AppColors.primary, size: 20),
               const SizedBox(width: 6),
               Expanded(
-                child: Obx(() => Text('${controller.supporters} readers supported this book',
-                    style: const TextStyle(fontSize: 14))),
+                child: Obx(
+                  () => Text(
+                    '${controller.supporters} readers supported this book',
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ),
               ),
-              GradientButton(label: 'Support', height: 32, fontSize: 13, onTap: () => _showGifts(context)),
+              GradientButton(label: 'Support', height: 32, fontSize: 13, onTap: () => showTipSheet(context, bookId)),
             ],
           ),
         ],
-      ),
-    );
-  }
-
-  void _showGifts(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
-      builder: (_) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('Send a gift', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
-              const SizedBox(height: 4),
-              const Text('Gifts go straight to the author and help keep the chapters coming.',
-                  style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  for (final g in BookDetailController.giftOptions)
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () => controller.support(g),
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          decoration: BoxDecoration(color: AppColors.blush, borderRadius: BorderRadius.circular(12)),
-                          child: Column(
-                            children: [
-                              const CurrencyIcon('coins', size: 26),
-                              const SizedBox(height: 4),
-                              Text('$g', style: const TextStyle(fontWeight: FontWeight.w700)),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -400,8 +372,11 @@ class _CommentsCard extends GetView<BookDetailController> {
                     const Expanded(
                       child: Text('Comments', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
                     ),
-                    Text('${list.length} Reviews', style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
-                    const Icon(Icons.chevron_right_rounded, color: AppColors.textHint),
+                    Text(
+                      '${list.length} Reviews',
+                      style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                    ),
+                    const Icon(AppIcons.chevronRight, color: AppColors.textHint),
                   ],
                 ),
               ),
@@ -417,8 +392,10 @@ class _CommentsCard extends GetView<BookDetailController> {
                   decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(20)),
                   child: const Row(
                     children: [
-                      Expanded(child: Text('What do you think?', style: TextStyle(color: AppColors.textHint))),
-                      Icon(Icons.send_rounded, color: AppColors.textHint, size: 18),
+                      Expanded(
+                        child: Text('What do you think?', style: TextStyle(color: AppColors.textHint)),
+                      ),
+                      Icon(AppIcons.send, color: AppColors.textHint, size: 18),
                     ],
                   ),
                 ),
@@ -496,7 +473,7 @@ class _PreviewCard extends GetView<BookDetailController> {
           Center(
             child: TextButton.icon(
               onPressed: () => controller.read(1),
-              icon: const Icon(Icons.keyboard_double_arrow_down_rounded, color: AppColors.primary),
+              icon: const Icon(AppIcons.readMore, color: AppColors.primary),
               label: const Text('Read more', style: TextStyle(color: AppColors.primary)),
             ),
           ),
@@ -524,27 +501,25 @@ class _BottomBar extends GetView<BookDetailController> {
           padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
           child: Row(
             children: [
-              Obx(() => _BarIcon(
-                    icon: controller.onShelf ? Icons.library_add_check_rounded : Icons.library_add_outlined,
-                    label: controller.onShelf ? 'In Library' : 'Library',
-                    active: controller.onShelf,
-                    onTap: controller.toggleShelf,
-                  )),
+              Obx(
+                () => _BarIcon(
+                  icon: controller.onShelf ? AppIcons.libraryAdded : AppIcons.libraryAdd,
+                  label: controller.onShelf ? 'In Library' : 'Library',
+                  active: controller.onShelf,
+                  onTap: controller.toggleShelf,
+                ),
+              ),
               const SizedBox(width: 8),
               Expanded(
-                child: Obx(() => GradientButton(
-                      label: controller.hasProgress
-                          ? 'CONTINUE · CH ${controller.resumeChapter}'
-                          : 'READ',
-                      onTap: controller.chapters.isEmpty ? null : () => controller.read(),
-                    )),
+                child: Obx(
+                  () => GradientButton(
+                    label: controller.hasProgress ? 'CONTINUE · CH ${controller.resumeChapter}' : 'READ',
+                    onTap: controller.chapters.isEmpty ? null : () => controller.read(),
+                  ),
+                ),
               ),
               const SizedBox(width: 8),
-              _BarIcon(
-                icon: Icons.format_list_bulleted_rounded,
-                label: 'Chapters',
-                onTap: () => showChapterList(context, controller),
-              ),
+              _BarIcon(icon: AppIcons.list, label: 'Chapters', onTap: () => showChapterList(context, controller)),
             ],
           ),
         ),

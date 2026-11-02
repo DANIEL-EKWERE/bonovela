@@ -6,6 +6,7 @@ import '../../core/utils/formatters.dart';
 import '../../widgets/common.dart';
 import '../../widgets/ui_kit.dart';
 import 'controller/inbox_controller.dart';
+import '../../core/constants/app_icons.dart';
 
 class InboxScreen extends GetView<InboxController> {
   const InboxScreen({super.key});
@@ -22,7 +23,7 @@ class InboxScreen extends GetView<InboxController> {
       ],
       body: Obx(() {
         final list = controller.messages;
-        if (list.isEmpty) return const EmptyState(icon: Icons.mail_outline_rounded, message: 'No messages yet.');
+        if (list.isEmpty) return const EmptyState(icon: AppIcons.mail, message: 'No messages yet.');
         return ListView.builder(
           padding: const EdgeInsets.all(12),
           itemCount: list.length,
@@ -37,7 +38,7 @@ class InboxScreen extends GetView<InboxController> {
                 padding: const EdgeInsets.only(right: 20),
                 margin: const EdgeInsets.only(bottom: 10),
                 decoration: BoxDecoration(color: AppColors.error, borderRadius: BorderRadius.circular(12)),
-                child: const Icon(Icons.delete_outline_rounded, color: Colors.white),
+                child: const Icon(AppIcons.delete, color: Colors.white),
               ),
               child: GestureDetector(
                 onTap: () => controller.open(m),
@@ -50,7 +51,7 @@ class InboxScreen extends GetView<InboxController> {
                         children: [
                           const CircleAvatar(
                             backgroundColor: AppColors.blush,
-                            child: Icon(Icons.notifications_rounded, color: AppColors.primary),
+                            child: Icon(AppIcons.bell, color: AppColors.primary),
                           ),
                           if (!m.read)
                             Positioned(
@@ -72,15 +73,22 @@ class InboxScreen extends GetView<InboxController> {
                             Row(
                               children: [
                                 Expanded(
-                                  child: Text(m.title,
-                                      style: TextStyle(
-                                          fontWeight: m.read ? FontWeight.w500 : FontWeight.w700, fontSize: 15)),
+                                  child: Text(
+                                    m.title,
+                                    style: TextStyle(
+                                      fontWeight: m.read ? FontWeight.w500 : FontWeight.w700,
+                                      fontSize: 15,
+                                    ),
+                                  ),
                                 ),
                                 Text(Fmt.ago(m.date), style: const TextStyle(fontSize: 11, color: AppColors.textHint)),
                               ],
                             ),
                             const SizedBox(height: 4),
-                            Text(m.body, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.4)),
+                            Text(
+                              m.body,
+                              style: const TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.4),
+                            ),
                             if (m.bookId != null)
                               const Padding(
                                 padding: EdgeInsets.only(top: 6),

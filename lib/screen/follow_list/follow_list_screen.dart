@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import '../../core/constants/app_colors.dart';
 import '../../widgets/common.dart';
 import 'controller/follow_list_controller.dart';
+import '../../core/constants/app_icons.dart';
 
 class FollowListScreen extends GetView<FollowListController> {
   const FollowListScreen({super.key});
@@ -15,23 +16,26 @@ class FollowListScreen extends GetView<FollowListController> {
       initialIndex: controller.initialTab,
       child: Scaffold(
         appBar: AppBar(
-          leading: IconButton(onPressed: Get.back, icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 20)),
+          leading: IconButton(onPressed: Get.back, icon: const Icon(AppIcons.back, size: 20)),
           title: const Text('Follow'),
           bottom: const TabBar(
             isScrollable: true,
             tabAlignment: TabAlignment.center,
             labelColor: AppColors.primary,
-            tabs: [Tab(text: 'Followers'), Tab(text: 'Following')],
+            tabs: [
+              Tab(text: 'Followers'),
+              Tab(text: 'Following'),
+            ],
           ),
         ),
         body: TabBarView(
           children: [
-            const EmptyState(icon: Icons.favorite_border_rounded, message: 'You have no followers yet.'),
+            const EmptyState(icon: AppIcons.heart, message: 'You have no followers yet.'),
             Obx(() {
               final list = controller.following.toList();
               if (list.isEmpty) {
                 return const EmptyState(
-                  icon: Icons.person_add_alt_rounded,
+                  icon: AppIcons.userAdd,
                   message: 'Follow authors you love to see their new stories first.',
                 );
               }
@@ -66,7 +70,7 @@ class _AuthorRow extends GetView<FollowListController> {
         final on = controller.following.contains(author);
         return OutlinedButton.icon(
           onPressed: () => controller.toggle(author),
-          icon: Icon(on ? Icons.check_rounded : Icons.add_rounded, size: 16),
+          icon: Icon(on ? AppIcons.check : AppIcons.add, size: 16),
           label: Text(on ? 'Following' : 'Follow'),
           style: OutlinedButton.styleFrom(
             foregroundColor: on ? AppColors.textSecondary : AppColors.primary,

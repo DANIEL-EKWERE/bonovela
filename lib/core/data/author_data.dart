@@ -1,0 +1,261 @@
+/// Fixed option lists for the author tools (mock until the backend serves them).
+class AuthorData {
+  static const languages = ['English', 'Français', 'Español', 'Português', 'Deutsch', 'Bahasa Indonesia', 'Filipino'];
+
+  static const novelTypes = ['Original', 'Fan-fiction', 'Translation'];
+
+  static const ratings = ['4+', '12+', '16+', '18+'];
+
+  /// Shown under the rating chips.
+  static const ratingInfo = {
+    '4+': ('All', 'Content for readers of all ages.'),
+    '12+': (
+      'Youth and above',
+      'Inappropriate content for readers under 13 with light violence, kissing, light cursing, but not too explicit.',
+    ),
+    '16+': (
+      'Mature',
+      'Content involving violence, sex, alcohol or gambling but not too explicitly. May occur in limited chapters.',
+    ),
+    '18+': ('Explicit', 'Content involving sex or violence, taking up to 20% of the book would be considered 18+.'),
+  };
+
+  static const genres = [
+    'Romance',
+    'Apocalypse',
+    'Werewolf',
+    'Mafia',
+    'System',
+    'Fantasy',
+    'Urban',
+    'LGBTQ+',
+    'YA/TEEN',
+    'Paranormal',
+    'Mystery/Thriller',
+    'Eastern',
+    'Games',
+    'History',
+    'MM Romance',
+    'Sci-Fi',
+    'War',
+    'Other',
+  ];
+
+  static const tagGroups = <String, (String, List<String>)>{
+    'Style': (
+      '"Style" refers to the tags that match the style of the work.',
+      [
+        'Action',
+        'Adventurous',
+        'Comedy',
+        'Contemporary',
+        'Dark Romance',
+        'Drama',
+        'Eastern',
+        'Fast-Paced Plot',
+        'First-Person POV',
+        'Girl Power',
+        'Mystery',
+        'Sweet Love',
+        'Third-Person POV',
+        'Tragedy',
+        'Werewolf',
+        'Xianxia',
+        'Familial Bond',
+        'Exclusive Love',
+        'Survival Game',
+        'Finance',
+        'Fake and Real Heir',
+        'Winning Back the Wife',
+        'Prison Break',
+        'Mecha',
+        'Witch',
+      ],
+    ),
+    'Character': (
+      '"Character" refers to the identity or characteristics of the protagonists of the work.',
+      [
+        'Actor / Actress',
+        'Agent',
+        'Alpha',
+        'Angel',
+        'Arrogant',
+        'Artist',
+        'Badboy',
+        'Badgirl',
+        'Beast',
+        'Beta',
+        'Bully',
+        'CEO',
+        'Demon',
+        'Detective',
+        'Doctor',
+        'Dominant',
+        'Dragon',
+        'Gamer',
+        'Genius Baby',
+        'Golden Boy',
+        'Goodgirl',
+        'Heir/Heiress',
+        'Hero/Heroin',
+        'Hidden Identity',
+        'Hunter',
+        'Hybrid',
+        'Independent',
+        'Intelligent',
+        'Lawyer',
+        'Luna',
+        'Lycan',
+        'Mafia',
+        'Medical Genius',
+        'Nanny',
+        'Omega',
+        'Playboy',
+        'Police',
+        'Professor',
+        'Rebel',
+        'Rogue',
+        'Ruthless',
+        'Secretary',
+        'Slave',
+        'Star',
+        'Teenager',
+        'Triplets',
+        'Twins',
+        'Vampire',
+        'Warrior',
+        'Witch / Wizard',
+        'God of War',
+        'Beastman',
+        'Widow',
+        'Possessive',
+        'Protective',
+        'Optimism',
+        'Victim',
+        'Paranoid',
+        'Decisive',
+        'Brave',
+        'Sister-in-law',
+      ],
+    ),
+    'Setting': (
+      '"Setting" refers to the tags that match the main plot setting of the work.',
+      [
+        'Affair',
+        'Age Gap',
+        'Alternate Universe',
+        'Apocalypse',
+        'Betrayal',
+        'Blind Date',
+        'Campus',
+        'Contract Marriage',
+        'Cultivation',
+        'Divorce',
+        'Face-Slapping',
+        'First Love',
+        'Flash Marriage',
+        'Forbidden Love',
+        'Forgiveness',
+        'Gay for you',
+        'Golden Finger',
+        'Harem',
+        'Hate to Love',
+        'Immortal Hero',
+        'Incredible Son-in-Law',
+        'Instant Billionaire',
+        'Kingdom Building',
+        'Level up',
+        'Lit-RPG',
+        'Love after Marriage',
+        'Love at First Sight',
+        'Love-Triangle',
+        'Lovers Reunion',
+        'Misunderstanding',
+        'Office Relationship',
+        'Pregnant',
+        'Reborn',
+        'Regret',
+        'Reject',
+        'Revenge',
+        'Reverse Harem',
+        'Royal',
+        'Runaway Bride/Groom',
+        'Runaway with a Baby',
+        'Second Chance',
+        'Secret Love',
+        'Sports',
+        'Substitute Bride',
+        'Superpower',
+        'Twist',
+        'Twisted',
+        'Weak to Strong',
+        'System',
+        'Pampered by All',
+        'Post-apocalyptic',
+        'Succubus',
+        'Terminal Illness Countdown',
+        'Death Countdown',
+      ],
+    ),
+  };
+
+  /// Writing contests authors can enter from Novel Information.
+  static const contests = [
+    Contest(
+      id: 'c55',
+      title: '#55 They Regret Losing Me, Too Late!',
+      prize: '\$1,200',
+      deadline: '2026-12-15',
+      brief: 'Stories where the one who walked away realises too late what they lost.',
+    ),
+    Contest(
+      id: 'c54',
+      title: '#54 The Queen Stands Unconquered',
+      prize: '\$1,200',
+      deadline: '2026-11-30',
+      brief: 'A heroine who rises after everyone counted her out.',
+    ),
+    Contest(
+      id: 'c53',
+      title: '#53 Moonlit Bonds',
+      prize: '\$800',
+      deadline: '2026-11-20',
+      brief: 'Werewolf and paranormal romance with fated mates and pack politics.',
+    ),
+  ];
+
+  static const writingTips = [
+    ('Hook readers in the first 300 words', 'Open on conflict, not backstory. Readers decide fast.'),
+    ('End every chapter on a question', 'Cliffhangers keep readers unlocking the next chapter.'),
+    ('Update consistently', 'Steady daily updates count toward the Monthly Attendance Bonus.'),
+    ('Pick tags carefully', 'Tags decide who sees your story first. Choose the 5–8 that fit best.'),
+  ];
+
+  /// Income categories on the Income tab, with their card colours.
+  static const incomeTypes = [
+    ('Signing Bonus', 0xFF7B3FF2, 0xFFA45CFF),
+    ('Profit Share', 0xFFFF7A7A, 0xFFFF4B4B),
+    ('Monthly Attendance Bonus (MAB)', 0xFF2BD96B, 0xFF16B24F),
+    ('Completion Bonus', 0xFFFFC23D, 0xFFFF8A1F),
+    ('One-time Payment', 0xFF2EE6E0, 0xFF1AA6F0),
+    ('Others', 0xFF3FA2FF, 0xFF4F5BFF),
+    ('Carry over', 0xFFFF4FD8, 0xFFB34BFF),
+    ('Reward Share', 0xFF4C6BFF, 0xFF8A4BFF),
+  ];
+}
+
+class Contest {
+  final String id;
+  final String title;
+  final String prize;
+  final String deadline;
+  final String brief;
+
+  const Contest({
+    required this.id,
+    required this.title,
+    required this.prize,
+    required this.deadline,
+    required this.brief,
+  });
+}

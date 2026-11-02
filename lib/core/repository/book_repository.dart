@@ -5,12 +5,12 @@ enum RankType { bestsellers, risingStars, completed, hottestNew, readersChoice }
 
 extension RankTypeLabel on RankType {
   String get label => switch (this) {
-        RankType.bestsellers => 'Bestsellers',
-        RankType.risingStars => 'Rising Stars',
-        RankType.completed => 'Completed',
-        RankType.hottestNew => 'Hottest New',
-        RankType.readersChoice => "Readers' Choice",
-      };
+    RankType.bestsellers => 'Bestsellers',
+    RankType.risingStars => 'Rising Stars',
+    RankType.completed => 'Completed',
+    RankType.hottestNew => 'Hottest New',
+    RankType.readersChoice => "Readers' Choice",
+  };
 }
 
 /// Everything the screens need for book content. Controllers only talk to

@@ -7,6 +7,7 @@ import '../../widgets/book_cover.dart';
 import '../../widgets/book_tiles.dart';
 import '../../widgets/common.dart';
 import 'controller/short_controller.dart';
+import '../../core/constants/app_icons.dart';
 
 class ShortScreen extends GetView<ShortController> {
   const ShortScreen({super.key});
@@ -60,9 +61,7 @@ class _HomeTab extends GetView<ShortController> {
                 Obx(() {
                   final books = controller.segmentBooks;
                   return Column(
-                    children: [
-                      for (var i = 0; i < books.length; i++) _RankedShortRow(book: books[i], rank: i + 1),
-                    ],
+                    children: [for (var i = 0; i < books.length; i++) _RankedShortRow(book: books[i], rank: i + 1)],
                   );
                 }),
                 const SizedBox(height: 8),
@@ -89,32 +88,34 @@ class _SegmentBar extends GetView<ShortController> {
         gradient: LinearGradient(colors: [AppColors.plum, AppColors.plumLight]),
         borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
       ),
-      child: Obx(() => Row(
-            children: [
-              for (var i = 0; i < controller.homeSegments.length; i++)
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => controller.segment.value = i,
-                    child: Container(
-                      alignment: Alignment.center,
-                      margin: const EdgeInsets.fromLTRB(4, 6, 4, 0),
-                      decoration: BoxDecoration(
-                        color: controller.segment.value == i ? AppColors.primary : Colors.transparent,
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
-                      ),
-                      child: Text(
-                        controller.homeSegments[i],
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 13,
-                          fontWeight: controller.segment.value == i ? FontWeight.w600 : FontWeight.w400,
-                        ),
+      child: Obx(
+        () => Row(
+          children: [
+            for (var i = 0; i < controller.homeSegments.length; i++)
+              Expanded(
+                child: GestureDetector(
+                  onTap: () => controller.segment.value = i,
+                  child: Container(
+                    alignment: Alignment.center,
+                    margin: const EdgeInsets.fromLTRB(4, 6, 4, 0),
+                    decoration: BoxDecoration(
+                      color: controller.segment.value == i ? AppColors.primary : Colors.transparent,
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+                    ),
+                    child: Text(
+                      controller.homeSegments[i],
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: controller.segment.value == i ? FontWeight.w600 : FontWeight.w400,
                       ),
                     ),
                   ),
                 ),
-            ],
-          )),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -135,17 +136,19 @@ class _RankedShortRow extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text.rich(
-              TextSpan(children: [
-                TextSpan(
-                  text: '$rank  ',
-                  style: TextStyle(
-                    color: rank <= 3 ? AppColors.primary : AppColors.textHint,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 16,
+              TextSpan(
+                children: [
+                  TextSpan(
+                    text: '$rank  ',
+                    style: TextStyle(
+                      color: rank <= 3 ? AppColors.primary : AppColors.textHint,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16,
+                    ),
                   ),
-                ),
-                TextSpan(text: book.title),
-              ]),
+                  TextSpan(text: book.title),
+                ],
+              ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
@@ -188,10 +191,7 @@ class _SelectedTab extends GetView<ShortController> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 16),
       children: [
-        for (final c in controller.collections) ...[
-          _CollectionCard(collection: c),
-          const SizedBox(height: 12),
-        ],
+        for (final c in controller.collections) ...[_CollectionCard(collection: c), const SizedBox(height: 12)],
       ],
     );
   }
@@ -279,7 +279,7 @@ class _ArrivalsTab extends GetView<ShortController> {
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: Row(
                 children: [
-                  const Icon(Icons.radio_button_checked_rounded, color: AppColors.primary, size: 16),
+                  const Icon(AppIcons.radioOn, color: AppColors.primary, size: 16),
                   const SizedBox(width: 6),
                   Text(entry.key, style: const TextStyle(fontWeight: FontWeight.w700)),
                 ],
@@ -307,7 +307,7 @@ class _Card extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
-        child: child,
-      );
+    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+    child: child,
+  );
 }

@@ -5,6 +5,7 @@ import '../../core/constants/app_colors.dart';
 import '../../widgets/common.dart';
 import '../../widgets/ui_kit.dart';
 import 'controller/exchange_controller.dart';
+import '../../core/constants/app_icons.dart';
 
 class ExchangeScreen extends GetView<ExchangeController> {
   const ExchangeScreen({super.key});
@@ -22,25 +23,26 @@ class ExchangeScreen extends GetView<ExchangeController> {
               children: [
                 const Text('Redeem a code', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
                 const SizedBox(height: 6),
-                const Text('Enter a gift or promo code to get free bonus.',
-                    style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                const Text(
+                  'Enter a gift or promo code to get free bonus.',
+                  style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: controller.codeController,
                   textCapitalization: TextCapitalization.characters,
                   onSubmitted: (_) => controller.redeem(),
-                  decoration: const InputDecoration(
-                    hintText: 'e.g. BONOVELA',
-                    prefixIcon: Icon(Icons.confirmation_number_outlined),
-                  ),
+                  decoration: const InputDecoration(hintText: 'e.g. BONOVELA', prefixIcon: Icon(AppIcons.ticket)),
                 ),
                 const SizedBox(height: 16),
-                Obx(() => GradientButton(
-                      label: 'Redeem',
-                      width: double.infinity,
-                      loading: controller.isRedeeming.value,
-                      onTap: controller.redeem,
-                    )),
+                Obx(
+                  () => GradientButton(
+                    label: 'Redeem',
+                    width: double.infinity,
+                    loading: controller.isRedeeming.value,
+                    onTap: controller.redeem,
+                  ),
+                ),
               ],
             ),
           ),

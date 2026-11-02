@@ -93,28 +93,10 @@ class BookDetailController extends GetxController {
   void openComments() => Get.toNamed(AppRoutes.comments, arguments: bookId);
 
   // ── Support (gifting) ─────────────────────────────────────────────────────
-  static const giftOptions = [10, 50, 100, 500];
-
   /// Mock count of readers who gifted, plus you once you do.
-  int get supporters =>
-      12 + (book.value?.coverSeed ?? 0) % 80 + (_account.transactions.any(_isMyGift) ? 1 : 0);
+  int get supporters => 12 + (book.value?.coverSeed ?? 0) % 80 + (_account.transactions.any(_isMyGift) ? 1 : 0);
 
   bool _isMyGift(WalletTransaction t) => t.kind == TxKind.gift && t.bookId == bookId;
-
-  void support(int amount) {
-    if (!_account.isLoggedIn) {
-      Get.toNamed(AppRoutes.login);
-      return;
-    }
-    final ok = _account.spend(amount, title: 'Gift to ${book.value!.title}', kind: TxKind.gift, bookId: bookId);
-    Get.back();
-    if (ok) {
-      toast('Thank you for your support 💗', '$amount coins sent to ${book.value!.author}');
-    } else {
-      toast('Not enough coins', 'Top up to support this author.');
-      Get.toNamed(AppRoutes.topUp);
-    }
-  }
 
   void share() {
     _account.completeDailyTask('share', bonusAmount: 3, max: 1, source: 'Share a story');

@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
 
-import '../../../config/routes.dart';
 import '../../../core/services/account_service.dart';
 import '../../../widgets/ui_kit.dart';
 import '../models/coin_package.dart';
@@ -26,8 +25,6 @@ class TopUpController extends GetxController {
     _account.topUp(coinAmount: p.coins, bonusAmount: p.bonus, price: p.price);
     isPaying.value = false;
     Get.back(); // payment sheet
-    toast('Top up successful', '+${p.coins} coins${p.bonus > 0 ? ' · +${p.bonus} bonus' : ''} · +3 gems');
+    toast('Top up successful', '+${p.coins} coins${p.bonus > 0 ? ' · +${p.bonus} bonus' : ''} · +3 vouchers');
   }
-
-  void openSubscription() => Get.toNamed(AppRoutes.subscription);
 }

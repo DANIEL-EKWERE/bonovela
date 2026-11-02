@@ -35,14 +35,12 @@ class FeedSectionView extends StatelessWidget {
           switch (section.layout) {
             FeedLayout.rankedColumns => _RankedColumns(books: section.books),
             FeedLayout.coverRow => _CoverRow(books: section.books),
-            FeedLayout.detailList => Column(
-                children: [for (final b in section.books) BookListTile(book: b)],
-              ),
+            FeedLayout.detailList => Column(children: [for (final b in section.books) BookListTile(book: b)]),
             FeedLayout.hero => _Hero(books: section.books),
             FeedLayout.compactGrid => _CompactGrid(books: section.books),
             FeedLayout.ratedList => Column(
-                children: [for (final b in section.books) BookListTile(book: b, showRating: true)],
-              ),
+              children: [for (final b in section.books) BookListTile(book: b, showRating: true)],
+            ),
           },
         ],
       ),
@@ -152,10 +150,7 @@ class _CompactGrid extends StatelessWidget {
       child: Wrap(
         spacing: 12,
         runSpacing: 14,
-        children: [
-          for (var i = 0; i < books.length; i++)
-            BookCompactTile(book: books[i], rank: i + 1, width: half),
-        ],
+        children: [for (var i = 0; i < books.length; i++) BookCompactTile(book: books[i], rank: i + 1, width: half)],
       ),
     );
   }
@@ -216,15 +211,9 @@ class _Hero extends StatelessWidget {
             children: [
               RatingStars(rating: hero.rating),
               const SizedBox(width: 12),
-              for (final t in hero.tags.take(2))
-                Padding(padding: const EdgeInsets.only(right: 6), child: TagChip(t)),
+              for (final t in hero.tags.take(2)) Padding(padding: const EdgeInsets.only(right: 6), child: TagChip(t)),
               const Spacer(),
-              GradientButton(
-                label: 'Read Now',
-                height: 34,
-                fontSize: 13,
-                onTap: () => openBook(hero),
-              ),
+              GradientButton(label: 'Read Now', height: 34, fontSize: 13, onTap: () => openBook(hero)),
             ],
           ),
         ),

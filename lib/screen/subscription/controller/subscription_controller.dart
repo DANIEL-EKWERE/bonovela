@@ -30,5 +30,6 @@ class SubscriptionController extends GetxController {
     toast('Welcome to Bonovela Plus 💗', 'All short stories are now unlimited.');
   }
 
-  void restore() => toast('Restore purchases', isPlus ? 'Your subscription is active.' : 'No previous purchases found.');
+  void restore() =>
+      toast('Restore purchases', isPlus ? 'Your subscription is active.' : 'No previous purchases found.');
 }

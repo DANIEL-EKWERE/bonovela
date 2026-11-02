@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
@@ -11,6 +12,7 @@ import 'package:bonovela/core/data/mock_data.dart';
 import 'package:bonovela/core/repository/book_repository.dart';
 import 'package:bonovela/core/repository/mock_book_repository.dart';
 import 'package:bonovela/core/services/account_service.dart';
+import 'package:bonovela/core/services/author_service.dart';
 import 'package:bonovela/main.dart';
 
 /// Opens every route on a phone-sized screen and fails on any exception
@@ -39,6 +41,7 @@ void main() {
     await tester.runAsync(() async {
       await Get.putAsync<LocalStorage>(() => LocalStorage().init(), permanent: true);
       await Get.putAsync<AccountService>(() => AccountService().init(), permanent: true);
+      Get.put<AuthorService>(AuthorService().init(), permanent: true);
     });
     Get.put<BookRepository>(MockBookRepository(), permanent: true);
 
@@ -60,6 +63,7 @@ void main() {
       AppRoutes.comments: book.id,
       AppRoutes.search: null,
       AppRoutes.categories: null,
+      AppRoutes.rank: null,
       AppRoutes.viewAll: {'title': 'All', 'books': MockData.books.take(5).toList()},
       AppRoutes.authorProfile: book.author,
       AppRoutes.editProfile: null,
@@ -67,7 +71,7 @@ void main() {
       AppRoutes.inbox: null,
       AppRoutes.authorCenter: null,
       AppRoutes.exchange: null,
-      AppRoutes.gems: null,
+      AppRoutes.vouchers: null,
       AppRoutes.wallet: null,
       AppRoutes.topUp: null,
       AppRoutes.transactionHistory: null,
@@ -92,7 +96,7 @@ void main() {
     };
 
     // Each tab of the shell.
-    for (final label in ['Library', 'Discover', 'Short', 'Rank', 'Profile']) {
+    for (final label in ['Library', 'Discover', 'Short', 'Drama', 'Profile']) {
       await tester.tap(find.text(label).last);
       await _settle(tester);
     }
@@ -122,6 +126,94 @@ void main() {
     expect(account.signIn(AccountService.demoEmail, 'wrong'), isNotNull);
     expect(account.signIn(AccountService.demoEmail, AccountService.demoPassword), isNull);
     expect(account.lastAccount.value?['email'], AccountService.demoEmail);
+
+    // Author Center: become an author, create a story, release a chapter,
+    // then open every author screen and tab.
+    account.becomeAuthor();
+    final author = Get.find<AuthorService>();
+    final story = author.newStory()
+      ..title = 'Love and Lies'
+      ..coverIndex = 2
+      ..audience = 'female'
+      ..rating = '16+'
+      ..genre = 'Romance'
+      ..tags = ['Contemporary', 'Divorce']
+      ..synopsis = List.filled(25, 'word').join(' ');
+    author.saveStory(story);
+    expect(story.isInfoComplete, isTrue);
+
+    // Device cover: copied into app storage, shown instead of the palette,
+    // and deleted with the story.
+    final coverFile = await tester.runAsync(() async {
+      final src = File('${dir.path}/picked.jpg')..writeAsBytesSync([0xFF, 0xD8, 0xFF]);
+      return author.importCover(src.path, story.id);
+    });
+    expect(File(coverFile!).existsSync(), isTrue);
+    story.coverPath = coverFile;
+    author.saveStory(story);
+    expect(story.hasCover, isTrue);
+    final ch = author.newChapter(story.id)
+      ..title = 'The Night Before'
+      ..content = List.filled(650, 'text').join(' ');
+    author.publishChapter(ch);
+    expect(author.totalWords(story.id), 650);
+    expect(author.commentsFor(story), isNotEmpty);
+
+    Get.toNamed(AppRoutes.authorCenter);
+    await _settle(tester);
+    for (final label in ['Discover', 'Calendar', 'Comments', 'Income', 'Stories']) {
+      await tester.tap(find.text(label).last);
+      await _settle(tester);
+      expect(tester.takeException(), isNull, reason: 'author tab $label');
+    }
+    for (final MapEntry(key: route, value: args) in <String, dynamic>{
+      AppRoutes.storyForm: story.id,
+      AppRoutes.storyChapters: story.id,
+      AppRoutes.chapterEditor: {'storyId': story.id, 'chapterId': ch.id},
+      AppRoutes.authorStatistics: story.id,
+    }.entries) {
+      Get.toNamed(route, arguments: args);
+      await _settle(tester);
+      expect(tester.takeException(), isNull, reason: route);
+      Get.back();
+      await _settle(tester);
+    }
+    // New-story form, through all three steps.
+    Get.toNamed(AppRoutes.storyForm);
+    await _settle(tester);
+    expect(find.text('Novel Information'), findsOneWidget);
+    Get.back();
+    await _settle(tester);
+    Get.back(); // author center
+    await _settle(tester);
+
+    // Tip sheet from the reader: Vote and Gift tabs, voucher voting, and a
+    // gift the reader can't afford is refused.
+    Get.toNamed(AppRoutes.reader, arguments: {'bookId': book.id, 'chapter': 1});
+    await _settle(tester);
+    await tester.tapAt(tester.getCenter(find.byType(Scaffold).last)); // show reader controls
+    await _settle(tester);
+    await tester.tap(find.byTooltip('Tip this book'));
+    await _settle(tester);
+    expect(find.text('Gift'), findsWidgets);
+    expect(find.textContaining('Coins Balance'), findsOneWidget);
+    await tester.tap(find.text('Vote').first);
+    await _settle(tester);
+    expect(find.textContaining('votes this week'), findsOneWidget);
+    expect(tester.takeException(), isNull, reason: 'tip sheet');
+    Get.back(); // sheet
+    await _settle(tester);
+    Get.back(); // reader
+    await _settle(tester);
+    account.addVouchers(5, 'Test');
+    expect(account.vote(book.id, book.title, 3), isTrue);
+    expect(account.vouchers.value, 2);
+    expect(account.bookVotes[book.id], 3);
+    expect(account.vote(book.id, book.title, 9), isFalse);
+    expect(
+      account.sendGift(bookId: book.id, title: book.title, gift: 'Crown', price: 999999, votes: 68),
+      isFalse,
+    );
 
     // A locked chapter renders the unlock card.
     Get.toNamed(AppRoutes.reader, arguments: {'bookId': book.id, 'chapter': 11});

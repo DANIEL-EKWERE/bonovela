@@ -6,6 +6,7 @@ import '../../widgets/book_cover.dart';
 import '../../widgets/common.dart';
 import '../../widgets/ui_kit.dart';
 import 'controller/auto_subscription_controller.dart';
+import '../../core/constants/app_icons.dart';
 
 class AutoSubscriptionScreen extends GetView<AutoSubscriptionController> {
   const AutoSubscriptionScreen({super.key});
@@ -19,7 +20,7 @@ class AutoSubscriptionScreen extends GetView<AutoSubscriptionController> {
         final books = controller.books;
         if (books.isEmpty) {
           return const EmptyState(
-            icon: Icons.autorenew_rounded,
+            icon: AppIcons.autoRenew,
             message: 'Novels you read or add to your library will appear here.',
           );
         }

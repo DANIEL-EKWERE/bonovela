@@ -5,6 +5,7 @@ import '../../core/constants/app_colors.dart';
 import '../../widgets/common.dart';
 import 'controller/discover_controller.dart';
 import 'widgets/feed_section_view.dart';
+import '../../core/constants/app_icons.dart';
 
 class DiscoverScreen extends GetView<DiscoverController> {
   const DiscoverScreen({super.key});
@@ -24,11 +25,8 @@ class DiscoverScreen extends GetView<DiscoverController> {
                   children: [
                     Expanded(child: SearchBarButton(onTap: controller.openSearch)),
                     const SizedBox(width: 4),
-                    _HeaderAction(
-                      icon: Icons.card_giftcard_rounded,
-                      label: 'Rewards',
-                      onTap: controller.openRewards,
-                    ),
+                    _HeaderAction(icon: AppIcons.rankFill, label: 'Ranking', onTap: controller.openRanking),
+                    _HeaderAction(icon: AppIcons.gift, label: 'Rewards', onTap: controller.openRewards),
                   ],
                 ),
               ),

@@ -11,23 +11,25 @@ class PushSettingsScreen extends GetView<PushSettingsController> {
   Widget build(BuildContext context) {
     return SubPage(
       title: 'Push Management',
-      body: Obx(() => ListView(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            children: [
-              for (final (i, (key, title, subtitle)) in PushSettingsController.items.indexed) ...[
-                Container(
-                  color: Colors.white,
-                  child: SwitchListTile(
-                    value: controller.push[key] ?? true,
-                    onChanged: (v) => controller.set(key, v),
-                    title: Text(title, style: const TextStyle(fontSize: 16)),
-                    subtitle: Text(subtitle, style: const TextStyle(fontSize: 12)),
-                  ),
+      body: Obx(
+        () => ListView(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          children: [
+            for (final (i, (key, title, subtitle)) in PushSettingsController.items.indexed) ...[
+              Container(
+                color: Colors.white,
+                child: SwitchListTile(
+                  value: controller.push[key] ?? true,
+                  onChanged: (v) => controller.set(key, v),
+                  title: Text(title, style: const TextStyle(fontSize: 16)),
+                  subtitle: Text(subtitle, style: const TextStyle(fontSize: 12)),
                 ),
-                if (i == 0) const SizedBox(height: 12),
-              ],
+              ),
+              if (i == 0) const SizedBox(height: 12),
             ],
-          )),
+          ],
+        ),
+      ),
     );
   }
 }

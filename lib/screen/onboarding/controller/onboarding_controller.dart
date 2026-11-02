@@ -27,10 +27,10 @@ class OnboardingController extends GetxController {
       'male' => _male,
       _ => [..._female, ..._male],
     };
-    final picks = (MockData.books.where((b) => genres.contains(b.genre)).toList()
-          ..sort((a, b) => b.rating.compareTo(a.rating)))
-        .take(9)
-        .toList();
+    final picks =
+        (MockData.books.where((b) => genres.contains(b.genre)).toList()..sort((a, b) => b.rating.compareTo(a.rating)))
+            .take(9)
+            .toList();
     // Insert lowest first so the best pick ends up at the top of the shelf.
     for (final b in picks.reversed) {
       _storage.addToShelf(b.id);

@@ -69,11 +69,13 @@ class MockBookRepository implements BookRepository {
     final q = query.trim().toLowerCase();
     if (q.isEmpty) return [];
     return MockData.books
-        .where((b) =>
-            b.title.toLowerCase().contains(q) ||
-            b.author.toLowerCase().contains(q) ||
-            b.genre.toLowerCase().contains(q) ||
-            b.tags.any((t) => t.toLowerCase().contains(q)))
+        .where(
+          (b) =>
+              b.title.toLowerCase().contains(q) ||
+              b.author.toLowerCase().contains(q) ||
+              b.genre.toLowerCase().contains(q) ||
+              b.tags.any((t) => t.toLowerCase().contains(q)),
+        )
         .toList();
   }
 
