@@ -14,6 +14,7 @@ import 'package:bonovela/core/repository/mock_book_repository.dart';
 import 'package:bonovela/core/services/account_service.dart';
 import 'package:bonovela/core/services/author_service.dart';
 import 'package:bonovela/main.dart';
+import 'package:bonovela/screen/discover/controller/discover_controller.dart';
 
 /// Opens every route on a phone-sized screen and fails on any exception
 /// (GetX misuse, layout overflow, bad arguments).
@@ -100,6 +101,20 @@ void main() {
       await tester.tap(find.text(label).last);
       await _settle(tester);
     }
+
+    // Romance tab sections, in order.
+    final discover = Get.find<DiscoverController>();
+    discover.loadTab('Romance');
+    await _settle(tester);
+    expect(discover.feeds['Romance']!.map((f) => f.title).toList(), [
+      'Recommended For You',
+      "Editor's Pick",
+      'Completed',
+      'Love On Top',
+      'Erotica',
+      'MM Romance',
+    ]);
+    expect(discover.feeds['Romance']!.every((f) => f.books.isNotEmpty), isTrue);
 
     for (final MapEntry(key: route, value: args) in routes.entries) {
       Get.toNamed(route, arguments: args);

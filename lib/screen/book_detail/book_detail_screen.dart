@@ -337,7 +337,12 @@ class _SupportCard extends GetView<BookDetailController> {
                   ),
                 ),
               ),
-              GradientButton(label: 'Support', height: 32, fontSize: 13, onTap: () => showTipSheet(context, bookId)),
+              GradientButton(
+                label: 'Support Book',
+                height: 32,
+                fontSize: 13,
+                onTap: () => showTipSheet(context, bookId),
+              ),
             ],
           ),
         ],

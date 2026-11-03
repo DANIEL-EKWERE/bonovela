@@ -40,8 +40,6 @@ class VouchersScreen extends GetView<VouchersController> {
                     ),
                     const SizedBox(width: 8),
                     const Text('Vouchers left', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-                    const Spacer(),
-                    const CurrencyIcon('voucher', size: 64),
                   ],
                 ),
               ),

@@ -76,10 +76,26 @@ class DiscoverController extends GetxController with GetSingleTickerProviderStat
           FeedSection(title: 'Picks for You', layout: FeedLayout.ratedList, books: _shuffle(all, 3).take(5).toList()),
         ];
       default:
-        final books = await _repo.getBooks(genre: tab);
+        final all = await _repo.getBooks(genre: tab);
+        // Romance keeps its subgenres in their own sections.
+        bool isSub(BookModel b) => b.tags.contains('Erotica') || b.tags.contains('MM Romance');
+        final books = tab == 'Romance' ? all.where((b) => !isSub(b)).toList() : all;
         final fresh = [...books]..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
         final editors = [...books]..sort((a, b) => b.rating.compareTo(a.rating));
         final completed = books.where((b) => b.isCompleted).toList();
+        final popular = [...books]..sort((a, b) => b.views.compareTo(a.views));
+        if (tab == 'Romance') {
+          List<BookModel> tagged(String t) =>
+              all.where((b) => b.tags.contains(t)).toList()..sort((a, b) => b.views.compareTo(a.views));
+          return [
+            FeedSection(title: 'Recommended For You', layout: FeedLayout.compactGrid, books: popular.take(6).toList()),
+            FeedSection(title: "Editor's Pick", layout: FeedLayout.hero, books: editors),
+            if (completed.isNotEmpty) FeedSection(title: 'Completed', layout: FeedLayout.coverRow, books: completed),
+            FeedSection(title: 'Love On Top', layout: FeedLayout.ratedList, books: _shuffle(books, 4)),
+            FeedSection(title: 'Erotica', layout: FeedLayout.coverRow, books: tagged('Erotica')),
+            FeedSection(title: 'MM Romance', layout: FeedLayout.detailList, books: tagged('MM Romance')),
+          ];
+        }
         return [
           FeedSection(title: 'New Arrival', layout: FeedLayout.compactGrid, books: fresh.take(6).toList()),
           FeedSection(title: "Editor's Pick", layout: FeedLayout.hero, books: editors),
