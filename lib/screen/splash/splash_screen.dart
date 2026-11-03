@@ -11,8 +11,8 @@ class SplashScreen extends GetView<SplashController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Matches the logo's off-white background so the JPG edges disappear.
-      backgroundColor: const Color(0xFFFFF7F4),
+      // The wordmark is drawn on white.
+      backgroundColor: Colors.white,
       body: Column(
         children: [
           const Spacer(flex: 3),
@@ -21,7 +21,10 @@ class SplashScreen extends GetView<SplashController> {
             duration: const Duration(milliseconds: 900),
             curve: Curves.easeOutBack,
             builder: (_, scale, child) => Transform.scale(scale: scale, child: child),
-            child: Image.asset(AppConstants.logoAsset, width: 240),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 40),
+              child: Image.asset(AppConstants.logoAsset),
+            ),
           ),
           const Spacer(flex: 2),
           const Text(

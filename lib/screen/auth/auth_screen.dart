@@ -31,12 +31,18 @@ class AuthScreen extends GetView<AuthController> {
                   alignment: Alignment.centerLeft,
                   child: IconButton(onPressed: Get.back, icon: const Icon(AppIcons.back, size: 20)),
                 ),
-                // Logo JPG has an off-white background; blend it into the page.
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(24),
-                  child: Image.asset(AppConstants.logoAsset, height: 170),
+                const SizedBox(height: 24),
+                // The wordmark is drawn on white, so it sits on a white card.
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [BoxShadow(color: AppColors.primary.withValues(alpha: 0.08), blurRadius: 20)],
+                  ),
+                  child: Image.asset(AppConstants.logoAsset, height: 64, fit: BoxFit.contain),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 14),
                 const Text(
                   'Stories that stay with you',
                   textAlign: TextAlign.center,
