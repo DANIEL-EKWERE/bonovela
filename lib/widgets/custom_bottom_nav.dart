@@ -7,9 +7,6 @@ class CustomBottomNav extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
 
-  /// Tab tagged "Soon" (Drama) until it launches.
-  static const comingSoonIndex = 3;
-
   /// Unread count shown on the Profile tab.
   final int profileBadge;
 
@@ -45,13 +42,12 @@ class CustomBottomNav extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Badge(
-                          isLabelVisible: i == comingSoonIndex || (i == 4 && profileBadge > 0),
+                          isLabelVisible: i == 4 && profileBadge > 0,
                           label: Text(
-                            i == comingSoonIndex ? 'Soon' : (profileBadge > 99 ? '99+' : '$profileBadge'),
+                            profileBadge > 99 ? '99+' : '$profileBadge',
                             style: const TextStyle(fontSize: 8, fontWeight: FontWeight.w700),
                           ),
-                          backgroundColor: i == comingSoonIndex ? AppColors.gold : AppColors.error,
-                          offset: i == comingSoonIndex ? const Offset(14, -4) : null,
+                          backgroundColor: AppColors.error,
                           child: Icon(
                             i == currentIndex ? _items[i].$2 : _items[i].$1,
                             size: 24,

@@ -98,6 +98,11 @@ class AppIcons {
   static const IconData voucher = PhosphorIconsFill.ticket;
   static const IconData receipt = PhosphorIconsRegular.receipt;
   static const IconData play = PhosphorIconsRegular.playCircle;
+  static const IconData playFill = PhosphorIconsFill.play;
+  static const IconData pauseFill = PhosphorIconsFill.pause;
+  static const IconData video = PhosphorIconsFill.videoCamera;
+  static const IconData episodes = PhosphorIconsFill.squaresFour;
+  static const IconData skipNext = PhosphorIconsFill.skipForward;
   static const IconData calendarCheck = PhosphorIconsRegular.calendarCheck;
   static const IconData insights = PhosphorIconsRegular.chartLineUp;
   static const IconData megaphone = PhosphorIconsRegular.megaphone;

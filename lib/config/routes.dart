@@ -30,6 +30,10 @@ import '../screen/chapter_unlocked/bindings/chapter_unlocked_binding.dart';
 import '../screen/chapter_unlocked/chapter_unlocked_screen.dart';
 import '../screen/comments/bindings/comments_binding.dart';
 import '../screen/comments/comments_screen.dart';
+import '../screen/drama_list/bindings/drama_list_binding.dart';
+import '../screen/drama_list/drama_list_screen.dart';
+import '../screen/drama_player/bindings/drama_player_binding.dart';
+import '../screen/drama_player/drama_player_screen.dart';
 import '../screen/edit_profile/bindings/edit_profile_binding.dart';
 import '../screen/edit_profile/edit_profile_screen.dart';
 import '../screen/exchange/bindings/exchange_binding.dart';
@@ -112,6 +116,10 @@ class AppRoutes {
   static const viewAll = '/view_all'; // arguments: {'title': String, 'books': List<BookModel>}
   static const authorProfile = '/author_profile'; // arguments: author name
 
+  // Drama
+  static const dramaPlayer = '/drama_player'; // arguments: {'dramaId': String, 'episode': int?}
+  static const dramaList = '/drama_list'; // arguments: {'title': String, 'dramas': List<DramaModel>}
+
   // Profile
   static const editProfile = '/edit_profile';
   static const followList = '/follow_list'; // arguments: initial tab index
@@ -164,6 +172,8 @@ class AppRoutes {
     GetPage(name: comments, page: () => const CommentsScreen(), binding: CommentsBinding()),
     GetPage(name: search, page: () => const SearchScreen(), binding: SearchBinding(), transition: Transition.fadeIn),
     GetPage(name: rank, page: () => const RankScreen(), binding: RankBinding()),
+    GetPage(name: dramaPlayer, page: () => const DramaPlayerScreen(), binding: DramaPlayerBinding()),
+    GetPage(name: dramaList, page: () => const DramaListScreen(), binding: DramaListBinding()),
     GetPage(name: categories, page: () => const CategoriesScreen(), binding: CategoriesBinding()),
     GetPage(name: viewAll, page: () => const ViewAllScreen(), binding: ViewAllBinding()),
     GetPage(

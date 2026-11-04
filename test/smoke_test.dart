@@ -12,7 +12,9 @@ import 'package:bonovela/core/data/mock_data.dart';
 import 'package:bonovela/core/repository/book_repository.dart';
 import 'package:bonovela/core/repository/mock_book_repository.dart';
 import 'package:bonovela/core/services/account_service.dart';
+import 'package:bonovela/core/data/drama_data.dart';
 import 'package:bonovela/core/services/author_service.dart';
+import 'package:bonovela/core/services/drama_service.dart';
 import 'package:bonovela/main.dart';
 import 'package:bonovela/screen/discover/controller/discover_controller.dart';
 
@@ -43,6 +45,7 @@ void main() {
       await Get.putAsync<LocalStorage>(() => LocalStorage().init(), permanent: true);
       await Get.putAsync<AccountService>(() => AccountService().init(), permanent: true);
       Get.put<AuthorService>(AuthorService().init(), permanent: true);
+      Get.put<DramaService>(DramaService().init(), permanent: true);
     });
     Get.put<BookRepository>(MockBookRepository(), permanent: true);
 
@@ -94,6 +97,9 @@ void main() {
       AppRoutes.verifyEmail: 'new.reader@example.com',
       AppRoutes.signIn: AccountService.demoEmail,
       AppRoutes.onboarding: null,
+      AppRoutes.dramaList: {'title': 'Trending', 'dramas': DramaData.dramas.take(5).toList()},
+      AppRoutes.dramaPlayer: {'dramaId': DramaData.dramas.first.id, 'episode': 1},
+      '${AppRoutes.dramaPlayer}?locked': {'dramaId': DramaData.dramas[1].id, 'episode': 8},
     };
 
     // Each tab of the shell.
@@ -117,7 +123,7 @@ void main() {
     expect(discover.feeds['Romance']!.every((f) => f.books.isNotEmpty), isTrue);
 
     for (final MapEntry(key: route, value: args) in routes.entries) {
-      Get.toNamed(route, arguments: args);
+      Get.toNamed(route.split('?').first, arguments: args);
       await _settle(tester);
       expect(tester.takeException(), isNull, reason: route);
       Get.back();
@@ -187,7 +193,7 @@ void main() {
       AppRoutes.chapterEditor: {'storyId': story.id, 'chapterId': ch.id},
       AppRoutes.authorStatistics: story.id,
     }.entries) {
-      Get.toNamed(route, arguments: args);
+      Get.toNamed(route.split('?').first, arguments: args);
       await _settle(tester);
       expect(tester.takeException(), isNull, reason: route);
       Get.back();

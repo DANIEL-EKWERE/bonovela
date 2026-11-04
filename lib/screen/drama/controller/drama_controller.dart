@@ -1,29 +1,38 @@
 import 'package:get/get.dart';
 
-import '../../../config/local_storage.dart';
-import '../../../widgets/ui_kit.dart';
+import '../../../config/routes.dart';
+import '../../../core/models/drama_model.dart';
+import '../../../core/services/drama_service.dart';
 
-/// Short dramas (video episodes). Not built yet — the tab shows a
-/// "coming soon" page and lets readers ask to be notified.
+/// Drama tab: Popular Picks → New Release → You May Also Like → Trending.
 class DramaController extends GetxController {
-  final _storage = Get.find<LocalStorage>();
+  final service = Get.find<DramaService>();
 
-  static const _kNotify = 'drama_notify';
+  late final List<DramaModel> popular;
+  late final List<DramaModel> newRelease;
+  late final List<DramaModel> youMayLike;
+  late final List<DramaModel> trending;
 
-  final RxBool notify = false.obs;
+  /// Highlighted card in "You May Also Like".
+  final RxInt likeIndex = 0.obs;
 
   @override
   void onInit() {
     super.onInit();
-    notify.value = _storage.read<bool>(_kNotify) ?? false;
+    final all = service.dramas;
+    popular = ([...all]..sort((a, b) => b.plays.compareTo(a.plays))).take(6).toList();
+    newRelease = ([...all]..sort((a, b) => b.releasedAt.compareTo(a.releasedAt))).take(9).toList();
+    final shown = {...popular, ...newRelease}.map((d) => d.id).toSet();
+    youMayLike = [...all.where((d) => !shown.contains(d.id)), ...popular.reversed].take(8).toList();
+    trending = ([...all]..sort((a, b) => (b.plays ~/ (b.episodeCount)).compareTo(a.plays ~/ a.episodeCount)))
+        .take(9)
+        .toList();
   }
 
-  void toggleNotify() {
-    notify.toggle();
-    _storage.write(_kNotify, notify.value);
-    toast(
-      notify.value ? 'We\'ll let you know' : 'Notification off',
-      notify.value ? 'You\'ll get a message when Drama launches.' : '',
-    );
-  }
+  DramaModel get liked => youMayLike[likeIndex.value];
+
+  void play(DramaModel d) => Get.toNamed(AppRoutes.dramaPlayer, arguments: {'dramaId': d.id});
+
+  void viewAll(String title, List<DramaModel> list) =>
+      Get.toNamed(AppRoutes.dramaList, arguments: {'title': title, 'dramas': list});
 }

@@ -14,4 +14,9 @@ class AppConstants {
   static const int freeChapters = 10;
   static const int chapterPrice = 15;
   static const String currency = '\$';
+
+  // Drama episodes: the first few are free, then coins per episode
+  // (free for Plus members).
+  static const int freeEpisodes = 5;
+  static const int episodePrice = 10;
 }
