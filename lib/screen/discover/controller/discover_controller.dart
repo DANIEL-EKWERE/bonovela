@@ -9,7 +9,7 @@ import '../../../core/models/feed_section.dart';
 class DiscoverController extends GetxController with GetSingleTickerProviderStateMixin {
   final _repo = Get.find<BookRepository>();
 
-  final List<String> tabs = ['Discover', 'New', ...AppConstants.genres];
+  final List<String> tabs = ['Discover', 'Free', 'New', ...AppConstants.genres];
   late final TabController tabController;
 
   /// Feed per tab, filled the first time a tab is opened.

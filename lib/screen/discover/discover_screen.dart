@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/services/ads_service.dart';
+import '../../widgets/banner_carousel.dart';
 import '../../widgets/common.dart';
 import 'controller/discover_controller.dart';
 import 'widgets/feed_section_view.dart';
@@ -97,7 +99,10 @@ class _TabFeed extends GetView<DiscoverController> {
         onRefresh: () => controller.refreshTab(tab),
         child: ListView(
           padding: const EdgeInsets.only(top: 4, bottom: 16),
-          children: [for (final s in sections) FeedSectionView(section: s)],
+          children: [
+            if (tab == 'Free') const BannerCarousel(placement: AdsService.freeTab),
+            for (final s in sections) FeedSectionView(section: s),
+          ],
         ),
       );
     });

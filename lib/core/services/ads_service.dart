@@ -36,11 +36,12 @@ class AdBanner {
   );
 }
 
-/// Pop-up and open-screen ads set up by Marketing (Banners, placements
-/// "popup" and "splash"). Each ad is shown once per device.
+/// Banners set up by Marketing: pop-up and open-screen ads (each shown once
+/// per device) and carousels such as the FREE tab's.
 class AdsService extends GetxService {
   static const splash = 'splash';
   static const popup = 'popup';
+  static const freeTab = 'free';
   static const _kSeen = 'seen_ads';
 
   LocalStorage get _storage => Get.find<LocalStorage>();
@@ -64,6 +65,21 @@ class AdsService extends GetxService {
       }
     } catch (_) {}
     return null;
+  }
+
+  /// Every live banner of [placement] (carousels show them all, every time).
+  Future<List<AdBanner>> banners(String placement) async {
+    final api = _api;
+    if (!enabled || api == null) return [];
+    try {
+      final rows = await api.get('banners/', {'placement': placement}) as List;
+      return [
+        for (final r in rows)
+          if ((r['image_url'] ?? '').toString().isNotEmpty) AdBanner.fromJson(Map<String, dynamic>.from(r)),
+      ];
+    } catch (_) {
+      return [];
+    }
   }
 
   void markSeen(AdBanner ad) => _storage.write(_kSeen, [..._seen, ad.id]);

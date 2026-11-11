@@ -35,6 +35,7 @@ class FeedSectionView extends StatelessWidget {
           switch (section.layout) {
             FeedLayout.coverGrid => _CoverGrid(books: section.books),
             FeedLayout.coverRow => _CoverRow(books: section.books),
+            FeedLayout.pagedList => _PagedList(books: section.books),
             FeedLayout.detailList => Column(children: [for (final b in section.books) BookListTile(book: b)]),
             FeedLayout.hero => _Hero(books: section.books),
             FeedLayout.compactGrid => _CompactGrid(books: section.books),
@@ -63,6 +64,72 @@ class _CoverRow extends StatelessWidget {
         itemCount: books.length,
         separatorBuilder: (_, _) => const SizedBox(width: 12),
         itemBuilder: (_, i) => BookGridTile(book: books[i], width: 100),
+      ),
+    );
+  }
+}
+
+/// Pages of three rows (cover, title, blurb), swiped sideways; the next
+/// page peeks in from the right.
+class _PagedList extends StatelessWidget {
+  final List<BookModel> books;
+
+  const _PagedList({required this.books});
+
+  static const _rows = 3;
+  static const _cover = 74.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width * 0.82;
+    final pages = <List<BookModel>>[for (var i = 0; i < books.length; i += _rows) books.skip(i).take(_rows).toList()];
+    return SizedBox(
+      height: _rows * (_cover * 4 / 3 + 14),
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: pages.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 14),
+        itemBuilder: (_, p) => SizedBox(
+          width: width,
+          child: Column(
+            children: [
+              for (final b in pages[p])
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 14),
+                  child: GestureDetector(
+                    onTap: () => openBook(b),
+                    child: Row(
+                      children: [
+                        BookCover(book: b, width: _cover),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                b.title,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                b.synopsis,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(fontSize: 13, color: AppColors.textHint, height: 1.35),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }

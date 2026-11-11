@@ -67,6 +67,14 @@ class MockBookRepository implements BookRepository {
           ),
           FeedSection(title: 'Just Updated', layout: FeedLayout.detailList, books: fresh.take(6).toList()),
         ];
+      case 'Free':
+        return [
+          FeedSection(title: 'Free for now', layout: FeedLayout.coverRow, books: popular.take(8).toList()),
+          FeedSection(title: 'Free Reads', layout: FeedLayout.coverRow, books: _shuffle(all, 5).take(8).toList()),
+          FeedSection(title: 'Rising Stars', layout: FeedLayout.pagedList, books: _shuffle(all, 6).take(9).toList()),
+          FeedSection(title: 'Featured for you', layout: FeedLayout.coverRow, books: _shuffle(all, 7).take(8).toList()),
+          FeedSection(title: 'New Arrivals', layout: FeedLayout.coverRow, books: fresh.take(8).toList()),
+        ];
       case 'New':
         return [
           FeedSection(title: 'Best Newcomers', layout: FeedLayout.hero, books: fresh.take(6).toList()),

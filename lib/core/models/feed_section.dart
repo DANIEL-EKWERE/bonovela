@@ -8,6 +8,9 @@ enum FeedLayout {
   /// Horizontal row of covers with title and tag.
   coverRow,
 
+  /// Pages of three rows (cover, title, blurb), swiped sideways.
+  pagedList,
+
   /// Vertical list: cover, title, synopsis, tags, views.
   detailList,
 
