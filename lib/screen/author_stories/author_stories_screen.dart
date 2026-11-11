@@ -80,9 +80,12 @@ class _Tips extends GetView<AuthorStoriesController> {
             children: [
               Expanded(
                 child: Text(
-                  'TIPS: Unsigned books cannot be displayed in the app.\n'
-                  'Once a book is signed, it will be eligible to go live in the app. However, books with fewer than '
-                  '20 chapters cannot go live, even after signing.\n\n'
+                  'TIPS: Unsigned books cannot be displayed in the app.\n\n'
+                  'Once a book is signed, it will automatically be added to the Free Reading Section, where readers '
+                  'can access it for free.\n\n'
+                  'When a book reaches 30,000 words, the Pay-to-Read Application option will become available. '
+                  'Authors who wish to monetize their books can submit an application for editorial review and '
+                  'approval.\n\n'
                   'Need more information?\nPlease contact your assigned Editor for assistance.',
                   maxLines: controller.tipsExpanded.value ? null : 1,
                   overflow: controller.tipsExpanded.value ? null : TextOverflow.ellipsis,
