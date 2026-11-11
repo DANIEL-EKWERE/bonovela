@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:get/get.dart';
 
 import '../../config/local_storage.dart';
+import '../../widgets/ui_kit.dart';
 import '../api/api_client.dart';
 import '../models/comment_model.dart';
 import '../models/inbox_message.dart';
@@ -92,7 +93,8 @@ class AccountService extends GetxService {
     _rollDay();
     _recomputeBonus();
 
-    if (_s.read<bool>('seeded') != true) _seed();
+    if (_s.read<bool>('seeded') != true && _api == null) _seed();
+    if (_online) syncAccount();
     return this;
   }
 
@@ -259,6 +261,7 @@ class AccountService extends GetxService {
     user.value = u;
     lastAccount.value = {'email': u.email, 'name': u.name, 'provider': 'email'};
     _save();
+    syncAccount();
   }
 
   /// Refreshes the profile from the server (role, pen name…) after launch.
@@ -350,8 +353,21 @@ class AccountService extends GetxService {
   }
 
   void logout() {
+    final wasOnline = _online;
     _api?.tokens?.clear();
     user.value = null;
+    if (wasOnline) {
+      // The account lives on the server; nothing of it stays on the phone.
+      coins.value = vouchers.value = checkInStreak.value = readingMinutesToday.value = 0;
+      plusUntil.value = lastCheckIn.value = null;
+      for (final l in <RxList>[transactions, bonusRecords, voucherHistory, inbox, myComments]) {
+        l.clear();
+      }
+      following.clear();
+      dailyTasks.clear();
+      oneTimeTasks.clear();
+      _recomputeBonus();
+    }
     _save();
   }
 
@@ -372,6 +388,201 @@ class AccountService extends GetxService {
     if (api != null) await api.post('auth/become-author/');
     user.value = u.copyWith(isAuthor: true);
     _save();
+  }
+
+  // ── Server sync ────────────────────────────────────────────────────────────
+  // With a backend the server holds the account: [syncAccount] copies wallet,
+  // history, rewards, inbox and follows into the fields above, and each
+  // action below also goes to the server, then re-syncs so balances and
+  // rewards are the server's numbers.
+  bool get _online => _api?.signedIn ?? false;
+
+  /// Author name → user id, learned from books (follow needs the id).
+  final Map<String, String> _authorIds = {};
+
+  void rememberAuthor(String name, String id) {
+    if (name.isNotEmpty && id.isNotEmpty) _authorIds[name] = id;
+  }
+
+  Future<void>? _syncing;
+
+  Future<void> syncAccount() => _syncing ??= _syncAccount().whenComplete(() => _syncing = null);
+
+  Future<void> _syncAccount() async {
+    final api = _api;
+    if (api == null || !api.signedIn) return;
+    try {
+      final w = await api.get('wallet/') as Map;
+      coins.value = (w['coins'] as num).toInt();
+      vouchers.value = (w['vouchers'] as num).toInt();
+      plusUntil.value = DateTime.tryParse(w['plus_until']?.toString() ?? '');
+      transactions.assignAll([
+        for (final t in (await api.get('wallet/transactions/') as List).cast<Map>())
+          WalletTransaction(
+            id: t['id'].toString(),
+            kind: TxKind.values.firstWhere((k) => _txKinds[t['kind']] == k, orElse: () => TxKind.unlock),
+            title: t['title']?.toString() ?? '',
+            coins: (t['coins'] as num?)?.toInt() ?? 0,
+            bonusUsed: (t['bonus_used'] as num?)?.toInt() ?? 0,
+            price: t['price']?.toString() ?? '',
+            date: DateTime.tryParse(t['created_at']?.toString() ?? '') ?? DateTime.now(),
+            bookId: t['book_id']?.toString(),
+            chapter: (t['chapter'] as num?)?.toInt(),
+          ),
+      ]);
+      bonusRecords.assignAll([
+        for (final b in (await api.get('wallet/bonus/') as List).cast<Map>())
+          BonusRecord(
+            id: b['id'].toString(),
+            source: b['source']?.toString() ?? '',
+            amount: (b['amount'] as num).toInt(),
+            receivedAt: DateTime.tryParse(b['received_at']?.toString() ?? '') ?? DateTime.now(),
+            expiresAt: DateTime.tryParse(b['expires_at']?.toString() ?? '') ?? DateTime.now(),
+            consumed: (b['amount'] as num).toInt() - ((b['remaining'] as num?)?.toInt() ?? 0),
+          ),
+      ]);
+      _recomputeBonus();
+      voucherHistory.assignAll([
+        for (final v in (await api.get('wallet/vouchers/') as List).cast<Map>())
+          VoucherRecord(
+            v['source']?.toString() ?? '',
+            (v['amount'] as num).toInt(),
+            DateTime.tryParse(v['created_at']?.toString() ?? '') ?? DateTime.now(),
+          ),
+      ]);
+      final r = await api.get('rewards/') as Map;
+      final ci = r['checkin'] as Map;
+      checkInStreak.value = (ci['streak'] as num).toInt();
+      lastCheckIn.value = ci['checked_in_today'] == true ? DateTime.now() : null;
+      dailyTasks.assignAll({
+        for (final e in (r['daily_tasks'] as Map).entries) e.key.toString(): ((e.value as Map)['done'] as num).toInt(),
+        for (final m in ((r['reading'] as Map)['milestones'] as List).cast<Map>())
+          if (m['claimed'] == true) 'read_${m['minutes']}': 1,
+      });
+      oneTimeTasks.assignAll([
+        for (final e in (r['one_time_tasks'] as Map).entries)
+          if ((e.value as Map)['done'] == true) e.key.toString(),
+      ]);
+      readingMinutesToday.value = ((r['reading'] as Map)['minutes_today'] as num).toInt();
+      final box = await api.get('inbox/') as Map;
+      inbox.assignAll([
+        for (final m in (box['messages'] as List).cast<Map>())
+          InboxMessage(
+            id: m['id'].toString(),
+            title: m['title']?.toString() ?? '',
+            body: m['body']?.toString() ?? '',
+            date: DateTime.tryParse(m['date']?.toString() ?? '') ?? DateTime.now(),
+            bookId: m['book_id']?.toString(),
+            read: m['read'] == true,
+          ),
+      ]);
+      final shelfRows = (await api.get('library/') as List).cast<Map>();
+      final historyRows = (await api.get('history/') as List).cast<Map>();
+      _s.replaceShelfAndHistory(
+        [for (final b in shelfRows) b['id'].toString()],
+        [
+          for (final b in historyRows)
+            ReadProgress(
+              b['id'].toString(),
+              (b['last_chapter'] as num?)?.toInt() ?? 1,
+              DateTime.tryParse(b['read_at']?.toString() ?? '') ?? DateTime.now(),
+            ),
+        ],
+      );
+      for (final b in [...shelfRows, ...historyRows]) {
+        rememberAuthor(b['author']?.toString() ?? '', b['author_id']?.toString() ?? '');
+      }
+      final follows = (await api.get('following/') as List).cast<Map>();
+      for (final a in follows) {
+        rememberAuthor(a['name'].toString(), a['id'].toString());
+      }
+      following.assignAll([for (final a in follows) a['name'].toString()]);
+      _save();
+    } catch (_) {
+      // Offline: keep the last copy.
+    }
+  }
+
+  static const _txKinds = {
+    'top_up': TxKind.topUp,
+    'subscription': TxKind.subscription,
+    'unlock': TxKind.unlock,
+    'gift': TxKind.gift,
+    'reward': TxKind.reward,
+  };
+
+  /// Sends one action, shows the server's refusal if any, then re-syncs.
+  Future<void> _remote(Future<void> Function(ApiClient api) call, {bool resync = true}) async {
+    final api = _api;
+    if (api == null || !api.signedIn) return;
+    try {
+      await call(api);
+    } on ApiException catch (e) {
+      toast("Bonovela couldn't do that", e.message);
+    } catch (_) {
+      toast("Couldn't reach Bonovela", 'Check your connection and try again.');
+    }
+    if (resync) await syncAccount();
+  }
+
+  /// Store catalogue (coin packages, Plus plans, gifts) from the server.
+  Map? _store;
+
+  Future<Map> _storeData(ApiClient api) async => _store ??= await api.get('store/') as Map;
+
+  /// Buys coins. Returns null when credited, otherwise why not.
+  Future<String?> buyCoins({required int coinAmount, required int bonusAmount, required String price}) async {
+    final api = _api;
+    if (api == null || !api.signedIn) {
+      topUp(coinAmount: coinAmount, bonusAmount: bonusAmount, price: price);
+      return null;
+    }
+    try {
+      final packages = ((await _storeData(api))['packages'] as List).cast<Map>();
+      final p = packages.firstWhereOrNull((p) => p['coins'] == coinAmount);
+      if (p == null) return 'This package is no longer available.';
+      await api.post('wallet/top-up/', {'package': p['id']});
+      await syncAccount();
+      return null;
+    } on ApiException catch (e) {
+      return e.status == 501 ? "In-app payments aren't set up yet. Please try again later." : e.message;
+    } catch (_) {
+      return "Couldn't reach Bonovela. Check your connection.";
+    }
+  }
+
+  /// Starts Bonovela Plus. Returns null when active, otherwise why not.
+  Future<String?> buyPlus({required String plan, required String price, required int days}) async {
+    final api = _api;
+    if (api == null || !api.signedIn) {
+      subscribe(plan: plan, price: price, days: days);
+      return null;
+    }
+    try {
+      final plans = ((await _storeData(api))['plans'] as List).cast<Map>();
+      final p = plans.firstWhereOrNull((p) => p['days'] == days) ?? plans.firstOrNull;
+      if (p == null) return 'Plus is not available right now.';
+      await api.post('wallet/subscribe/', {'plan': p['id']});
+      await syncAccount();
+      return null;
+    } on ApiException catch (e) {
+      return e.status == 501 ? "In-app payments aren't set up yet. Please try again later." : e.message;
+    } catch (_) {
+      return "Couldn't reach Bonovela. Check your connection.";
+    }
+  }
+
+  /// Redeems a promo code: the bonus granted, 0 if already used, -1 if invalid.
+  Future<int> redeemCode(String code) async {
+    final api = _api;
+    if (api == null || !api.signedIn) return redeem(code);
+    try {
+      final r = await api.post('wallet/redeem/', {'code': code.trim().toUpperCase()}) as Map;
+      await syncAccount();
+      return (r['bonus'] as num).toInt();
+    } on ApiException catch (e) {
+      return e.code == 'used' ? 0 : -1;
+    }
   }
 
   // ── Wallet ─────────────────────────────────────────────────────────────────
@@ -471,6 +682,10 @@ class AccountService extends GetxService {
   void setAutoUnlock(String bookId, bool on) {
     on ? autoUnlockBooks.add(bookId) : autoUnlockBooks.remove(bookId);
     _save();
+    _remote(
+      (api) => on ? api.post('books/$bookId/auto-unlock/') : api.delete('books/$bookId/auto-unlock/'),
+      resync: false,
+    );
   }
 
   // ── Rewards ────────────────────────────────────────────────────────────────
@@ -489,6 +704,7 @@ class AccountService extends GetxService {
     final reward = checkInRewards[checkInStreak.value - 1];
     addBonus(reward, 'Check-in day ${checkInStreak.value}', save: false);
     _save();
+    _remote((api) => api.post('rewards/check-in/'));
     return reward;
   }
 
@@ -500,6 +716,7 @@ class AccountService extends GetxService {
     dailyTasks[key] = taskCount(key) + 1;
     addBonus(bonusAmount, source, save: false);
     _save();
+    _remote((api) => api.post('rewards/tasks/$key/'));
     return true;
   }
 
@@ -509,6 +726,7 @@ class AccountService extends GetxService {
     oneTimeTasks.add(key);
     addBonus(bonusAmount, source, save: false);
     _save();
+    _remote((api) => api.post('rewards/tasks/$key/'));
     return true;
   }
 
@@ -517,6 +735,7 @@ class AccountService extends GetxService {
     _rollDay();
     readingMinutesToday.value++;
     _s.write('reading_minutes', readingMinutesToday.value);
+    _remote((api) => api.post('rewards/reading-time/', {'minutes': 1}), resync: false);
   }
 
   /// Reading-time milestones: claim once a day when [minutes] is reached.
@@ -527,6 +746,7 @@ class AccountService extends GetxService {
     addBonus(bonusAmount, 'Read for $minutes minutes', save: false);
     if (voucherAmount > 0) addVouchers(voucherAmount, 'Reading task', save: false);
     _save();
+    _remote((api) => api.post('rewards/reading/$minutes/claim/'));
     return true;
   }
 
@@ -553,6 +773,7 @@ class AccountService extends GetxService {
     voucherHistory.insert(0, VoucherRecord('Voted for $title', -count, DateTime.now()));
     bookVotes[bookId] = (bookVotes[bookId] ?? 0) + count;
     _save();
+    _remote((api) => api.post('books/$bookId/vote/', {'count': count}));
     return true;
   }
 
@@ -568,6 +789,11 @@ class AccountService extends GetxService {
     if (!ok) return false;
     bookVotes[bookId] = (bookVotes[bookId] ?? 0) + votes;
     _save();
+    _remote((api) async {
+      final items = ((await _storeData(api))['gifts'] as List).cast<Map>();
+      final item = items.firstWhereOrNull((g) => g['name'] == gift);
+      if (item != null) await api.post('books/$bookId/gift/', {'item': item['id']});
+    });
     return true;
   }
 
@@ -575,13 +801,19 @@ class AccountService extends GetxService {
   bool isFollowing(String author) => following.contains(author);
 
   void toggleFollow(String author) {
-    isFollowing(author) ? following.remove(author) : following.add(author);
+    final on = !isFollowing(author);
+    on ? following.add(author) : following.remove(author);
     _save();
+    final id = _authorIds[author];
+    if (id != null) {
+      _remote((api) => on ? api.post('authors/$id/follow/') : api.delete('authors/$id/follow/'), resync: false);
+    }
   }
 
   void addComment(CommentModel c) {
     myComments.insert(0, c);
     _save();
+    _remote((api) => api.post('books/${c.bookId}/reviews/', {'stars': c.stars, 'text': c.text}), resync: false);
   }
 
   // ── Inbox ──────────────────────────────────────────────────────────────────
@@ -589,6 +821,7 @@ class AccountService extends GetxService {
     m.read = true;
     inbox.refresh();
     _save();
+    _remote((api) => api.post('inbox/${m.id}/'), resync: false);
   }
 
   void markAllRead() {
@@ -597,11 +830,13 @@ class AccountService extends GetxService {
     }
     inbox.refresh();
     _save();
+    _remote((api) => api.post('inbox/read-all/'), resync: false);
   }
 
   void deleteMessage(InboxMessage m) {
     inbox.remove(m);
     _save();
+    _remote((api) => api.delete('inbox/${m.id}/'), resync: false);
   }
 
   // ── Settings ───────────────────────────────────────────────────────────────

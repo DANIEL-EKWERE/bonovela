@@ -45,9 +45,22 @@ class LocalStorage extends GetxService {
   // ── Shelf ──────────────────────────────────────────────────────────────────
   bool isOnShelf(String bookId) => shelf.contains(bookId);
 
+  /// Set when signed in to the backend, so the shelf follows the account.
+  void Function(String bookId, bool onShelf)? onShelfChanged;
+
   void toggleShelf(String bookId) {
-    isOnShelf(bookId) ? shelf.remove(bookId) : shelf.insert(0, bookId);
+    final on = !isOnShelf(bookId);
+    on ? shelf.insert(0, bookId) : shelf.remove(bookId);
     _box.write(_kShelf, shelf.toList());
+    onShelfChanged?.call(bookId, on);
+  }
+
+  /// The account's shelf and reading history, from the server.
+  void replaceShelfAndHistory(List<String> bookIds, List<ReadProgress> progress) {
+    shelf.assignAll(bookIds);
+    history.assignAll(progress..sort((a, b) => b.readAt.compareTo(a.readAt)));
+    _box.write(_kShelf, shelf.toList());
+    _box.write(_kHistory, history.map((p) => p.toJson()).toList());
   }
 
   void addToShelf(String bookId) {

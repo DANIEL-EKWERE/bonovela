@@ -17,14 +17,14 @@ class TopUpController extends GetxController {
   RxInt get coins => _account.coins;
   RxInt get bonus => _account.bonus;
 
-  /// Simulated checkout — no money moves.
+  /// Credits the package through the backend (sample-data builds: on the phone).
   Future<void> pay() async {
     isPaying.value = true;
-    await Future.delayed(const Duration(milliseconds: 900));
     final p = selected.value;
-    _account.topUp(coinAmount: p.coins, bonusAmount: p.bonus, price: p.price);
+    final error = await _account.buyCoins(coinAmount: p.coins, bonusAmount: p.bonus, price: p.price);
     isPaying.value = false;
     Get.back(); // payment sheet
+    if (error != null) return toast("Top up didn't go through", error);
     toast('Top up successful', '+${p.coins} coins${p.bonus > 0 ? ' · +${p.bonus} bonus' : ''} · +3 vouchers');
   }
 }

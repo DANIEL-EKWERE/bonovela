@@ -20,9 +20,9 @@ class ExchangeController extends GetxController {
     final code = codeController.text.trim();
     if (code.isEmpty) return toast('Enter a code');
     isRedeeming.value = true;
-    await Future.delayed(const Duration(milliseconds: 600));
-    final result = _account.redeem(code);
+    final result = await _account.redeemCode(code).catchError((_) => -2);
     isRedeeming.value = false;
+    if (result == -2) return toast("Couldn't reach Bonovela", 'Check your connection and try again.');
     switch (result) {
       case -1:
         toast('Invalid code', 'Check the code and try again.');

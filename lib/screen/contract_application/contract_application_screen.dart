@@ -24,7 +24,13 @@ class ContractApplicationScreen extends GetView<ContractApplicationController> {
   Widget build(BuildContext context) {
     return Obx(() {
       final step = controller.step.value;
-      controller.version.value; // rebuild on every field change
+      // Rebuild (and redraw the step below) on any change to the form, its
+      // errors or the editor list.
+      controller.version.value;
+      controller.errors.length;
+      controller.errors.values.join();
+      controller.editors.length;
+      controller.editorsLoading.value;
       return PopScope(
         canPop: step == 1,
         onPopInvokedWithResult: (didPop, _) {
@@ -58,10 +64,11 @@ class ContractApplicationScreen extends GetView<ContractApplicationController> {
                 ),
               ),
               switch (step) {
-                1 => const _Personal(key: ValueKey(1)),
-                2 => const _Address(key: ValueKey(2)),
-                3 => const _Book(key: ValueKey(3)),
-                _ => const _Review(),
+                // Not const: they must rebuild with the screen.
+                1 => _Personal(key: const ValueKey(1)),
+                2 => _Address(key: const ValueKey(2)),
+                3 => _Book(key: const ValueKey(3)),
+                _ => _Review(),
               },
             ],
           ),
@@ -270,7 +277,7 @@ class _Personal extends GetView<ContractApplicationController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const _Heading('Government ID verification'),
-              const _IdSide(
+              _IdSide(
                 front: true,
                 title: 'Front of ID',
                 help:
@@ -279,7 +286,7 @@ class _Personal extends GetView<ContractApplicationController> {
                     'text and your photo are sharp, with no glare.',
               ),
               if (a.idFrontPath.isNotEmpty)
-                const _IdSide(
+                _IdSide(
                   front: false,
                   title: 'Back of ID',
                   help: 'Now the back of the same ID. Same tips: flat, well lit, every line readable.',
@@ -541,7 +548,9 @@ class _Book extends GetView<ContractApplicationController> {
             ],
           ),
           const SizedBox(height: 20),
-          if (controller.editors.isEmpty)
+          if (controller.editorsLoading.value)
+            const Padding(padding: EdgeInsets.all(12), child: Text('Loading editors…'))
+          else if (controller.editors.isEmpty)
             Text(
               'No $desk editors are available right now. Please try again later.',
               style: const TextStyle(color: AppColors.error),

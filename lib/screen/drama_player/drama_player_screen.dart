@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:video_player/video_player.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_icons.dart';
@@ -74,6 +75,19 @@ class _EpisodePage extends GetView<DramaPlayerController> {
         fit: StackFit.expand,
         children: [
           BookCover(book: d.asBook, width: size.width, height: size.height, radius: 0),
+          // The episode's video over the poster, once it's loaded.
+          Obx(() {
+            final v = controller.video.value;
+            if (controller.episode.value != episode || v == null || !v.value.isInitialized) {
+              return const SizedBox.shrink();
+            }
+            return ColoredBox(
+              color: Colors.black,
+              child: Center(
+                child: AspectRatio(aspectRatio: v.value.aspectRatio, child: VideoPlayer(v)),
+              ),
+            );
+          }),
           const DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -87,6 +101,7 @@ class _EpisodePage extends GetView<DramaPlayerController> {
           Obx(() {
             final current = controller.episode.value == episode;
             controller.service.unlocked.length; // rebuild after unlocks
+            controller.service.episodes.length;
             controller.account.plusUntil.value;
             if (!current) return const SizedBox.shrink();
             if (!controller.canWatch) return const _LockedCard();

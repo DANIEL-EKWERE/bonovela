@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -8,9 +9,9 @@ import '../core/constants/app_constants.dart';
 import '../core/constants/app_icons.dart';
 import '../core/models/author_models.dart';
 
-/// Cover for an author's own story. Uses one of the recommended cover
-/// palettes until real image upload exists; shows a "+" placeholder when no
-/// cover has been chosen.
+/// Cover for an author's own story: the photo on this device, else the
+/// uploaded one on the server, else a recommended palette; a "+" placeholder
+/// when no cover has been chosen.
 class AuthorCover extends StatelessWidget {
   final AuthorStory story;
   final double width;
@@ -40,6 +41,19 @@ class AuthorCover extends StatelessWidget {
           fit: BoxFit.cover,
           // File removed (e.g. app data cleared): fall back to the palette cover.
           errorBuilder: (_, _, _) => AuthorCover(story: story, width: width, coverPath: '', title: title),
+        ),
+      );
+    }
+    // Uploaded from another device (or the web): the server's copy.
+    if (index < 0 && story.coverUrl.isNotEmpty && coverPath == null) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(6),
+        child: CachedNetworkImage(
+          imageUrl: story.coverUrl,
+          width: width,
+          height: h,
+          fit: BoxFit.cover,
+          errorWidget: (_, _, _) => Container(width: width, height: h, color: AppColors.divider),
         ),
       );
     }

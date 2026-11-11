@@ -34,17 +34,28 @@ class AuthorStoriesScreen extends GetView<AuthorStoriesController> {
             child: Obx(() {
               final stories = controller.stories;
               if (stories.isEmpty) {
-                return EmptyState(
-                  icon: AppIcons.write,
-                  message: 'You haven\'t started a story yet.',
-                  actionLabel: 'Create a story',
-                  onAction: controller.newStory,
+                return RefreshIndicator(
+                  onRefresh: controller.refreshStories,
+                  child: ListView(
+                    children: [
+                      const SizedBox(height: 80),
+                      EmptyState(
+                        icon: AppIcons.write,
+                        message: 'You haven\'t started a story yet.',
+                        actionLabel: 'Create a story',
+                        onAction: controller.newStory,
+                      ),
+                    ],
+                  ),
                 );
               }
-              return ListView.separated(
-                itemCount: stories.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 10),
-                itemBuilder: (_, i) => _StoryCard(story: stories[i]),
+              return RefreshIndicator(
+                onRefresh: controller.refreshStories,
+                child: ListView.separated(
+                  itemCount: stories.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 10),
+                  itemBuilder: (_, i) => _StoryCard(story: stories[i]),
+                ),
               );
             }),
           ),
@@ -142,7 +153,8 @@ class _StoryCard extends GetView<AuthorStoriesController> {
                         children: [
                           _Chip(story.completed ? 'Completed' : 'Ongoing', AppColors.primary),
                           _Chip(story.signed ? 'Signed' : 'Unsigned', AppColors.textSecondary),
-                          if (story.applicationStatus.isNotEmpty) _Chip(story.applicationStatus, AppColors.gold),
+                          if (story.applicationStatus.isNotEmpty && !story.signed)
+                            _Chip(story.applicationLabel, AppColors.gold),
                         ],
                       ),
                       const SizedBox(height: 10),
@@ -175,7 +187,12 @@ class _StoryCard extends GetView<AuthorStoriesController> {
                       onPressed: () => controller.applyForContract(story),
                       child: const Text('Apply for Contract ›'),
                     )
-                  else if (!story.signed && story.applicationStatus.isEmpty)
+                  else if (story.applicationStatus == 'contract_sent' && !story.signed)
+                    TextButton(
+                      onPressed: () => controller.reviewContract(story),
+                      child: const Text('Review & sign contract ›'),
+                    )
+                  else if (!story.signed && story.mayApply)
                     Expanded(
                       child: Text(
                         'Apply for Contract at ${AppConstants.contractMinWords} published words '

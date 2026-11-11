@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../core/api/api_client.dart';
 import '../../../core/data/geo_data.dart';
 import '../../../core/models/author_models.dart';
 import '../../../core/models/contract_application.dart';
@@ -26,13 +27,21 @@ class ContractApplicationController extends GetxController {
   /// Bumped on every change so the screen rebuilds (the form is a plain object).
   final RxInt version = 0.obs;
 
-  late final List<(String, String)> editors;
+  /// (id, name) of the editors on the book's desk.
+  final RxList<(String, String)> editors = <(String, String)>[].obs;
+  final RxBool editorsLoading = true.obs;
 
   @override
   void onInit() {
     super.onInit();
     story = _author.story(Get.arguments as String)!;
-    editors = _author.editorsFor(story);
+    _author
+        .editorsFor(story)
+        .then(editors.assignAll)
+        .catchError((_) {
+          toast("Couldn't load editors", 'Check your connection and try again.');
+        })
+        .whenComplete(() => editorsLoading.value = false);
     GeoData.countries().then(countries.assignAll);
   }
 
@@ -100,6 +109,15 @@ class ContractApplicationController extends GetxController {
       await _author.submitApplication(story, app);
       Get.back();
       toast('Application submitted', 'Status: Pending review. Editors usually reply within 30 business days.');
+    } on ApiException catch (e) {
+      // The server checks everything again; show its answer on the right step.
+      if (e.fields.isNotEmpty) {
+        errors.assignAll({for (final f in e.fields.entries) f.key: f.value.first});
+        step.value = e.fields.keys.map(ContractApplication.stepOf).reduce((a, b) => a < b ? a : b).clamp(1, 4);
+      }
+      toast("Couldn't submit yet", e.message);
+    } catch (_) {
+      toast("Couldn't reach Bonovela", 'Check your connection and try again. Nothing was lost.');
     } finally {
       submitting.value = false;
     }

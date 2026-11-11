@@ -1,7 +1,10 @@
+import 'package:get/get.dart';
+
 import '../api/api_client.dart';
 import '../models/book_model.dart';
 import '../models/chapter_model.dart';
 import '../models/feed_section.dart';
+import '../services/account_service.dart';
 import 'book_repository.dart';
 
 /// [BookRepository] backed by the Bonovela API.
@@ -21,7 +24,14 @@ class ApiBookRepository implements BookRepository {
     RankType.readersChoice: 'readers_choice',
   };
 
-  List<BookModel> _books(Iterable<Map<String, dynamic>> rows) => rows.map(BookModel.fromJson).toList();
+  List<BookModel> _books(Iterable<Map<String, dynamic>> rows) {
+    // Follow needs the author's id; the app knows authors by name.
+    final account = Get.isRegistered<AccountService>() ? Get.find<AccountService>() : null;
+    for (final r in rows) {
+      account?.rememberAuthor(r['author']?.toString() ?? '', r['author_id']?.toString() ?? '');
+    }
+    return rows.map(BookModel.fromJson).toList();
+  }
 
   Future<List<BookModel>> _list(Map<String, String> query) async {
     final out = <BookModel>[];
@@ -86,9 +96,11 @@ class ApiBookRepository implements BookRepository {
   @override
   Future<ChapterModel?> unlockChapter(String bookId, int number) async {
     try {
-      return ChapterModel.fromJson(
+      final chapter = ChapterModel.fromJson(
         Map<String, dynamic>.from(await _api.post('books/$bookId/chapters/$number/unlock/')),
       );
+      if (Get.isRegistered<AccountService>()) Get.find<AccountService>().syncAccount(); // new balance
+      return chapter;
     } on ApiException catch (e) {
       // 402: not enough coins; 401: not signed in to the backend yet.
       if (e.status == 402 || e.status == 401) return null;

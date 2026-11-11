@@ -23,10 +23,10 @@ class SubscriptionController extends GetxController {
       return;
     }
     isPaying.value = true;
-    await Future.delayed(const Duration(milliseconds: 900));
     final p = selected.value;
-    _account.subscribe(plan: p.name, price: p.price, days: p.days);
+    final error = await _account.buyPlus(plan: p.name, price: p.price, days: p.days);
     isPaying.value = false;
+    if (error != null) return toast("Plus didn't start", error);
     toast('Welcome to Bonovela Plus 💗', 'All short stories are now unlimited.');
   }
 

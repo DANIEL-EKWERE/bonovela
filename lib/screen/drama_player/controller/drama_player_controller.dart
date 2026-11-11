@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:video_player/video_player.dart';
 
 import '../../../config/routes.dart';
 import '../../../core/constants/app_constants.dart';
@@ -10,8 +11,9 @@ import '../../../core/services/account_service.dart';
 import '../../../core/services/drama_service.dart';
 import '../../../widgets/ui_kit.dart';
 
-/// Vertical episode player. Swipe up for the next episode. Playback is
-/// simulated with a timer until episodes have real video URLs.
+/// Vertical episode player. Swipe up for the next episode. Plays the
+/// episode's video from the server; without one (sample data, or an episode
+/// still processing) playback is simulated with a timer over the poster.
 class DramaPlayerController extends GetxController {
   final service = Get.find<DramaService>();
   final account = Get.find<AccountService>();
@@ -23,9 +25,16 @@ class DramaPlayerController extends GetxController {
   final RxBool playing = false.obs;
   final RxDouble position = 0.0.obs; // seconds
   final RxBool showControls = true.obs;
+  final RxBool unlocking = false.obs;
+
+  /// The current episode's video, when it has one.
+  final Rxn<VideoPlayerController> video = Rxn<VideoPlayerController>();
 
   Timer? _ticker;
   static const _tick = Duration(milliseconds: 250);
+
+  /// Ignores late answers for an episode the viewer already swiped past.
+  int _loadToken = 0;
 
   @override
   void onInit() {
@@ -33,12 +42,18 @@ class DramaPlayerController extends GetxController {
     final args = (Get.arguments as Map?) ?? {};
     drama = service.byId(args['dramaId'].toString()) ?? service.dramas.first;
     final start = (args['episode'] as int?) ?? service.lastEpisode(drama.id);
-    episode.value = start.clamp(1, drama.episodeCount);
+    episode.value = start.clamp(1, drama.episodeCount < 1 ? 1 : drama.episodeCount);
     pages = PageController(initialPage: episode.value - 1);
-    _start();
+    service.loadEpisodes(drama).then((_) => _start());
   }
 
-  int get duration => drama.episodeSeconds(episode.value);
+  int get duration {
+    final v = video.value;
+    if (v != null && v.value.isInitialized) return v.value.duration.inSeconds;
+    final info = service.episodeInfo(drama, episode.value);
+    return info != null && info.seconds > 0 ? info.seconds : drama.episodeSeconds(episode.value);
+  }
+
   bool get canWatch => service.canWatch(drama, episode.value);
   double get progress => duration == 0 ? 0 : (position.value / duration).clamp(0, 1);
 
@@ -48,14 +63,48 @@ class DramaPlayerController extends GetxController {
     _start();
   }
 
-  void _start() {
-    service.recordWatch(drama.id, episode.value);
-    canWatch ? play() : pause();
+  Future<void> _start() async {
+    final token = ++_loadToken;
+    pause();
+    _disposeVideo();
+    final url = await service.recordWatch(drama.id, episode.value);
+    if (token != _loadToken || isClosed) return;
+    if (url.isNotEmpty && canWatch) {
+      final v = VideoPlayerController.networkUrl(Uri.parse(url));
+      try {
+        await v.initialize();
+      } catch (_) {
+        await v.dispose();
+        toast("Couldn't play this episode", 'Check your connection and try again.');
+        return;
+      }
+      if (token != _loadToken || isClosed) {
+        await v.dispose();
+        return;
+      }
+      v.addListener(() {
+        position.value = v.value.position.inMilliseconds / 1000;
+        if (v.value.isInitialized && !v.value.isPlaying && v.value.position >= v.value.duration) _finished();
+      });
+      video.value = v;
+    }
+    if (canWatch) play();
+  }
+
+  void _disposeVideo() {
+    final v = video.value;
+    video.value = null;
+    v?.dispose();
   }
 
   void play() {
     if (!canWatch) return;
     playing.value = true;
+    final v = video.value;
+    if (v != null) {
+      v.play();
+      return;
+    }
     _ticker?.cancel();
     _ticker = Timer.periodic(_tick, (_) {
       position.value += _tick.inMilliseconds / 1000;
@@ -66,6 +115,7 @@ class DramaPlayerController extends GetxController {
   void pause() {
     playing.value = false;
     _ticker?.cancel();
+    video.value?.pause();
   }
 
   void togglePlay() {
@@ -74,9 +124,17 @@ class DramaPlayerController extends GetxController {
     showControls.value = true;
   }
 
-  void seek(double fraction) => position.value = duration * fraction.clamp(0, 1);
+  void seek(double fraction) {
+    final target = duration * fraction.clamp(0.0, 1.0);
+    position.value = target;
+    video.value?.seekTo(Duration(milliseconds: (target * 1000).round()));
+  }
+
+  bool _ending = false;
 
   void _finished() {
+    if (_ending) return;
+    _ending = true;
     pause();
     position.value = duration.toDouble();
     if (episode.value < drama.episodeCount) {
@@ -84,6 +142,7 @@ class DramaPlayerController extends GetxController {
     } else {
       toast('That\'s the finale', 'You\'ve watched every episode of ${drama.title}.');
     }
+    Future.delayed(const Duration(milliseconds: 500), () => _ending = false);
   }
 
   void jumpTo(int ep) {
@@ -91,14 +150,22 @@ class DramaPlayerController extends GetxController {
     pages.jumpToPage(ep - 1);
   }
 
-  void unlock() {
-    if (service.unlock(drama, episode.value)) {
-      toast('Episode ${episode.value} unlocked');
-      episode.refresh();
-      play();
-    } else {
-      toast('Not enough coins', 'Top up to keep watching.');
-      Get.toNamed(AppRoutes.topUp);
+  Future<void> unlock() async {
+    if (unlocking.value) return;
+    unlocking.value = true;
+    try {
+      if (await service.unlock(drama, episode.value)) {
+        toast('Episode ${episode.value} unlocked');
+        episode.refresh();
+        _start();
+      } else {
+        toast('Not enough coins', 'Top up to keep watching.');
+        Get.toNamed(AppRoutes.topUp);
+      }
+    } catch (_) {
+      toast("Couldn't unlock yet", 'Check your connection and try again.');
+    } finally {
+      unlocking.value = false;
     }
   }
 
@@ -115,6 +182,7 @@ class DramaPlayerController extends GetxController {
   @override
   void onClose() {
     _ticker?.cancel();
+    _disposeVideo();
     pages.dispose();
     super.onClose();
   }

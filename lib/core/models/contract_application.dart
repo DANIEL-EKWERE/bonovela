@@ -30,6 +30,23 @@ class ContractApplication {
   String characterDetails = '';
   String outline = '';
 
+  /// The step a (server) field belongs to, to send the author back there.
+  static int stepOf(String field) =>
+      const {
+        'first_name': 1,
+        'middle_name': 1,
+        'surname': 1,
+        'id_front': 1,
+        'id_back': 1,
+        'facebook_url': 1,
+        'instagram_url': 1,
+        'chosen_editor': 3,
+        'character_details': 3,
+        'outline': 3,
+        'confirm': 4,
+      }[field] ??
+      2;
+
   String get legalName => [firstName, middleName, surname].where((p) => p.trim().isNotEmpty).join(' ');
 
   static final _email = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');

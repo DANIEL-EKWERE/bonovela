@@ -23,6 +23,12 @@ Future<void> main() async {
   // The backend client exists only when there is a backend; services fall
   // back to sample data without it.
   final api = AppConstants.apiUrl.isEmpty ? null : Get.put(ApiClient(tokens: StorageTokens(storage)), permanent: true);
+  if (api != null) {
+    storage.onShelfChanged = (bookId, on) {
+      if (!api.signedIn) return;
+      (on ? api.post('books/$bookId/shelf/') : api.delete('books/$bookId/shelf/')).catchError((_) => null);
+    };
+  }
   await Get.putAsync<AccountService>(() => AccountService().init(), permanent: true);
   Get.find<AccountService>().refreshUser();
   Get.put<AuthorService>(AuthorService().init(), permanent: true);

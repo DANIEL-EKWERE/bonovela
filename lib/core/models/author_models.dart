@@ -24,12 +24,38 @@ class AuthorStory {
   /// Story Length: short story or novel.
   bool isShort;
 
-  /// Contract application: '' (none yet) or its status label, e.g. 'Pending review'.
+  /// Latest contract application: '' (none) or the server's status code.
   String applicationStatus;
   bool completed;
   bool signed;
   final DateTime createdAt;
   DateTime updatedAt;
+
+  /// Server id once synced ('' until then).
+  String remoteId;
+
+  /// Cover image on the server, shown when there's no local [coverPath].
+  String coverUrl;
+
+  /// Local cover already uploaded, so it isn't sent again.
+  String uploadedCover;
+
+  /// Reads, from the server.
+  int views;
+
+  static const applicationLabels = {
+    'pending': 'Pending review',
+    'revision': 'Needs revision',
+    'se_approved': 'Approved · contract coming',
+    'contract_sent': 'Contract sent',
+    'signed': 'Signed',
+    'rejected': 'Not accepted',
+  };
+
+  String get applicationLabel => applicationLabels[applicationStatus] ?? applicationStatus;
+
+  /// No application yet, or the last one was turned down / sent back.
+  bool get mayApply => applicationStatus.isEmpty || applicationStatus == 'rejected' || applicationStatus == 'revision';
 
   AuthorStory({
     required this.id,
@@ -49,6 +75,10 @@ class AuthorStory {
     this.signed = false,
     required this.createdAt,
     required this.updatedAt,
+    this.remoteId = '',
+    this.coverUrl = '',
+    this.uploadedCover = '',
+    this.views = 0,
   }) : tags = tags ?? [];
 
   String get displayTitle => title.isEmpty ? 'Unnamed' : title;
@@ -85,6 +115,10 @@ class AuthorStory {
     'synopsis': synopsis,
     'isShort': isShort,
     'applicationStatus': applicationStatus,
+    'remoteId': remoteId,
+    'coverUrl': coverUrl,
+    'uploadedCover': uploadedCover,
+    'views': views,
     'completed': completed,
     'signed': signed,
     'createdAt': createdAt.toIso8601String(),
@@ -104,7 +138,14 @@ class AuthorStory {
     tags: (j['tags'] as List? ?? []).map((e) => e.toString()).toList(),
     synopsis: j['synopsis']?.toString() ?? '',
     isShort: j['isShort'] == true,
-    applicationStatus: j['applicationStatus']?.toString() ?? '',
+    // Older builds stored the label.
+    applicationStatus: j['applicationStatus'] == 'Pending review'
+        ? 'pending'
+        : j['applicationStatus']?.toString() ?? '',
+    remoteId: j['remoteId']?.toString() ?? '',
+    coverUrl: j['coverUrl']?.toString() ?? '',
+    uploadedCover: j['uploadedCover']?.toString() ?? '',
+    views: (j['views'] as num?)?.toInt() ?? 0,
     completed: j['completed'] == true,
     signed: j['signed'] == true,
     createdAt: DateTime.tryParse(j['createdAt']?.toString() ?? '') ?? DateTime.now(),
@@ -126,6 +167,9 @@ class AuthorChapter {
   DateTime updatedAt;
   DateTime? publishedAt;
 
+  /// Server id once synced ('' until then).
+  String remoteId;
+
   AuthorChapter({
     required this.id,
     required this.storyId,
@@ -137,6 +181,7 @@ class AuthorChapter {
     this.note = '',
     required this.updatedAt,
     this.publishedAt,
+    this.remoteId = '',
   });
 
   int get words => AuthorStory.wordCount(content);
@@ -166,6 +211,7 @@ class AuthorChapter {
     'note': note,
     'updatedAt': updatedAt.toIso8601String(),
     'publishedAt': publishedAt?.toIso8601String(),
+    'remoteId': remoteId,
   };
 
   factory AuthorChapter.fromJson(Map j) => AuthorChapter(
@@ -182,6 +228,7 @@ class AuthorChapter {
     note: j['note']?.toString() ?? '',
     updatedAt: DateTime.tryParse(j['updatedAt']?.toString() ?? '') ?? DateTime.now(),
     publishedAt: DateTime.tryParse(j['publishedAt']?.toString() ?? ''),
+    remoteId: j['remoteId']?.toString() ?? '',
   );
 }
 

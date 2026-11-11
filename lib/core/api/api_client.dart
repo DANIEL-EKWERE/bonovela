@@ -59,14 +59,23 @@ class ApiClient {
   Future<dynamic> post(String path, [Map<String, dynamic>? body]) =>
       _send(() => _http.post(_uri(path), headers: _headers(), body: body == null ? null : jsonEncode(body)));
 
+  Future<dynamic> put(String path, Map<String, dynamic> body) =>
+      _send(() => _http.put(_uri(path), headers: _headers(), body: jsonEncode(body)));
+
   Future<dynamic> patch(String path, Map<String, dynamic> body) =>
       _send(() => _http.patch(_uri(path), headers: _headers(), body: jsonEncode(body)));
 
   Future<dynamic> delete(String path) => _send(() => _http.delete(_uri(path), headers: _headers()));
 
-  /// multipart/form-data POST: [fields] plus files as {field: local path}.
-  Future<dynamic> upload(String path, Map<String, String> fields, Map<String, String> files) => _send(() async {
-    final req = http.MultipartRequest('POST', _uri(path))
+  /// multipart/form-data POST (or [method]): [fields] plus files as
+  /// {field: local path}.
+  Future<dynamic> upload(
+    String path,
+    Map<String, String> fields,
+    Map<String, String> files, {
+    String method = 'POST',
+  }) => _send(() async {
+    final req = http.MultipartRequest(method, _uri(path))
       ..headers.addAll(_headers(json: false))
       ..fields.addAll(fields);
     for (final e in files.entries) {
