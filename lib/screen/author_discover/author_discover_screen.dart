@@ -174,7 +174,10 @@ class _Hero extends StatelessWidget {
                 height: 56,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(color: white, borderRadius: BorderRadius.circular(16)),
-                child: const Text('B', style: TextStyle(color: _C.pink, fontSize: 36, fontWeight: FontWeight.w900)),
+                child: const Text(
+                  'B',
+                  style: TextStyle(color: _C.pink, fontSize: 36, fontWeight: FontWeight.w900),
+                ),
               ),
               const SizedBox(width: 12),
               Text(
@@ -236,7 +239,11 @@ class _Hero extends StatelessWidget {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(color: _C.pink, borderRadius: BorderRadius.circular(28), boxShadow: _C.cardShadow),
+            decoration: BoxDecoration(
+              color: _C.pink,
+              borderRadius: BorderRadius.circular(28),
+              boxShadow: _C.cardShadow,
+            ),
             child: const Text(
               'Discover the rewards available to Bonovela authors. Keep writing, grow your readership, and reach '
               'exciting royalty and completion milestones!',
@@ -588,10 +595,7 @@ class _Faq extends StatelessWidget {
           style: const TextStyle(color: _C.pink, fontSize: 18, fontWeight: FontWeight.w700, height: 1.55),
         ),
         const SizedBox(height: 12),
-        Text(
-          answer,
-          style: TextStyle(color: _C.inkAlpha(.75), fontSize: 16, height: 1.75),
-        ),
+        Text(answer, style: TextStyle(color: _C.inkAlpha(.75), fontSize: 16, height: 1.75)),
       ],
     ),
   );

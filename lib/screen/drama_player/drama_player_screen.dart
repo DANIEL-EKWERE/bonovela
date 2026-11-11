@@ -203,7 +203,12 @@ class _Action extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 9),
         child: Column(
           children: [
-            Icon(icon, color: color, size: 30, shadows: const [Shadow(blurRadius: 6, color: Colors.black54)]),
+            Icon(
+              icon,
+              color: color,
+              size: 30,
+              shadows: const [Shadow(blurRadius: 6, color: Colors.black54)],
+            ),
             const SizedBox(height: 3),
             Text(label, style: const TextStyle(color: Colors.white, fontSize: 11)),
           ],
@@ -283,10 +288,7 @@ class _LockedCard extends GetView<DramaPlayerController> {
             const SizedBox(height: 16),
             GradientButton(label: 'Unlock for ${controller.priceLabel}', onTap: controller.unlock),
             const SizedBox(height: 8),
-            TextButton(
-              onPressed: controller.getPlus,
-              child: const Text('Watch every episode free with Plus'),
-            ),
+            TextButton(onPressed: controller.getPlus, child: const Text('Watch every episode free with Plus')),
           ],
         ),
       ),

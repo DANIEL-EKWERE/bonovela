@@ -57,10 +57,16 @@ class SignUpController extends GetxController {
     if (!matches) return toast('Passwords don\'t match');
     if (!agreed.value) return toast('Please accept the Terms of Use and Privacy Policy');
     isSubmitting.value = true;
-    await Future.delayed(const Duration(milliseconds: 700));
-    _account.register(email, password.value);
+    final error = await _account.createAccount(email, password.value);
     isSubmitting.value = false;
-    Get.offNamed(AppRoutes.verifyEmail, arguments: email);
+    if (error != null) return toast("Couldn't create your account", error);
+    if (_account.isLoggedIn) {
+      // Backend accounts are ready at once (no confirmation email yet).
+      AppRoutes.closeAuth();
+      toast('Welcome to Bonovela 🎉', _account.user.value?.name ?? '');
+    } else {
+      Get.offNamed(AppRoutes.verifyEmail, arguments: email);
+    }
   }
 
   void openTerms() => Get.toNamed(AppRoutes.termsPolicy);

@@ -59,11 +59,7 @@ class DramaService extends GetxService {
   /// Spends coins/bonus for one episode. Returns false when the balance is short.
   bool unlock(DramaModel d, int episode) {
     if (canWatch(d, episode)) return true;
-    final ok = _account.spend(
-      AppConstants.episodePrice,
-      title: '${d.title} · Episode $episode',
-      kind: TxKind.unlock,
-    );
+    final ok = _account.spend(AppConstants.episodePrice, title: '${d.title} · Episode $episode', kind: TxKind.unlock);
     if (ok) {
       unlocked.add('${d.id}:$episode');
       _storage.write(_kUnlocked, unlocked.toList());

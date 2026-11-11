@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../../config/routes.dart';
 import '../../../core/services/account_service.dart';
+import '../../../widgets/ui_kit.dart';
 
 /// "Sign in or sign up": one email field. Known emails go to the password
 /// step, new ones to sign up.
@@ -25,11 +26,17 @@ class AuthEmailController extends GetxController {
     if (!isValid) return;
     final value = email.value.trim().toLowerCase();
     isChecking.value = true;
-    await Future.delayed(const Duration(milliseconds: 500));
-    isChecking.value = false;
-    if (!_account.hasAccount(value)) {
+    final ({bool exists, bool verified}) status;
+    try {
+      status = await _account.emailStatus(value);
+    } catch (_) {
+      return toast("Couldn't reach Bonovela", 'Check your connection and try again.');
+    } finally {
+      isChecking.value = false;
+    }
+    if (!status.exists) {
       Get.toNamed(AppRoutes.signUp, arguments: value);
-    } else if (!_account.isVerified(value)) {
+    } else if (!status.verified) {
       Get.toNamed(AppRoutes.verifyEmail, arguments: value);
     } else {
       Get.toNamed(AppRoutes.signIn, arguments: value);

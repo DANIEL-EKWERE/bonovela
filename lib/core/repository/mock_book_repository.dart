@@ -60,7 +60,11 @@ class MockBookRepository implements BookRepository {
       case 'Discover':
         return [
           FeedSection(title: 'Top Picks', layout: FeedLayout.coverGrid, books: popular.take(8).toList()),
-          FeedSection(title: 'Readers Love These', layout: FeedLayout.coverRow, books: _shuffle(all, 1).take(8).toList()),
+          FeedSection(
+            title: 'Readers Love These',
+            layout: FeedLayout.coverRow,
+            books: _shuffle(all, 1).take(8).toList(),
+          ),
           FeedSection(title: 'Just Updated', layout: FeedLayout.detailList, books: fresh.take(6).toList()),
         ];
       case 'New':

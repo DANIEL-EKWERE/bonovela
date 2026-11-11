@@ -35,7 +35,10 @@ class AuthorIncomeScreen extends GetView<AuthorIncomeController> {
                 TextSpan(
                   style: TextStyle(color: Color(0xFF9A5B00), fontSize: 13, height: 1.4),
                   children: [
-                    TextSpan(text: '⚠️ IMPORTANT NOTICE: ', style: TextStyle(fontWeight: FontWeight.w700)),
+                    TextSpan(
+                      text: '⚠️ IMPORTANT NOTICE: ',
+                      style: TextStyle(fontWeight: FontWeight.w700),
+                    ),
                     TextSpan(
                       text:
                           'Bonovela conducts regular content quality checks. Low-quality, plagiarized, or AI-generated '

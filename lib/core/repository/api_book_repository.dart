@@ -69,17 +69,15 @@ class ApiBookRepository implements BookRepository {
       _books(ApiClient.rows(await _api.get('books/rankings/', {'type': _rankKeys[type]!, 'genre': genre ?? ''})));
 
   @override
-  Future<List<BookModel>> search(String query) async =>
-      query.trim().isEmpty ? [] : _list({'q': query.trim()});
+  Future<List<BookModel>> search(String query) async => query.trim().isEmpty ? [] : _list({'q': query.trim()});
 
   @override
   Future<List<BookModel>> getRelated(BookModel book) async =>
       _books(ApiClient.rows(await _api.get('books/${book.id}/related/')));
 
   @override
-  Future<List<ChapterModel>> getChapters(String bookId) async => ApiClient.rows(
-    await _api.get('books/$bookId/chapters/'),
-  ).map(ChapterModel.fromJson).toList();
+  Future<List<ChapterModel>> getChapters(String bookId) async =>
+      ApiClient.rows(await _api.get('books/$bookId/chapters/')).map(ChapterModel.fromJson).toList();
 
   @override
   Future<ChapterModel> getChapter(String bookId, int number) async =>
@@ -88,7 +86,9 @@ class ApiBookRepository implements BookRepository {
   @override
   Future<ChapterModel?> unlockChapter(String bookId, int number) async {
     try {
-      return ChapterModel.fromJson(Map<String, dynamic>.from(await _api.post('books/$bookId/chapters/$number/unlock/')));
+      return ChapterModel.fromJson(
+        Map<String, dynamic>.from(await _api.post('books/$bookId/chapters/$number/unlock/')),
+      );
     } on ApiException catch (e) {
       // 402: not enough coins; 401: not signed in to the backend yet.
       if (e.status == 402 || e.status == 401) return null;

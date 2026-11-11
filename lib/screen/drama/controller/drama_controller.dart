@@ -24,9 +24,9 @@ class DramaController extends GetxController {
     newRelease = ([...all]..sort((a, b) => b.releasedAt.compareTo(a.releasedAt))).take(9).toList();
     final shown = {...popular, ...newRelease}.map((d) => d.id).toSet();
     youMayLike = [...all.where((d) => !shown.contains(d.id)), ...popular.reversed].take(8).toList();
-    trending = ([...all]..sort((a, b) => (b.plays ~/ (b.episodeCount)).compareTo(a.plays ~/ a.episodeCount)))
-        .take(9)
-        .toList();
+    trending = ([
+      ...all,
+    ]..sort((a, b) => (b.plays ~/ (b.episodeCount)).compareTo(a.plays ~/ a.episodeCount))).take(9).toList();
   }
 
   DramaModel get liked => youMayLike[likeIndex.value];

@@ -16,8 +16,12 @@ class AuthorCenterController extends GetxController {
 
   void changeTab(int i) => tab.value = i;
 
-  void becomeAuthor() {
-    _account.becomeAuthor();
-    toast('Welcome, author ✍️', 'Tap + to start your first story.');
+  Future<void> becomeAuthor() async {
+    try {
+      await _account.becomeAuthor();
+      toast('Welcome, author ✍️', 'Tap + to start your first story.');
+    } catch (_) {
+      toast("Couldn't reach Bonovela", 'Check your connection and try again.');
+    }
   }
 }

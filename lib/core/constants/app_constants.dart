@@ -7,9 +7,10 @@ class AppConstants {
   /// Square app-icon artwork.
   static const String iconAsset = 'assets/images/app_icon.png';
 
-  /// Backend base URL, e.g. `--dart-define=API_URL=https://api.bonovela.app`.
-  /// Empty runs the app on built-in sample data.
-  static const String apiUrl = String.fromEnvironment('API_URL');
+  /// Backend base URL. Override with `--dart-define=API_URL=…` (e.g. a local
+  /// server at http://10.0.2.2:8000); `--dart-define=API_URL=` (empty) runs
+  /// the app on built-in sample data.
+  static const String apiUrl = String.fromEnvironment('API_URL', defaultValue: 'https://bonovela-backend.onrender.com');
 
   // Genre tabs used by Discover, Rank and Categories.
   static const List<String> genres = ['Werewolf', 'Romance', 'Mafia', 'Fantasy', 'LGBTQ+'];

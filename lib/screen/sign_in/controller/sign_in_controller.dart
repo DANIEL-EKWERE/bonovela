@@ -35,8 +35,7 @@ class SignInController extends GetxController {
   Future<void> submit() async {
     if (password.value.isEmpty) return;
     isSubmitting.value = true;
-    await Future.delayed(const Duration(milliseconds: 700));
-    final result = _account.signIn(email, password.value);
+    final result = await _account.signInWithPassword(email, password.value);
     isSubmitting.value = false;
     if (result != null) {
       error.value = result;

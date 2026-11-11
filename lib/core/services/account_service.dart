@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:get/get.dart';
 
 import '../../config/local_storage.dart';
+import '../api/api_client.dart';
 import '../models/comment_model.dart';
 import '../models/inbox_message.dart';
 import '../models/user_model.dart';
@@ -199,7 +200,80 @@ class AccountService extends GetxService {
     _s.write('onboarded', true);
   }
 
-  // ── Auth (mock) ────────────────────────────────────────────────────────────
+  // ── Auth ───────────────────────────────────────────────────────────────────
+  // With a backend (AppConstants.apiUrl) these go to /api/auth/…; the
+  // in-memory accounts below are only used by sample-data builds.
+  ApiClient? get _api => Get.isRegistered<ApiClient>() ? Get.find<ApiClient>() : null;
+
+  static String _apiError(Object e) =>
+      e is ApiException ? e.message : "Couldn't reach Bonovela. Check your connection.";
+
+  /// 'Sign in or sign up': does this email have an account yet?
+  Future<({bool exists, bool verified})> emailStatus(String email) async {
+    final key = email.trim().toLowerCase();
+    final api = _api;
+    if (api == null) return (exists: hasAccount(key), verified: isVerified(key));
+    final r = await api.post('auth/email-status/', {'email': key}) as Map;
+    // The server doesn't send verification emails yet, so existing accounts sign in.
+    return (exists: r['exists'] == true, verified: true);
+  }
+
+  /// Creates the account; with a backend the user is signed in straight away.
+  /// Returns null on success, otherwise the error to show.
+  Future<String?> createAccount(String email, String password) async {
+    final api = _api;
+    if (api == null) {
+      register(email, password);
+      return null;
+    }
+    try {
+      _signedIn(await api.post('auth/register/', {'email': email.trim().toLowerCase(), 'password': password}) as Map);
+      return null;
+    } catch (e) {
+      return _apiError(e);
+    }
+  }
+
+  /// Returns null on success, otherwise the error to show.
+  Future<String?> signInWithPassword(String email, String password) async {
+    final api = _api;
+    if (api == null) return signIn(email, password);
+    try {
+      final t = await api.post('auth/token/', {'email': email.trim().toLowerCase(), 'password': password}) as Map;
+      api.tokens!.save(access: t['access'] as String, refresh: t['refresh'] as String?);
+      _setUser(UserModel.fromApi(await api.get('auth/me/') as Map));
+      return null;
+    } on ApiException catch (e) {
+      return e.status == 401 ? 'Incorrect email or password. Please try again.' : e.message;
+    } catch (e) {
+      return _apiError(e);
+    }
+  }
+
+  void _signedIn(Map tokensAndUser) {
+    _api!.tokens!.save(access: tokensAndUser['access'] as String, refresh: tokensAndUser['refresh'] as String?);
+    _setUser(UserModel.fromApi(tokensAndUser['user'] as Map));
+  }
+
+  void _setUser(UserModel u) {
+    user.value = u;
+    lastAccount.value = {'email': u.email, 'name': u.name, 'provider': 'email'};
+    _save();
+  }
+
+  /// Refreshes the profile from the server (role, pen name…) after launch.
+  Future<void> refreshUser() async {
+    final api = _api;
+    if (api == null || !api.signedIn) return;
+    try {
+      user.value = UserModel.fromApi(await api.get('auth/me/') as Map);
+      _save();
+    } on ApiException catch (e) {
+      if (e.status == 401) logout();
+    } catch (_) {}
+  }
+
+  // ── Auth (sample data) ─────────────────────────────────────────────────────
   static const demoEmail = 'reader@bonovela.app';
   static const demoPassword = 'bonovela1';
 
@@ -276,6 +350,7 @@ class AccountService extends GetxService {
   }
 
   void logout() {
+    _api?.tokens?.clear();
     user.value = null;
     _save();
   }
@@ -283,15 +358,18 @@ class AccountService extends GetxService {
   void updateProfile({required String name, required String penName, required String about}) {
     final u = user.value;
     if (u == null) return;
+    _api?.patch('auth/me/', {'pen_name': penName, 'about': about}).catchError((_) => null);
     user.value = u.copyWith(name: name, penName: penName, about: about);
     _accounts[u.email]?['name'] = name;
     if (lastAccount.value?['email'] == u.email) lastAccount.value = {...lastAccount.value!, 'name': name};
     _save();
   }
 
-  void becomeAuthor() {
+  Future<void> becomeAuthor() async {
     final u = user.value;
     if (u == null) return;
+    final api = _api;
+    if (api != null) await api.post('auth/become-author/');
     user.value = u.copyWith(isAuthor: true);
     _save();
   }

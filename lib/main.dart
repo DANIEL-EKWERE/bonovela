@@ -7,6 +7,7 @@ import 'config/routes.dart';
 import 'core/constants/app_constants.dart';
 import 'core/constants/app_theme.dart';
 import 'core/api/api_client.dart';
+import 'core/api/storage_tokens.dart';
 import 'core/repository/api_book_repository.dart';
 import 'core/repository/book_repository.dart';
 import 'core/repository/mock_book_repository.dart';
@@ -18,15 +19,16 @@ import 'core/services/drama_service.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Get.putAsync<LocalStorage>(() => LocalStorage().init(), permanent: true);
+  final storage = await Get.putAsync<LocalStorage>(() => LocalStorage().init(), permanent: true);
+  // The backend client exists only when there is a backend; services fall
+  // back to sample data without it.
+  final api = AppConstants.apiUrl.isEmpty ? null : Get.put(ApiClient(tokens: StorageTokens(storage)), permanent: true);
   await Get.putAsync<AccountService>(() => AccountService().init(), permanent: true);
+  Get.find<AccountService>().refreshUser();
   Get.put<AuthorService>(AuthorService().init(), permanent: true);
   Get.put<DramaService>(DramaService().init(), permanent: true);
   Get.put<AdsService>(AdsService(), permanent: true);
-  Get.put<BookRepository>(
-    AppConstants.apiUrl.isEmpty ? MockBookRepository() : ApiBookRepository(Get.put(ApiClient(), permanent: true)),
-    permanent: true,
-  );
+  Get.put<BookRepository>(api == null ? MockBookRepository() : ApiBookRepository(api), permanent: true);
 
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   SystemChrome.setSystemUIOverlayStyle(

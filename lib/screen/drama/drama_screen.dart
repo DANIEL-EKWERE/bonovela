@@ -91,10 +91,7 @@ class _Section extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.only(bottom: 16),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.all(Radius.circular(20)),
-      ),
+      decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.all(Radius.circular(20))),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -296,7 +293,9 @@ class _Spotlight extends GetView<DramaController> {
                       );
                     }),
                     const SizedBox(width: 14),
-                    Expanded(child: GradientButton(label: 'Play', height: 46, onTap: () => controller.play(d))),
+                    Expanded(
+                      child: GradientButton(label: 'Play', height: 46, onTap: () => controller.play(d)),
+                    ),
                   ],
                 ),
               ],

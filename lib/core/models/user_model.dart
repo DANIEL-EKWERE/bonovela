@@ -39,6 +39,17 @@ class UserModel {
     'followers': followers,
   };
 
+  /// From the API's user object (UserSerializer).
+  factory UserModel.fromApi(Map j) => UserModel(
+    id: j['id'].toString(),
+    name: j['name']?.toString() ?? '',
+    penName: j['pen_name']?.toString() ?? '',
+    email: j['email']?.toString() ?? '',
+    about: j['about']?.toString() ?? '',
+    isAuthor: j['is_author'] == true,
+    followers: (j['followers'] as num?)?.toInt() ?? 0,
+  );
+
   factory UserModel.fromJson(Map j) => UserModel(
     id: j['id'].toString(),
     name: j['name']?.toString() ?? '',
