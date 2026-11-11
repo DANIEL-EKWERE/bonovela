@@ -1,9 +1,9 @@
-import '../../../core/models/book_model.dart';
+import 'book_model.dart';
 
 /// How a feed section lays out its books.
 enum FeedLayout {
-  /// Numbered rows in a horizontally paged two-column list.
-  rankedColumns,
+  /// Grid of covers, four per row, with title and tag underneath.
+  coverGrid,
 
   /// Horizontal row of covers with title and tag.
   coverRow,
@@ -39,4 +39,19 @@ class FeedSection {
   );
 
   static String _camel(String snake) => snake.replaceAllMapped(RegExp(r'_([a-z])'), (m) => m.group(1)!.toUpperCase());
+}
+
+/// A Short Stories category ("Love at First Sight", …) and its shelves.
+class ShortCollection {
+  final String title;
+  final List<FeedSection> sections;
+
+  const ShortCollection({required this.title, required this.sections});
+
+  List<BookModel> get books => [for (final s in sections) ...s.books];
+
+  factory ShortCollection.fromJson(Map<String, dynamic> j) => ShortCollection(
+    title: j['title']?.toString() ?? '',
+    sections: (j['sections'] as List? ?? []).map((e) => FeedSection.fromJson(Map<String, dynamic>.from(e))).toList(),
+  );
 }

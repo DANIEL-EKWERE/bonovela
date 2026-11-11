@@ -6,9 +6,12 @@ import 'config/local_storage.dart';
 import 'config/routes.dart';
 import 'core/constants/app_constants.dart';
 import 'core/constants/app_theme.dart';
+import 'core/api/api_client.dart';
+import 'core/repository/api_book_repository.dart';
 import 'core/repository/book_repository.dart';
 import 'core/repository/mock_book_repository.dart';
 import 'core/services/account_service.dart';
+import 'core/services/ads_service.dart';
 import 'core/services/author_service.dart';
 import 'core/services/drama_service.dart';
 
@@ -19,7 +22,11 @@ Future<void> main() async {
   await Get.putAsync<AccountService>(() => AccountService().init(), permanent: true);
   Get.put<AuthorService>(AuthorService().init(), permanent: true);
   Get.put<DramaService>(DramaService().init(), permanent: true);
-  Get.put<BookRepository>(MockBookRepository(), permanent: true);
+  Get.put<AdsService>(AdsService(), permanent: true);
+  Get.put<BookRepository>(
+    AppConstants.apiUrl.isEmpty ? MockBookRepository() : ApiBookRepository(Get.put(ApiClient(), permanent: true)),
+    permanent: true,
+  );
 
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   SystemChrome.setSystemUIOverlayStyle(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_constants.dart';
 import '../../core/constants/app_icons.dart';
 import '../../core/data/author_data.dart';
 import '../../widgets/author_cover.dart';
@@ -98,9 +99,11 @@ class _Pill extends StatelessWidget {
 class _Row extends StatelessWidget {
   final String label;
   final String value;
-  final VoidCallback onTap;
 
-  const _Row({required this.label, required this.value, required this.onTap});
+  /// Null shows a fixed value with no chevron.
+  final VoidCallback? onTap;
+
+  const _Row({required this.label, required this.value, this.onTap});
 
   @override
   Widget build(BuildContext context) => InkWell(
@@ -115,7 +118,7 @@ class _Row extends StatelessWidget {
           _Label(label),
           const Spacer(),
           Text(value, style: const TextStyle(fontSize: 15)),
-          const Icon(AppIcons.chevronRight, size: 18, color: AppColors.textSecondary),
+          if (onTap != null) const Icon(AppIcons.chevronRight, size: 18, color: AppColors.textSecondary),
         ],
       ),
     ),
@@ -189,18 +192,8 @@ class _Basics extends GetView<StoryFormController> {
                   contentPadding: EdgeInsets.symmetric(vertical: 12),
                 ),
               ),
-              Obx(
-                () => _Row(
-                  label: 'Language',
-                  value: controller.language.value.toUpperCase(),
-                  onTap: () => showChoiceSheet(
-                    context,
-                    title: 'Language',
-                    options: AuthorData.languages,
-                    value: controller.language,
-                  ),
-                ),
-              ),
+              // English only for now; a picker returns when more languages do.
+              const _Row(label: 'Language', value: 'ENGLISH'),
               const SizedBox(height: 20),
               const _Label('Target Audience'),
               const SizedBox(height: 12),
@@ -286,6 +279,27 @@ class _Details extends GetView<StoryFormController> {
                   ),
                 ),
               ),
+              const SizedBox(height: 18),
+              const _Label('Story Length'),
+              const SizedBox(height: 12),
+              Obx(
+                () => Row(
+                  children: [
+                    for (final (label, short) in const [('Novel', false), ('Short Story', true)]) ...[
+                      _Pill(
+                        label,
+                        selected: controller.isShort.value == short,
+                        // Signed books can't change length: pricing and shelves depend on it.
+                        onTap: () {
+                          if (!controller.story.signed) controller.isShort.value = short;
+                        },
+                      ),
+                      const SizedBox(width: 12),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(height: 6),
               Obx(
                 () => _Row(
                   label: 'Genre',
@@ -340,7 +354,8 @@ class _Details extends GetView<StoryFormController> {
               const _Label('Synopsis'),
               const SizedBox(height: 4),
               const Text(
-                'Please write a description for your story with 20 to 300 words.',
+                'Please write a description for your story with ${AppConstants.synopsisMinWords} to '
+                '${AppConstants.synopsisMaxWords} words.',
                 style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
               ),
               const SizedBox(height: 10),
@@ -361,7 +376,7 @@ class _Details extends GetView<StoryFormController> {
                     bottom: 8,
                     child: Obx(
                       () => Text(
-                        '${controller.synopsisWords} Words',
+                        '${controller.synopsisWords} / ${AppConstants.synopsisMinWords}–${AppConstants.synopsisMaxWords} words',
                         style: TextStyle(
                           fontSize: 12,
                           color: controller.synopsis.value.isEmpty || controller.synopsisOk
@@ -372,25 +387,6 @@ class _Details extends GetView<StoryFormController> {
                     ),
                   ),
                 ],
-              ),
-              const SizedBox(height: 24),
-              const Text('Participate', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-              Obx(
-                () => Column(
-                  children: [
-                    for (final ct in AuthorData.contests)
-                      CheckboxListTile(
-                        value: controller.contests.contains(ct.id),
-                        onChanged: (_) => controller.toggleContest(ct.id),
-                        controlAffinity: ListTileControlAffinity.leading,
-                        contentPadding: EdgeInsets.zero,
-                        dense: true,
-                        activeColor: AppColors.primary,
-                        title: Text(ct.title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500)),
-                        secondary: Text('(${ct.prize})', style: const TextStyle(color: AppColors.star)),
-                      ),
-                  ],
-                ),
               ),
             ],
           ),
@@ -484,6 +480,7 @@ class _Review extends GetView<StoryFormController> {
               ]),
               card([
                 field('Novel Type', c.novelType.value),
+                field('Story Length', c.isShort.value ? 'Short Story' : 'Novel'),
                 field('Genre', c.genre.value),
                 Padding(
                   padding: const EdgeInsets.only(bottom: 16),
@@ -513,13 +510,6 @@ class _Review extends GetView<StoryFormController> {
                 field('Content Rating', c.rating.value),
               ]),
               card([field('Synopsis', c.synopsis.value.trim())]),
-              if (c.contests.isNotEmpty)
-                card([
-                  field(
-                    'Participating in',
-                    AuthorData.contests.where((x) => c.contests.contains(x.id)).map((x) => x.title).join('\n'),
-                  ),
-                ]),
             ],
           ),
         ),

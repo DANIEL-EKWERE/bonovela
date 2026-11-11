@@ -1,5 +1,6 @@
 import '../models/book_model.dart';
 import '../models/chapter_model.dart';
+import '../models/feed_section.dart';
 
 enum RankType { bestsellers, risingStars, completed, hottestNew, readersChoice }
 
@@ -14,8 +15,15 @@ extension RankTypeLabel on RankType {
 }
 
 /// Everything the screens need for book content. Controllers only talk to
-/// this interface; [MockBookRepository] is the implementation for now.
+/// this interface: [ApiBookRepository] reads the backend, [MockBookRepository]
+/// serves built-in sample data when no API_URL is set.
 abstract class BookRepository {
+  /// Sections of a Discover tab ('Discover', 'New' or a genre tab).
+  Future<List<FeedSection>> getDiscoverFeed(String tab);
+
+  /// Short Stories categories and their curated shelves.
+  Future<List<ShortCollection>> getShortCollections();
+
   /// Full-length novels, optionally filtered by [genre].
   Future<List<BookModel>> getBooks({String? genre});
 

@@ -2,17 +2,10 @@ import 'package:get/get.dart';
 
 import '../../../config/routes.dart';
 import '../../../core/models/book_model.dart';
+import '../../../core/models/feed_section.dart';
 import '../../../core/repository/book_repository.dart';
 import '../../../core/utils/formatters.dart';
-
-/// A themed group of shorts, e.g. "Werewolves & Vampires".
-class ShortCollection {
-  final String title;
-  final String subtitle;
-  final List<BookModel> books;
-
-  const ShortCollection(this.title, this.subtitle, this.books);
-}
+import '../../../widgets/ui_kit.dart';
 
 class ShortController extends GetxController {
   final _repo = Get.find<BookRepository>();
@@ -22,6 +15,9 @@ class ShortController extends GetxController {
 
   final RxBool isLoading = true.obs;
   final RxList<BookModel> shorts = <BookModel>[].obs;
+
+  /// The Treasure Collection: categories of curated shelves.
+  final RxList<ShortCollection> collections = <ShortCollection>[].obs;
   final RxInt segment = 0.obs;
 
   /// New Arrivals filter: 'All' or a genre.
@@ -35,8 +31,15 @@ class ShortController extends GetxController {
 
   Future<void> load() async {
     isLoading.value = true;
-    shorts.assignAll(await _repo.getShorts());
-    isLoading.value = false;
+    try {
+      final results = await Future.wait([_repo.getShorts(), _repo.getShortCollections()]);
+      shorts.assignAll(results[0] as List<BookModel>);
+      collections.assignAll(results[1] as List<ShortCollection>);
+    } catch (_) {
+      toast('Short Stories', "Couldn't load stories. Pull down to try again.");
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   List<BookModel> get segmentBooks {
@@ -48,20 +51,6 @@ class ShortController extends GetxController {
         list.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
     }
     return list.take(6).toList();
-  }
-
-  List<ShortCollection> get collections {
-    List<BookModel> withGenre(String g) => shorts.where((b) => b.genre == g).toList();
-    List<BookModel> withTag(String t) => shorts.where((b) => b.tags.any((x) => x.contains(t))).toList();
-    return [
-      ShortCollection('Handpicked Books', 'Chosen by our editors', shorts.take(4).toList()),
-      ShortCollection('Werewolves & Vampires', 'Fated bonds, broken hearts', withGenre('Werewolf')),
-      ShortCollection('Betrayal & Comeback', 'Underestimate me, regret it', [
-        ...withTag('Revenge'),
-        ...withTag('Regret'),
-      ]),
-      ShortCollection('Second Life', 'This time, I choose myself', withTag('Rebirth')),
-    ].where((c) => c.books.isNotEmpty).toList();
   }
 
   List<String> get arrivalFilters => [

@@ -45,7 +45,7 @@ class _AuthorNav extends StatelessWidget {
 
   static const _items = [
     (AppIcons.library, AppIcons.libraryFill, 'Stories'),
-    (AppIcons.discover, AppIcons.discoverFill, 'Discover'),
+    (AppIcons.gift, AppIcons.gift, 'Benefits'),
     (AppIcons.calendar, AppIcons.calendarFill, 'Calendar'),
     (AppIcons.chat, AppIcons.chatFill, 'Comments'),
     (AppIcons.income, AppIcons.wallet, 'Income'),

@@ -46,6 +46,8 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Bonovela uses your photos so you can choose a cover for the stories you write.</string>
+	<string>Bonovela uses your photos so you can choose a cover for your stories and upload your ID when you apply for a contract.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Bonovela uses the camera so you can photograph your ID when you apply for a contract.</string>
 </dict>
 </plist>

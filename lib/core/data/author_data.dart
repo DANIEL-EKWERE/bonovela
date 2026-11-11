@@ -1,6 +1,6 @@
 /// Fixed option lists for the author tools (mock until the backend serves them).
 class AuthorData {
-  static const languages = ['English', 'Français', 'Español', 'Português', 'Deutsch', 'Bahasa Indonesia', 'Filipino'];
+  static const languages = ['English'];
 
   static const novelTypes = ['Original', 'Fan-fiction', 'Translation'];
 
@@ -22,19 +22,16 @@ class AuthorData {
 
   static const genres = [
     'Romance',
-    'Apocalypse',
     'Werewolf',
     'Mafia',
     'System',
     'Fantasy',
-    'Urban',
     'LGBTQ+',
+    'Erotic',
     'YA/TEEN',
     'Paranormal',
     'Mystery/Thriller',
-    'Eastern',
     'Games',
-    'History',
     'MM Romance',
     'Sci-Fi',
     'War',
@@ -224,23 +221,24 @@ class AuthorData {
     ),
   ];
 
-  static const writingTips = [
-    ('Hook readers in the first 300 words', 'Open on conflict, not backstory. Readers decide fast.'),
-    ('End every chapter on a question', 'Cliffhangers keep readers unlocking the next chapter.'),
-    ('Update consistently', 'Steady daily updates count toward the Monthly Attendance Bonus.'),
-    ('Pick tags carefully', 'Tags decide who sees your story first. Choose the 5–8 that fit best.'),
+  /// Senior Editors an author can choose when applying for a contract:
+  /// (id, name, on the Short Stories desk). Matches the demo backend accounts.
+  static const editors = [
+    ('se', 'Seun (SE)', false),
+    ('se2', 'Bisi (SE)', false),
+    ('se3', 'Amara (SE)', false),
+    ('se4', 'Tomi (SE)', false),
+    ('se5', 'Kemi (SE)', true),
   ];
 
-  /// Income categories on the Income tab, with their card colours.
+  /// Income categories on the Income tab, with their card colours (all one orange).
   static const incomeTypes = [
-    ('Signing Bonus', 0xFF7B3FF2, 0xFFA45CFF),
-    ('Profit Share', 0xFFFF7A7A, 0xFFFF4B4B),
-    ('Monthly Attendance Bonus (MAB)', 0xFF2BD96B, 0xFF16B24F),
-    ('Completion Bonus', 0xFFFFC23D, 0xFFFF8A1F),
-    ('One-time Payment', 0xFF2EE6E0, 0xFF1AA6F0),
-    ('Others', 0xFF3FA2FF, 0xFF4F5BFF),
-    ('Carry over', 0xFFFF4FD8, 0xFFB34BFF),
-    ('Reward Share', 0xFF4C6BFF, 0xFF8A4BFF),
+    ('Profit Share', 0xFFFFC23D, 0xFFFF8A1F),
+    ('Available to withdraw', 0xFFFFC23D, 0xFFFF8A1F),
+    ('One-time Payment', 0xFFFFC23D, 0xFFFF8A1F),
+    ('Others', 0xFFFFC23D, 0xFFFF8A1F),
+    ('Carry over', 0xFFFFC23D, 0xFFFF8A1F),
+    ('Reward Share', 0xFFFFC23D, 0xFFFF8A1F),
   ];
 }
 

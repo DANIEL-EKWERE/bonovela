@@ -5,6 +5,8 @@ import '../../../config/routes.dart';
 import '../../../core/models/book_model.dart';
 import '../../../core/repository/book_repository.dart';
 import '../../../core/services/account_service.dart';
+import '../../../core/services/ads_service.dart';
+import '../../ads/open_ad_screen.dart';
 
 class MainController extends GetxController {
   final _storage = Get.find<LocalStorage>();
@@ -25,6 +27,18 @@ class MainController extends GetxController {
     if (tab is int) currentIndex.value = tab;
     _loadLastRead();
     ever(_storage.history, (_) => _loadLastRead());
+  }
+
+  @override
+  void onReady() {
+    super.onReady();
+    _maybeShowPopupAd();
+  }
+
+  /// Marketing's pop-up ad, once per ad per device.
+  Future<void> _maybeShowPopupAd() async {
+    final ad = await Get.find<AdsService>().nextUnseen(AdsService.popup);
+    if (ad != null && Get.currentRoute == AppRoutes.main) showPopupAd(ad);
   }
 
   int get unread => Get.find<AccountService>().unreadCount;

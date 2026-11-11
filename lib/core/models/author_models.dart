@@ -1,3 +1,5 @@
+import '../constants/app_constants.dart';
+
 enum ChapterStatus { draft, published, trash }
 
 /// A story the signed-in author is writing.
@@ -18,7 +20,12 @@ class AuthorStory {
   String genre;
   List<String> tags;
   String synopsis;
-  List<String> contests;
+
+  /// Story Length: short story or novel.
+  bool isShort;
+
+  /// Contract application: '' (none yet) or its status label, e.g. 'Pending review'.
+  String applicationStatus;
   bool completed;
   bool signed;
   final DateTime createdAt;
@@ -36,13 +43,13 @@ class AuthorStory {
     this.genre = '',
     List<String>? tags,
     this.synopsis = '',
-    List<String>? contests,
+    this.isShort = false,
+    this.applicationStatus = '',
     this.completed = false,
     this.signed = false,
     required this.createdAt,
     required this.updatedAt,
-  }) : tags = tags ?? [],
-       contests = contests ?? [];
+  }) : tags = tags ?? [];
 
   String get displayTitle => title.isEmpty ? 'Unnamed' : title;
 
@@ -58,7 +65,7 @@ class AuthorStory {
 
   bool get synopsisOk {
     final w = wordCount(synopsis);
-    return w >= 20 && w <= 300;
+    return w >= AppConstants.synopsisMinWords && w <= AppConstants.synopsisMaxWords;
   }
 
   /// Ready to publish chapters.
@@ -76,7 +83,8 @@ class AuthorStory {
     'genre': genre,
     'tags': tags,
     'synopsis': synopsis,
-    'contests': contests,
+    'isShort': isShort,
+    'applicationStatus': applicationStatus,
     'completed': completed,
     'signed': signed,
     'createdAt': createdAt.toIso8601String(),
@@ -95,7 +103,8 @@ class AuthorStory {
     genre: j['genre']?.toString() ?? '',
     tags: (j['tags'] as List? ?? []).map((e) => e.toString()).toList(),
     synopsis: j['synopsis']?.toString() ?? '',
-    contests: (j['contests'] as List? ?? []).map((e) => e.toString()).toList(),
+    isShort: j['isShort'] == true,
+    applicationStatus: j['applicationStatus']?.toString() ?? '',
     completed: j['completed'] == true,
     signed: j['signed'] == true,
     createdAt: DateTime.tryParse(j['createdAt']?.toString() ?? '') ?? DateTime.now(),
@@ -131,6 +140,18 @@ class AuthorChapter {
   });
 
   int get words => AuthorStory.wordCount(content);
+
+  /// Why a chapter of [words] can't be saved (over the maximum) or published
+  /// (outside the range), or null. Same rule as the backend.
+  static String? lengthError(int words, {bool publishing = true}) {
+    const lo = AppConstants.chapterMinWords, hi = AppConstants.chapterMaxWords;
+    if (words > hi || (publishing && words < lo)) {
+      return 'Chapters must be ${_n(lo)}–${_n(hi)} words. This one has ${_n(words)}.';
+    }
+    return null;
+  }
+
+  static String _n(int v) => v.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => ',');
 
   String get label => number.toString().padLeft(3, '0');
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_constants.dart';
 import '../../core/constants/app_icons.dart';
 import '../../widgets/common.dart';
 import 'controller/chapter_editor_controller.dart';
@@ -70,10 +71,13 @@ class ChapterEditorScreen extends GetView<ChapterEditorController> {
                 top: false,
                 child: Obx(
                   () => Text(
-                    '${controller.words} Words (Ideal word count: '
-                    '${ChapterEditorController.idealMin}-${ChapterEditorController.idealMax})',
+                    '${controller.words} / ${AppConstants.chapterMinWords}–${AppConstants.chapterMaxWords} words'
+                    ' · chapters must be in this range to publish',
                     textAlign: TextAlign.right,
-                    style: const TextStyle(fontSize: 12, color: AppColors.textHint),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: controller.lengthError == null ? AppColors.success : AppColors.error,
+                    ),
                   ),
                 ),
               ),
@@ -150,6 +154,11 @@ class ChapterEditorScreen extends GetView<ChapterEditorController> {
                 const SizedBox(height: 16),
                 _Info('Chapter type', 'Normal chapter'),
                 _Info('Word counts', '${controller.words}'),
+                if (controller.lengthError != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Text(controller.lengthError!, style: const TextStyle(color: AppColors.error, fontSize: 13)),
+                  ),
                 Row(
                   children: [
                     const Expanded(child: Text('Auto-publish', style: TextStyle(fontSize: 15))),

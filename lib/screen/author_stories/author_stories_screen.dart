@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../core/constants/app_colors.dart';
+import '../../core/constants/app_constants.dart';
 import '../../core/constants/app_icons.dart';
 import '../../core/models/author_models.dart';
 import '../../core/utils/formatters.dart';
@@ -68,9 +69,11 @@ class _Tips extends GetView<AuthorStoriesController> {
             children: [
               Expanded(
                 child: Text(
-                  'TIPS: Unsigned books can\'t show on the app but can still show on the web. Once a book is signed, '
-                  'it is promoted to readers in the app and you can earn from every unlocked chapter.',
-                  maxLines: controller.tipsExpanded.value ? null : 2,
+                  'TIPS: Unsigned books cannot be displayed in the app.\n'
+                  'Once a book is signed, it will be eligible to go live in the app. However, books with fewer than '
+                  '20 chapters cannot go live, even after signing.\n\n'
+                  'Need more information?\nPlease contact your assigned Editor for assistance.',
+                  maxLines: controller.tipsExpanded.value ? null : 1,
                   overflow: controller.tipsExpanded.value ? null : TextOverflow.ellipsis,
                   style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
                 ),
@@ -139,6 +142,7 @@ class _StoryCard extends GetView<AuthorStoriesController> {
                         children: [
                           _Chip(story.completed ? 'Completed' : 'Ongoing', AppColors.primary),
                           _Chip(story.signed ? 'Signed' : 'Unsigned', AppColors.textSecondary),
+                          if (story.applicationStatus.isNotEmpty) _Chip(story.applicationStatus, AppColors.gold),
                         ],
                       ),
                       const SizedBox(height: 10),
@@ -162,13 +166,31 @@ class _StoryCard extends GetView<AuthorStoriesController> {
           ),
           const SizedBox(height: 14),
           if (complete)
-            Align(
-              alignment: Alignment.centerRight,
-              child: GradientButton(
-                label: 'Add new chapter',
-                height: 36,
-                fontSize: 13,
-                onTap: () => controller.addChapter(story),
+            Obx(
+              () => Row(
+                children: [
+                  // Appears once the book reaches the contract word count.
+                  if (controller.canApply(story))
+                    TextButton(
+                      onPressed: () => controller.applyForContract(story),
+                      child: const Text('Apply for Contract ›'),
+                    )
+                  else if (!story.signed && story.applicationStatus.isEmpty)
+                    Expanded(
+                      child: Text(
+                        'Apply for Contract at ${AppConstants.contractMinWords} published words '
+                        '(${controller.words(story)} so far).',
+                        style: const TextStyle(fontSize: 12, color: AppColors.textHint),
+                      ),
+                    ),
+                  const Spacer(),
+                  GradientButton(
+                    label: 'Add new chapter',
+                    height: 36,
+                    fontSize: 13,
+                    onTap: () => controller.addChapter(story),
+                  ),
+                ],
               ),
             )
           else ...[

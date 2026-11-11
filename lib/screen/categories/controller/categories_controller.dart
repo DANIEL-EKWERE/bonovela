@@ -16,7 +16,7 @@ class CategoriesController extends GetxController {
   final RxString format = 'All'.obs;
 
   /// Mock audience split: urban and fantasy lean male, the rest female.
-  static String audienceOf(BookModel b) => (b.genre == 'Urban' || b.genre == 'Fantasy') ? 'Male' : 'Female';
+  static String audienceOf(BookModel b) => b.genre == 'Fantasy' ? 'Male' : 'Female';
 
   List<BookModel> get results {
     final list = MockData.books.where((b) {

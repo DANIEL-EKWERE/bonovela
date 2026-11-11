@@ -13,8 +13,8 @@ class OnboardingController extends GetxController {
 
   static const kRecommended = 'recommended';
 
-  static const _female = ['Romance', 'Werewolf', 'Mafia'];
-  static const _male = ['Urban', 'Fantasy'];
+  static const _female = ['Romance', 'Werewolf', 'Mafia', 'LGBTQ+'];
+  static const _male = ['Fantasy'];
 
   void choose(String type) => _finish(type);
 

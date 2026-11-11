@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../core/constants/app_constants.dart';
 import '../../../core/data/author_data.dart';
 import '../../../core/models/author_models.dart';
 import '../../../core/services/author_service.dart';
@@ -32,7 +33,7 @@ class StoryFormController extends GetxController {
   final RxString novelType = 'Original'.obs;
   final RxString genre = ''.obs;
   final RxList<String> tags = <String>[].obs;
-  final RxSet<String> contests = <String>{}.obs;
+  final RxBool isShort = false.obs;
 
   // Tag picker sheet state.
   final RxString tagTab = 'Style'.obs;
@@ -56,7 +57,7 @@ class StoryFormController extends GetxController {
     novelType.value = story.novelType;
     genre.value = story.genre;
     tags.assignAll(story.tags);
-    contests.assignAll(story.contests);
+    isShort.value = story.isShort;
   }
 
   @override
@@ -72,7 +73,8 @@ class StoryFormController extends GetxController {
 
   // ── Validation ─────────────────────────────────────────────────────────────
   int get synopsisWords => AuthorStory.wordCount(synopsis.value);
-  bool get synopsisOk => synopsisWords >= 20 && synopsisWords <= 300;
+  bool get synopsisOk =>
+      synopsisWords >= AppConstants.synopsisMinWords && synopsisWords <= AppConstants.synopsisMaxWords;
 
   bool get basicsOk => title.value.trim().isNotEmpty && hasCover && audience.isNotEmpty && rating.isNotEmpty;
 
@@ -128,7 +130,7 @@ class StoryFormController extends GetxController {
       ..genre = genre.value
       ..tags = tags.toList()
       ..synopsis = synopsis.value.trim()
-      ..contests = contests.toList();
+      ..isShort = isShort.value;
     _author.saveStory(story);
   }
 
@@ -189,6 +191,4 @@ class StoryFormController extends GetxController {
   }
 
   void removeTag(String t) => tags.remove(t);
-
-  void toggleContest(String id) => contests.contains(id) ? contests.remove(id) : contests.add(id);
 }

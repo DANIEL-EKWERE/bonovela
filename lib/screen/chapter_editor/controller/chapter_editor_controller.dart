@@ -20,10 +20,14 @@ class ChapterEditorController extends GetxController {
   final RxBool autoPublish = false.obs;
   final RxBool isReleasing = false.obs;
 
-  static const idealMin = 600;
-  static const idealMax = 1000;
-
   int get words => AuthorStory.wordCount(body.value);
+
+  /// Null when the chapter can be released.
+  String? get lengthError => AuthorChapter.lengthError(words);
+
+  /// Drafts may be short, but nothing over the maximum is kept; a published
+  /// chapter must stay in range.
+  String? get saveError => AuthorChapter.lengthError(words, publishing: isPublished);
   bool get isPublished => chapter.status == ChapterStatus.published;
 
   @override
@@ -59,6 +63,8 @@ class ChapterEditorController extends GetxController {
   /// Back arrow: keep the work as a draft (or update the published chapter).
   void saveAndExit() {
     if (!_isEmpty) {
+      final error = saveError;
+      if (error != null) return toast("Can't save this chapter", error);
       _apply();
       _author.saveChapter(chapter);
       toast(isPublished ? 'Chapter updated' : 'Saved to drafts');
@@ -68,6 +74,8 @@ class ChapterEditorController extends GetxController {
 
   Future<void> release() async {
     if (words == 0) return toast('Write something first');
+    final error = lengthError;
+    if (error != null) return toast("Can't release yet", error);
     isReleasing.value = true;
     await Future.delayed(const Duration(milliseconds: 600));
     _apply();

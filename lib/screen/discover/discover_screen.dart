@@ -83,6 +83,14 @@ class _TabFeed extends GetView<DiscoverController> {
   Widget build(BuildContext context) {
     return Obx(() {
       final sections = controller.feeds[tab];
+      if (sections == null && controller.failed.contains(tab)) {
+        return EmptyState(
+          icon: AppIcons.searchOff,
+          message: "Couldn't load stories. Check your connection and try again.",
+          actionLabel: 'Retry',
+          onAction: () => controller.refreshTab(tab),
+        );
+      }
       if (sections == null) return const LoadingView();
       return RefreshIndicator(
         color: AppColors.primary,

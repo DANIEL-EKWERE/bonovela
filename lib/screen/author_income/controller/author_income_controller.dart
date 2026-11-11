@@ -35,6 +35,6 @@ class AuthorIncomeController extends GetxController {
 
   void help() => toast(
     'How income works',
-    'Signed stories earn a profit share on every unlocked chapter, plus attendance and completion bonuses.',
+    'Signed stories earn a profit share on every unlocked chapter. Available to withdraw is what you can be paid now.',
   );
 }

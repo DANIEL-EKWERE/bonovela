@@ -41,8 +41,8 @@ class StoryChaptersController extends GetxController {
   void openStats() => Get.toNamed(AppRoutes.authorStatistics, arguments: storyId);
 
   void publish(AuthorChapter c) {
-    _author.publishChapter(c);
-    toast('Chapter published', 'Chapter ${c.label}');
+    final error = _author.publishChapter(c);
+    error == null ? toast('Chapter published', 'Chapter ${c.label}') : toast("Can't publish yet", error);
   }
 
   void trash(AuthorChapter c) => _author.trashChapter(c);

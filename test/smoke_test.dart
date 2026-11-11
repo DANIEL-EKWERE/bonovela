@@ -12,6 +12,7 @@ import 'package:bonovela/core/data/mock_data.dart';
 import 'package:bonovela/core/repository/book_repository.dart';
 import 'package:bonovela/core/repository/mock_book_repository.dart';
 import 'package:bonovela/core/services/account_service.dart';
+import 'package:bonovela/core/services/ads_service.dart';
 import 'package:bonovela/core/data/drama_data.dart';
 import 'package:bonovela/core/services/author_service.dart';
 import 'package:bonovela/core/services/drama_service.dart';
@@ -46,6 +47,7 @@ void main() {
       await Get.putAsync<AccountService>(() => AccountService().init(), permanent: true);
       Get.put<AuthorService>(AuthorService().init(), permanent: true);
       Get.put<DramaService>(DramaService().init(), permanent: true);
+      Get.put<AdsService>(AdsService(), permanent: true);
     });
     Get.put<BookRepository>(MockBookRepository(), permanent: true);
 
@@ -113,12 +115,10 @@ void main() {
     discover.loadTab('Romance');
     await _settle(tester);
     expect(discover.feeds['Romance']!.map((f) => f.title).toList(), [
-      'Recommended For You',
-      "Editor's Pick",
-      'Completed',
-      'Love On Top',
-      'Erotica',
-      'MM Romance',
+      'Love on Top',
+      'Best Romance',
+      "Editor's Picks",
+      'Recommended',
     ]);
     expect(discover.feeds['Romance']!.every((f) => f.books.isNotEmpty), isTrue);
 
@@ -159,7 +159,7 @@ void main() {
       ..rating = '16+'
       ..genre = 'Romance'
       ..tags = ['Contemporary', 'Divorce']
-      ..synopsis = List.filled(25, 'word').join(' ');
+      ..synopsis = List.filled(60, 'word').join(' ');
     author.saveStory(story);
     expect(story.isInfoComplete, isTrue);
 
@@ -182,7 +182,7 @@ void main() {
 
     Get.toNamed(AppRoutes.authorCenter);
     await _settle(tester);
-    for (final label in ['Discover', 'Calendar', 'Comments', 'Income', 'Stories']) {
+    for (final label in ['Benefits', 'Calendar', 'Comments', 'Income', 'Stories']) {
       await tester.tap(find.text(label).last);
       await _settle(tester);
       expect(tester.takeException(), isNull, reason: 'author tab $label');
@@ -192,6 +192,7 @@ void main() {
       AppRoutes.storyChapters: story.id,
       AppRoutes.chapterEditor: {'storyId': story.id, 'chapterId': ch.id},
       AppRoutes.authorStatistics: story.id,
+      AppRoutes.contractApplication: story.id,
     }.entries) {
       Get.toNamed(route.split('?').first, arguments: args);
       await _settle(tester);

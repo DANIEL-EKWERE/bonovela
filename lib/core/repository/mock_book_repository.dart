@@ -5,6 +5,7 @@ import '../constants/app_constants.dart';
 import '../data/mock_data.dart';
 import '../models/book_model.dart';
 import '../models/chapter_model.dart';
+import '../models/feed_section.dart';
 import '../services/account_service.dart';
 import 'book_repository.dart';
 
@@ -24,6 +25,88 @@ class MockBookRepository implements BookRepository {
 
   List<BookModel> _byGenre(List<BookModel> list, String? genre) =>
       genre == null ? list : list.where((b) => b.genre == genre).toList();
+
+  /// Shelf names per category tab, as in the backend's curated shelves.
+  static const _shelves = {
+    'Romance': ['Love on Top', 'Best Romance', "Editor's Picks", 'Recommended'],
+    'Mafia': ['Dark Romance', 'Forbidden Heart', 'Cold As You', "Mafia's Obsession"],
+    'Fantasy': ['Kingdom of Magic', 'Top Fantasy', 'Rising Stars', 'Start Your Adventure'],
+    'LGBTQ+': ['Erotica', 'Hearts Without Limits (BL + GL)', 'MM Romance', 'Forbidden Desires'],
+  };
+
+  static const _shortShelves = {
+    'Love at First Sight': ['Hearts in Bloom', 'Love in Bed', 'A Kiss to Remember'],
+    'Family Drama': ['Betrayal & Awakening', 'Werewolf Revenge', 'Bitter Love', 'Forced Love'],
+    'Forbidden Desires': ['Beautifully Dangerous', 'Love Me Like a Villain'],
+    'Mafia & Dangerous Love': ["The Don's Secret", 'Owned by the Mafia', 'A Dangerous Affair'],
+    'Fantasy & Magic': ['Enchanted Hearts', 'The Cursed Love', 'Beyond the Mortal Realm'],
+    'Secrets, Drama & Revenge': ['Sweet Revenge', 'Lies Behind the Love', 'The Secret I Kept'],
+  };
+
+  /// Stable reorder so sample sections don't all look identical.
+  List<BookModel> _shuffle(List<BookModel> list, int seed) {
+    final copy = [...list];
+    copy.sort((a, b) => ((a.coverSeed * seed) % 17).compareTo((b.coverSeed * seed) % 17));
+    return copy;
+  }
+
+  @override
+  Future<List<FeedSection>> getDiscoverFeed(String tab) async {
+    await Future.delayed(_latency);
+    final all = _novels;
+    final popular = [...all]..sort((a, b) => b.views.compareTo(a.views));
+    final fresh = [...all]..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    switch (tab) {
+      case 'Discover':
+        return [
+          FeedSection(title: 'Top Picks', layout: FeedLayout.coverGrid, books: popular.take(8).toList()),
+          FeedSection(title: 'Readers Love These', layout: FeedLayout.coverRow, books: _shuffle(all, 1).take(8).toList()),
+          FeedSection(title: 'Just Updated', layout: FeedLayout.detailList, books: fresh.take(6).toList()),
+        ];
+      case 'New':
+        return [
+          FeedSection(title: 'Best Newcomers', layout: FeedLayout.hero, books: fresh.take(6).toList()),
+          FeedSection(title: 'Trending', layout: FeedLayout.compactGrid, books: _shuffle(fresh, 2).take(6).toList()),
+          FeedSection(title: 'Picks for You', layout: FeedLayout.ratedList, books: _shuffle(all, 3).take(5).toList()),
+        ];
+    }
+    final books = _byGenre(all, tab).isEmpty ? all : _byGenre(all, tab);
+    final shelves = _shelves[tab];
+    if (shelves != null) {
+      return [
+        for (var i = 0; i < shelves.length; i++)
+          FeedSection(
+            title: shelves[i],
+            layout: i == 0 ? FeedLayout.coverGrid : FeedLayout.coverRow,
+            books: _shuffle(books, i + 2).take(8).toList(),
+          ),
+      ];
+    }
+    final editors = [...books]..sort((a, b) => b.rating.compareTo(a.rating));
+    final completed = books.where((b) => b.isCompleted).toList();
+    return [
+      FeedSection(title: 'New Arrival', layout: FeedLayout.compactGrid, books: _byGenre(fresh, tab).take(6).toList()),
+      FeedSection(title: "Editor's Pick", layout: FeedLayout.hero, books: editors),
+      if (completed.isNotEmpty) FeedSection(title: 'Completed', layout: FeedLayout.coverRow, books: completed),
+      FeedSection(title: 'Picks for You', layout: FeedLayout.ratedList, books: _shuffle(books, 4)),
+    ];
+  }
+
+  @override
+  Future<List<ShortCollection>> getShortCollections() async {
+    await Future.delayed(_latency);
+    var seed = 1;
+    return [
+      for (final e in _shortShelves.entries)
+        ShortCollection(
+          title: e.key,
+          sections: [
+            for (final title in e.value)
+              FeedSection(title: title, layout: FeedLayout.coverRow, books: _shuffle(_shorts, seed++).take(8).toList()),
+          ],
+        ),
+    ];
+  }
 
   @override
   Future<List<BookModel>> getBooks({String? genre}) async {

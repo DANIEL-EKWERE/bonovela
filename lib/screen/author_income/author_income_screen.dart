@@ -23,6 +23,29 @@ class AuthorIncomeScreen extends GetView<AuthorIncomeController> {
         () => ListView(
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
           children: [
+            Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFF4E5),
+                border: Border.all(color: const Color(0xFFF1D9A6)),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Text.rich(
+                TextSpan(
+                  style: TextStyle(color: Color(0xFF9A5B00), fontSize: 13, height: 1.4),
+                  children: [
+                    TextSpan(text: '⚠️ IMPORTANT NOTICE: ', style: TextStyle(fontWeight: FontWeight.w700)),
+                    TextSpan(
+                      text:
+                          'Bonovela conducts regular content quality checks. Low-quality, plagiarized, or AI-generated '
+                          'spam content may result in contract termination, forfeiture of unpaid earnings, and recovery '
+                          'of previously paid fees. Please maintain our quality standards.',
+                    ),
+                  ],
+                ),
+              ),
+            ),
             Row(
               children: [
                 Expanded(

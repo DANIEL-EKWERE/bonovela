@@ -2,7 +2,6 @@ import 'package:get/get.dart';
 
 import '../../author_calendar/bindings/author_calendar_binding.dart';
 import '../../author_comments/bindings/author_comments_binding.dart';
-import '../../author_discover/bindings/author_discover_binding.dart';
 import '../../author_income/bindings/author_income_binding.dart';
 import '../../author_stories/bindings/author_stories_binding.dart';
 import '../controller/author_center_controller.dart';
@@ -14,7 +13,6 @@ class AuthorCenterBinding extends Bindings {
   void dependencies() {
     Get.lazyPut(() => AuthorCenterController());
     AuthorStoriesBinding().dependencies();
-    AuthorDiscoverBinding().dependencies();
     AuthorCalendarBinding().dependencies();
     AuthorCommentsBinding().dependencies();
     AuthorIncomeBinding().dependencies();

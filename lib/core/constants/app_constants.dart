@@ -7,8 +7,19 @@ class AppConstants {
   /// Square app-icon artwork.
   static const String iconAsset = 'assets/images/app_icon.png';
 
+  /// Backend base URL, e.g. `--dart-define=API_URL=https://api.bonovela.app`.
+  /// Empty runs the app on built-in sample data.
+  static const String apiUrl = String.fromEnvironment('API_URL');
+
   // Genre tabs used by Discover, Rank and Categories.
-  static const List<String> genres = ['Werewolf', 'Romance', 'Mafia', 'Fantasy', 'Urban'];
+  static const List<String> genres = ['Werewolf', 'Romance', 'Mafia', 'Fantasy', 'LGBTQ+'];
+
+  // Author rules; the backend enforces the same numbers (settings.BONOVELA).
+  static const int synopsisMinWords = 50;
+  static const int synopsisMaxWords = 300;
+  static const int chapterMinWords = 600;
+  static const int chapterMaxWords = 2000;
+  static const int contractMinWords = 5000; // published words before Apply for Contract
 
   // Monetisation (mock).
   static const int freeChapters = 10;

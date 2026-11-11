@@ -4,7 +4,10 @@ import 'package:get/get.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../../config/local_storage.dart';
+import '../constants/app_constants.dart';
+import '../data/author_data.dart';
 import '../models/author_models.dart';
+import '../models/contract_application.dart';
 
 /// Mock author backend: the signed-in author's stories, chapters, comment
 /// replies. Persisted on the device through [LocalStorage].
@@ -104,10 +107,31 @@ class AuthorService extends GetxService {
     _save();
   }
 
-  void publishChapter(AuthorChapter c) {
+  /// Returns why the chapter can't be published, or null once it is.
+  String? publishChapter(AuthorChapter c) {
+    final error = AuthorChapter.lengthError(c.words);
+    if (error != null) return error;
     c.status = ChapterStatus.published;
     c.publishedAt = DateTime.now();
     saveChapter(c);
+    return null;
+  }
+
+  /// Published words; Apply for Contract opens at [AppConstants.contractMinWords].
+  bool canApplyForContract(AuthorStory s) =>
+      !s.signed && s.applicationStatus.isEmpty && s.isInfoComplete && totalWords(s.id) >= AppConstants.contractMinWords;
+
+  /// Editors an author can choose: the desk that matches the book.
+  List<(String, String)> editorsFor(AuthorStory s) => [
+    for (final (id, name, shorts) in AuthorData.editors)
+      if (shorts == s.isShort) (id, name),
+  ];
+
+  /// Sends the application; the book then shows "Pending review".
+  Future<void> submitApplication(AuthorStory s, ContractApplication app) async {
+    await Future.delayed(const Duration(milliseconds: 600));
+    s.applicationStatus = 'Pending review';
+    saveStory(s);
   }
 
   void trashChapter(AuthorChapter c) {

@@ -29,6 +29,13 @@ class AuthorStoriesController extends GetxController {
 
   void addChapter(AuthorStory s) => Get.toNamed(AppRoutes.chapterEditor, arguments: {'storyId': s.id});
 
+  bool canApply(AuthorStory s) {
+    _author.chapters.length; // re-check when chapters change
+    return _author.canApplyForContract(s);
+  }
+
+  void applyForContract(AuthorStory s) => Get.toNamed(AppRoutes.contractApplication, arguments: s.id);
+
   void deleteStory(AuthorStory s) {
     _author.deleteStory(s.id);
     toast('Story deleted', s.displayTitle);

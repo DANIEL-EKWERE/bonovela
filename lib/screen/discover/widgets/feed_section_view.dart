@@ -8,7 +8,7 @@ import '../../../core/models/book_model.dart';
 import '../../../widgets/book_cover.dart';
 import '../../../widgets/book_tiles.dart';
 import '../../../widgets/common.dart';
-import '../models/feed_section.dart';
+import '../../../core/models/feed_section.dart';
 
 /// Renders one [FeedSection] according to its layout, inside a white card.
 class FeedSectionView extends StatelessWidget {
@@ -33,7 +33,7 @@ class FeedSectionView extends StatelessWidget {
                 : null,
           ),
           switch (section.layout) {
-            FeedLayout.rankedColumns => _RankedColumns(books: section.books),
+            FeedLayout.coverGrid => _CoverGrid(books: section.books),
             FeedLayout.coverRow => _CoverRow(books: section.books),
             FeedLayout.detailList => Column(children: [for (final b in section.books) BookListTile(book: b)]),
             FeedLayout.hero => _Hero(books: section.books),
@@ -68,70 +68,21 @@ class _CoverRow extends StatelessWidget {
   }
 }
 
-/// Pages of four numbered rows, swiped horizontally.
-class _RankedColumns extends StatelessWidget {
+/// Covers four per row, title and tag underneath.
+class _CoverGrid extends StatelessWidget {
   final List<BookModel> books;
 
-  const _RankedColumns({required this.books});
+  const _CoverGrid({required this.books});
 
   @override
   Widget build(BuildContext context) {
-    final pages = <List<int>>[];
-    for (var i = 0; i < books.length; i += 4) {
-      pages.add(List.generate((books.length - i).clamp(0, 4), (k) => i + k));
-    }
-    final width = MediaQuery.sizeOf(context).width * 0.82;
-    return SizedBox(
-      // Four rows of a 62×83 cover plus 10 spacing.
-      height: 4 * 94,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: pages.length,
-        separatorBuilder: (_, _) => const SizedBox(width: 14),
-        itemBuilder: (_, p) => SizedBox(
-          width: width,
-          child: Column(
-            children: [
-              for (final i in pages[p])
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: GestureDetector(
-                    onTap: () => openBook(books[i]),
-                    child: Row(
-                      children: [
-                        BookCover(book: books[i], width: 62, rank: i + 1),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                books[i].title,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
-                              ),
-                              const SizedBox(height: 6),
-                              Row(
-                                children: [
-                                  Expanded(child: TagText(books[i].tags)),
-                                  Text(
-                                    '${(books[i].views / 1000).round()}K Views',
-                                    style: const TextStyle(fontSize: 11, color: AppColors.textHint),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
+    final width = (MediaQuery.sizeOf(context).width - 32 - 3 * 10) / 4;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Wrap(
+        spacing: 10,
+        runSpacing: 16,
+        children: [for (final b in books) BookGridTile(book: b, width: width)],
       ),
     );
   }

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../core/constants/app_colors.dart';
 import '../../core/models/book_model.dart';
+import '../../core/models/feed_section.dart';
 import '../../widgets/book_cover.dart';
 import '../../widgets/book_tiles.dart';
 import '../../widgets/common.dart';
@@ -69,10 +70,16 @@ class _HomeTab extends GetView<ShortController> {
             ),
           ),
           const SizedBox(height: 12),
-          for (final c in controller.collections.take(2)) ...[
-            _CollectionCard(collection: c, compact: true),
-            const SizedBox(height: 12),
-          ],
+          Obx(
+            () => Column(
+              children: [
+                for (final c in controller.collections.take(2)) ...[
+                  _CollectionCard(collection: c, compact: true),
+                  const SizedBox(height: 12),
+                ],
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -188,15 +195,19 @@ class _SelectedTab extends GetView<ShortController> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 16),
-      children: [
-        for (final c in controller.collections) ...[_CollectionCard(collection: c), const SizedBox(height: 12)],
-      ],
+    return Obx(
+      () => ListView(
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 16),
+        children: [
+          for (final c in controller.collections) ...[_CollectionCard(collection: c), const SizedBox(height: 12)],
+        ],
+      ),
     );
   }
 }
 
+/// One Treasure Collection category: a heading, then each shelf as a titled
+/// row of covers. [compact] shows only the first shelf (Home tab).
 class _CollectionCard extends StatelessWidget {
   final ShortCollection collection;
   final bool compact;
@@ -205,31 +216,49 @@ class _CollectionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final books = compact ? collection.books.take(2) : collection.books.take(4);
+    final shelves = compact ? collection.sections.take(1) : collection.sections;
     return _Card(
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            height: 72,
+            height: 64,
             width: double.infinity,
+            alignment: Alignment.centerLeft,
             padding: const EdgeInsets.symmetric(horizontal: 16),
             decoration: const BoxDecoration(
               gradient: LinearGradient(colors: [AppColors.plum, AppColors.primary]),
               borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  '# ${collection.title}',
-                  style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w700),
-                ),
-                Text(collection.subtitle, style: const TextStyle(color: AppColors.blushDeep, fontSize: 12)),
-              ],
+            child: Text(
+              collection.title,
+              style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w700),
             ),
           ),
-          for (final b in books) BookListTile(book: b, coverOnRight: true),
+          for (final shelf in shelves) ...[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(14, 14, 14, 10),
+              child: Row(
+                children: [
+                  Container(width: 3, height: 16, color: AppColors.primary),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(shelf.title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: BookGridTile.rowHeight(92),
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                itemCount: shelf.books.length,
+                separatorBuilder: (_, _) => const SizedBox(width: 10),
+                itemBuilder: (_, i) => BookGridTile(book: shelf.books[i], width: 92),
+              ),
+            ),
+          ],
           const SizedBox(height: 8),
         ],
       ),
