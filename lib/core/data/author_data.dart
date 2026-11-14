@@ -239,6 +239,7 @@ class AuthorData {
     ('Others', 0xFFFFC23D, 0xFFFF8A1F),
     ('Carry over', 0xFFFFC23D, 0xFFFF8A1F),
     ('Reward Share', 0xFFFFC23D, 0xFFFF8A1F),
+    ('Short Story Subscription', 0xFFFFC23D, 0xFFFF8A1F),
   ];
 }
 
