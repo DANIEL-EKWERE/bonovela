@@ -100,6 +100,7 @@ class _TabFeed extends GetView<DiscoverController> {
         child: ListView(
           padding: const EdgeInsets.only(top: 4, bottom: 16),
           children: [
+            if (tab == 'Discover') const BannerCarousel(placement: AdsService.discover),
             if (tab == 'Free') const BannerCarousel(placement: AdsService.freeTab),
             for (final s in sections) FeedSectionView(section: s),
           ],

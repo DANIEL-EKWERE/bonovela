@@ -69,7 +69,9 @@ class _BannerCarouselState extends State<BannerCarousel> {
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: CachedNetworkImage(imageUrl: _ads[i].imageUrl, fit: BoxFit.cover),
+                    child: _ads[i].coverOnly
+                        ? _BookCard(ad: _ads[i])
+                        : CachedNetworkImage(imageUrl: _ads[i].imageUrl, fit: BoxFit.cover),
                   ),
                 ),
               ),
@@ -95,6 +97,65 @@ class _BannerCarouselState extends State<BannerCarousel> {
                 ],
               ),
             ),
+        ],
+      ),
+    );
+  }
+}
+
+
+/// A book promotion without artwork: cover, label, title and tagline on
+/// the brand gradient.
+class _BookCard extends StatelessWidget {
+  final AdBanner ad;
+
+  const _BookCard({required this.ad});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(gradient: LinearGradient(colors: [AppColors.plum, AppColors.plumLight])),
+      padding: const EdgeInsets.all(12),
+      child: Row(
+        children: [
+          AspectRatio(
+            aspectRatio: 3 / 4,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(6),
+              child: CachedNetworkImage(imageUrl: ad.imageUrl, fit: BoxFit.cover),
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (ad.label.isNotEmpty)
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(10)),
+                    child: Text(ad.label, style: const TextStyle(color: Colors.white, fontSize: 11)),
+                  ),
+                Text(
+                  ad.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700),
+                ),
+                if (ad.subtitle.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    ad.subtitle,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Colors.white70, fontSize: 12.5),
+                  ),
+                ],
+              ],
+            ),
+          ),
         ],
       ),
     );

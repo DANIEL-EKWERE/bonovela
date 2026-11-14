@@ -1,4 +1,7 @@
 import 'dart:math';
+import 'dart:ui' show PlatformDispatcher;
+
+import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform, kIsWeb;
 
 import 'package:get/get.dart';
 
@@ -411,6 +414,7 @@ class AccountService extends GetxService {
   Future<void> _syncAccount() async {
     final api = _api;
     if (api == null || !api.signedIn) return;
+    if (!_profileSent) _reportProfile();
     try {
       final w = await api.get('wallet/') as Map;
       coins.value = (w['coins'] as num).toInt();
@@ -573,15 +577,20 @@ class AccountService extends GetxService {
   }
 
   /// Redeems a promo code: the bonus granted, 0 if already used, -1 if invalid.
-  Future<int> redeemCode(String code) async {
+  /// Redeems a promo code. The server checks eligibility (segment,
+  /// country, dates, caps); rewards are bonus coins or free chapters.
+  Future<RedeemResult> redeemCode(String code) async {
     final api = _api;
-    if (api == null || !api.signedIn) return redeem(code);
+    if (api == null || !api.signedIn) {
+      final n = redeem(code);
+      return RedeemResult(bonus: max(n, 0), error: n == -1 ? 'invalid' : (n == 0 ? 'used' : null));
+    }
     try {
       final r = await api.post('wallet/redeem/', {'code': code.trim().toUpperCase()}) as Map;
       await syncAccount();
-      return (r['bonus'] as num).toInt();
+      return RedeemResult(bonus: (r['bonus'] as num?)?.toInt() ?? 0, vouchers: (r['vouchers'] as num?)?.toInt() ?? 0);
     } on ApiException catch (e) {
-      return e.code == 'used' ? 0 : -1;
+      return RedeemResult(error: e.code ?? 'invalid', message: e.message);
     }
   }
 
@@ -853,7 +862,39 @@ class AccountService extends GetxService {
       push['all'] = push['chapters']! && push['activities']!;
     }
     _save();
+    _reportProfile();
+  }
+
+  bool _profileSent = false;
+
+  /// Tells Marketing which device and region this reader uses, and whether
+  /// they accept offers ("Activities": events, rewards and offers).
+  void _reportProfile() {
+    final api = _api;
+    if (api == null || !api.signedIn) return;
+    _profileSent = true;
+    final platform = kIsWeb
+        ? 'web'
+        : (defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.macOS ? 'ios' : 'android');
+    api.post('auth/me/marketing/', {
+      'platform': platform,
+      'country': PlatformDispatcher.instance.locale.countryCode ?? '',
+      'marketing_consent': push['activities'] ?? true,
+      'push_consent': push['all'] == true || push['activities'] == true,
+    }).catchError((_) => null);
   }
 
   void clearCache() => cacheMb.value = 0;
+}
+
+
+/// What redeeming a promo code gave, or why it was refused
+/// (invalid | used | ineligible).
+class RedeemResult {
+  final int bonus;
+  final int vouchers;
+  final String? error;
+  final String? message;
+
+  const RedeemResult({this.bonus = 0, this.vouchers = 0, this.error, this.message});
 }

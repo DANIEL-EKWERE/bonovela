@@ -15,6 +15,12 @@ class AdBanner {
   final String? storyId;
   final String? dramaId;
 
+  /// Discover card label (Trending, Editor's pick…).
+  final String label;
+
+  /// No artwork: [imageUrl] is the book's cover, shown as a book card.
+  final bool coverOnly;
+
   const AdBanner({
     required this.id,
     required this.title,
@@ -23,6 +29,8 @@ class AdBanner {
     required this.target,
     this.storyId,
     this.dramaId,
+    this.label = '',
+    this.coverOnly = false,
   });
 
   factory AdBanner.fromJson(Map<String, dynamic> j) => AdBanner(
@@ -33,15 +41,18 @@ class AdBanner {
     target: j['target']?.toString() ?? '',
     storyId: j['story_id']?.toString(),
     dramaId: j['drama_id']?.toString(),
+    label: j['label']?.toString() ?? '',
+    coverOnly: j['cover_only'] == true,
   );
 }
 
 /// Banners set up by Marketing: pop-up and open-screen ads (each shown once
-/// per device) and carousels such as the FREE tab's.
+/// per device) and the Discover and FREE tab carousels.
 class AdsService extends GetxService {
   static const splash = 'splash';
   static const popup = 'popup';
   static const freeTab = 'free';
+  static const discover = 'discover';
   static const _kSeen = 'seen_ads';
 
   LocalStorage get _storage => Get.find<LocalStorage>();
