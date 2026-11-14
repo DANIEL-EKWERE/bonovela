@@ -68,6 +68,8 @@ void main() {
       AppRoutes.reader: {'bookId': book.id, 'chapter': 1},
       AppRoutes.comments: book.id,
       AppRoutes.search: null,
+      AppRoutes.paymentInfo: {'withdraw': true},
+      AppRoutes.withdrawals: null,
       AppRoutes.categories: null,
       AppRoutes.rank: null,
       AppRoutes.viewAll: {'title': 'All', 'books': MockData.books.take(5).toList()},

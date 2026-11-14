@@ -95,6 +95,20 @@ class AuthorIncomeScreen extends GetView<AuthorIncomeController> {
                 colors: [Color(from), Color(to)],
                 onTap: () => controller.openType(name),
               ),
+            _IncomeCard(
+              title: 'Available to withdraw',
+              amount: AuthorIncomeController.money(controller.available.value),
+              note: controller.withdrawNote,
+              colors: const [Color(0xFFFFC23D), Color(0xFFFF8A1F)],
+              onTap: controller.withdraw,
+            ),
+            _IncomeCard(
+              title: 'Withdrawal history',
+              amount: 'View',
+              note: 'Successful, pending and processing',
+              colors: const [Color(0xFFFFC23D), Color(0xFFFF8A1F)],
+              onTap: controller.history,
+            ),
           ],
         ),
       ),
@@ -107,8 +121,9 @@ class _IncomeCard extends StatelessWidget {
   final String amount;
   final List<Color> colors;
   final VoidCallback onTap;
+  final String? note;
 
-  const _IncomeCard({required this.title, required this.amount, required this.colors, required this.onTap});
+  const _IncomeCard({required this.title, required this.amount, required this.colors, required this.onTap, this.note});
 
   @override
   Widget build(BuildContext context) {
@@ -150,6 +165,7 @@ class _IncomeCard extends StatelessWidget {
                           amount,
                           style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w700),
                         ),
+                        if (note != null) Text(note!, style: const TextStyle(color: Colors.white, fontSize: 12.5)),
                       ],
                     ),
                   ),

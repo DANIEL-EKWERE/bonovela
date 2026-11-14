@@ -232,14 +232,14 @@ class AuthorData {
   ];
 
   /// Income categories on the Income tab, with their card colours (all one orange).
+  /// Income cards in order; Available to withdraw and Withdrawal history
+  /// follow them on the Income screen.
   static const incomeTypes = [
     ('Profit Share', 0xFFFFC23D, 0xFFFF8A1F),
-    ('Available to withdraw', 0xFFFFC23D, 0xFFFF8A1F),
+    ('Completion Bonus', 0xFFFFC23D, 0xFFFF8A1F),
     ('One-time Payment', 0xFFFFC23D, 0xFFFF8A1F),
-    ('Others', 0xFFFFC23D, 0xFFFF8A1F),
-    ('Carry over', 0xFFFFC23D, 0xFFFF8A1F),
     ('Reward Share', 0xFFFFC23D, 0xFFFF8A1F),
-    ('Short Story Subscription', 0xFFFFC23D, 0xFFFF8A1F),
+    ('Carry over', 0xFFFFC23D, 0xFFFF8A1F),
   ];
 }
 

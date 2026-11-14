@@ -15,6 +15,12 @@ class AuthorIncomeController extends GetxController {
   final RxInt _monthTotal = 0.obs;
   final RxInt _total = 0.obs;
 
+  /// Withdrawal rules from the server: balance, minimum ($100), this month.
+  final RxInt available = 0.obs;
+  final RxInt minimum = 10000.obs;
+  final RxBool canWithdraw = false.obs;
+  final RxBool placedThisMonth = false.obs;
+
   ApiClient? get _api => Get.isRegistered<ApiClient>() ? Get.find<ApiClient>() : null;
 
   @override
@@ -31,8 +37,14 @@ class AuthorIncomeController extends GetxController {
       final r = await api.get('author/income/', {'month': monthLabel}) as Map;
       amounts.assignAll({
         for (final t in (r['types'] as List).cast<Map>()) t['label'].toString(): (t['amount_cents'] as num).toInt(),
-        'Available to withdraw': (r['available_cents'] as num?)?.toInt() ?? 0,
       });
+      available.value = (r['available_cents'] as num?)?.toInt() ?? 0;
+      final w = r['withdraw'];
+      if (w is Map) {
+        minimum.value = (w['minimum_cents'] as num?)?.toInt() ?? minimum.value;
+        canWithdraw.value = w['can_withdraw'] == true;
+        placedThisMonth.value = w['placed_this_month'] == true;
+      }
       _monthTotal.value = (r['month_cents'] as num?)?.toInt() ?? 0;
       _total.value = (r['total_cents'] as num?)?.toInt() ?? 0;
     } catch (_) {
@@ -42,7 +54,7 @@ class AuthorIncomeController extends GetxController {
 
   List<(String, int, int)> get types => AuthorData.incomeTypes;
 
-  /// Cents per card for the selected month (Available to withdraw is all-time).
+  /// Cents per card for the selected month.
   int amountFor(String type) => amounts[type] ?? 0;
 
   int get monthTotal => _monthTotal.value;
@@ -62,6 +74,17 @@ class AuthorIncomeController extends GetxController {
   }
 
   void paymentInfo() => Get.toNamed(AppRoutes.paymentInfo);
+
+  /// Available to withdraw: open the withdrawal page.
+  void withdraw() => Get.toNamed(AppRoutes.paymentInfo, arguments: {'withdraw': true})?.then((_) => load());
+
+  void history() => Get.toNamed(AppRoutes.withdrawals);
+
+  String get withdrawNote => canWithdraw.value
+      ? 'Withdraw now ›'
+      : placedThisMonth.value
+      ? "This month's withdrawal is placed"
+      : 'Withdraw from ${money(minimum.value)}';
 
   void openType(String type) => toast(type, 'No income from $type in $monthLabel yet.');
 

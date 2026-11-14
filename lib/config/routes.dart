@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 
 import 'auth_middleware.dart';
 
+import '../screen/withdrawals/bindings/withdrawals_binding.dart';
+import '../screen/withdrawals/withdrawals_screen.dart';
 import '../screen/payment_info/bindings/payment_info_binding.dart';
 import '../screen/payment_info/payment_info_screen.dart';
 import '../screen/ads/open_ad_screen.dart';
@@ -135,6 +137,7 @@ class AppRoutes {
   static const storyChapters = '/story_chapters'; // arguments: story id
   static const contractApplication = '/contract_application'; // arguments: story id
   static const paymentInfo = '/payment_info';
+  static const withdrawals = '/withdrawals';
   static const chapterEditor = '/chapter_editor'; // arguments: {'storyId': String, 'chapterId': String?}
   static const authorStatistics = '/author_statistics'; // arguments: story id
   static const exchange = '/exchange';
@@ -208,6 +211,7 @@ class AppRoutes {
     GetPage(name: openAd, page: () => const OpenAdScreen(), transition: Transition.fadeIn),
     GetPage(name: storyChapters, page: () => const StoryChaptersScreen(), binding: StoryChaptersBinding()),
     GetPage(name: paymentInfo, page: () => const PaymentInfoScreen(), binding: PaymentInfoBinding()),
+    GetPage(name: withdrawals, page: () => const WithdrawalsScreen(), binding: WithdrawalsBinding()),
     GetPage(
       name: contractApplication,
       page: () => const ContractApplicationScreen(),
