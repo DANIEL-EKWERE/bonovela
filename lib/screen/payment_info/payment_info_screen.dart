@@ -98,16 +98,6 @@ class PaymentInfoScreen extends GetView<PaymentInfoController> {
               ),
               const SizedBox(height: 12),
             ],
-            Container(
-              padding: const EdgeInsets.all(12),
-              margin: const EdgeInsets.only(bottom: 12),
-              decoration: BoxDecoration(color: const Color(0xFFFFF4E5), borderRadius: BorderRadius.circular(10)),
-              child: const Text(
-                'The account holder name must be your full legal name, exactly as it appears on your bank account. '
-                'No third-party accounts can be used.',
-                style: TextStyle(color: Color(0xFF9A5B00), fontSize: 13, height: 1.4),
-              ),
-            ),
             WhiteCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -161,7 +151,7 @@ class PaymentInfoScreen extends GetView<PaymentInfoController> {
                   ),
                   field(
                     'account_name',
-                    'Name of account holder (legal name)',
+                    'Name of account holder',
                     hint: 'Full name exactly as it appears on the bank statement',
                   ),
                   if (bank) ...[
