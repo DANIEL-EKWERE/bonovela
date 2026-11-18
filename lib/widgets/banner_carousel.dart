@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 
 import '../core/constants/app_colors.dart';
 import '../core/services/ads_service.dart';
+import 'designed_banner.dart';
 
 /// Marketing's banners for [placement], swiping on their own every 4s with
 /// dots underneath. Shows nothing when there are none.
@@ -69,7 +70,9 @@ class _BannerCarouselState extends State<BannerCarousel> {
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: _ads[i].coverOnly
+                    child: _ads[i].designed
+                        ? DesignedBanner(ad: _ads[i], onTap: () => Get.find<AdsService>().open(_ads[i]))
+                        : _ads[i].coverOnly
                         ? _BookCard(ad: _ads[i])
                         : CachedNetworkImage(imageUrl: _ads[i].imageUrl, fit: BoxFit.cover),
                   ),
@@ -102,7 +105,6 @@ class _BannerCarouselState extends State<BannerCarousel> {
     );
   }
 }
-
 
 /// A book promotion without artwork: cover, label, title and tagline on
 /// the brand gradient.

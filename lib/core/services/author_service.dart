@@ -84,6 +84,36 @@ class AuthorService extends GetxService {
 
   /// Runs server calls one after another (a chapter needs its story first).
   /// Failures are shown, never thrown at the screen.
+  /// The contract text the Chief Editor sent for [s] ('' if unavailable).
+  Future<String> contractText(AuthorStory s) async {
+    final api = _api;
+    if (api == null || s.remoteId.isEmpty) return '';
+    try {
+      final r = await api.get('author/stories/${s.remoteId}/application/');
+      return r is Map ? r['contract_text']?.toString() ?? '' : '';
+    } catch (_) {
+      return '';
+    }
+  }
+
+  /// Pay-to-Read Application: lock from [fromChapter] (the editor may pick
+  /// another). Returns null on success, otherwise the message to show.
+  Future<String?> applyPayToRead(AuthorStory s, int fromChapter, String message) async {
+    final api = _api;
+    if (api == null || s.remoteId.isEmpty) return 'Connect to Bonovela to apply.';
+    try {
+      await api.post('author/stories/${s.remoteId}/pay-to-read/', {'from_chapter': fromChapter, 'message': message});
+      s.payToReadStatus = 'pending';
+      s.canApplyPayToRead = false;
+      stories.refresh();
+      return null;
+    } on ApiException catch (e) {
+      return e.message;
+    } catch (_) {
+      return "Couldn't reach Bonovela. Check your connection and try again.";
+    }
+  }
+
   Future<void> _remote(Future<void> Function(ApiClient api) call) {
     if (!_online) return Future.value();
     final api = _api!;
@@ -174,6 +204,9 @@ class AuthorService extends GetxService {
       ..applicationTitle = (j['application'] as Map?)?['title']?.toString() ?? ''
       ..applicationMessage = (j['application'] as Map?)?['message']?.toString() ?? ''
       ..reapplyAt = DateTime.tryParse((j['application'] as Map?)?['reapply_at']?.toString() ?? '')
+      ..paidFromChapter = (j['paid_from_chapter'] as num?)?.toInt()
+      ..canApplyPayToRead = j['can_apply_pay_to_read'] == true
+      ..payToReadStatus = j['pay_to_read_status']?.toString() ?? ''
       ..views = (j['views'] as num?)?.toInt() ?? 0
       ..updatedAt = DateTime.tryParse(j['updated_at']?.toString() ?? '') ?? s.updatedAt;
   }

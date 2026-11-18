@@ -22,10 +22,64 @@ class AuthorStoriesController extends GetxController {
 
   Future<void> refreshStories() => _author.sync();
 
+  /// Pay-to-Read Application: choose the first chapter to lock.
+  void applyPayToRead(AuthorStory s) {
+    final count = chapterCount(s);
+    if (count < 2) return toast('Pay-to-Read', 'Publish at least 2 chapters first.');
+    final chapter = 2.obs;
+    final message = TextEditingController();
+    Get.dialog(
+      AlertDialog(
+        title: const Text('Pay-to-Read Application'),
+        content: Obx(
+          () => Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Choose the first chapter readers unlock with coins. Your editor may choose a different chapter. "
+                'Chapters before it stay free.',
+                style: TextStyle(fontSize: 13),
+              ),
+              const SizedBox(height: 12),
+              DropdownButton<int>(
+                value: chapter.value,
+                isExpanded: true,
+                items: [
+                  for (var n = 2; n <= count; n++) DropdownMenuItem(value: n, child: Text('Lock from chapter $n')),
+                ],
+                onChanged: (v) => chapter.value = v ?? 2,
+              ),
+              TextField(
+                controller: message,
+                maxLines: 2,
+                decoration: const InputDecoration(labelText: 'Message to your editor (optional)'),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: Get.back, child: const Text('Cancel')),
+          FilledButton(
+            onPressed: () async {
+              Get.back();
+              final error = await _author.applyPayToRead(s, chapter.value, message.text.trim());
+              error == null ? toast('Applied for Pay-to-Read', 'Status: Pending Review.') : toast('Not sent', error);
+            },
+            child: const Text('Apply'),
+          ),
+        ],
+      ),
+    );
+  }
+
   /// The contract the Chief Editor sent: terms, then sign.
   void reviewContract(AuthorStory s) {
     final agreed = false.obs;
     final signing = false.obs;
+    // The Chief Editor's contract template, filled in for this book.
+    final terms = ''.obs;
+    _author.contractText(s).then((t) => terms.value = t);
     Get.bottomSheet(
       Container(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
@@ -42,13 +96,19 @@ class AuthorStoriesController extends GetxController {
               const SizedBox(height: 6),
               Text('Non-Exclusive contract · ${s.displayTitle}', style: const TextStyle(color: Colors.black54)),
               const SizedBox(height: 14),
-              const Text(
-                '1. Rights. You grant Bonovela the non-exclusive right to publish your book in the Bonovela apps '
-                'and website.\n\n2. Earnings. You receive a profit share of coins spent unlocking your chapters '
-                'and gifts sent to your book, paid monthly once your balance reaches the payout threshold.\n\n'
-                '3. Updates. Ongoing books should update regularly.\n\n4. Content. The work is original and follows '
-                'the Bonovela content guidelines.',
-                style: TextStyle(fontSize: 13, height: 1.5),
+              ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(Get.context!).height * 0.45),
+                child: SingleChildScrollView(
+                  child: Text(
+                    terms.value.isNotEmpty
+                        ? terms.value
+                        : '1. Rights. You grant Bonovela the non-exclusive right to publish your book in the Bonovela '
+                              'apps and website.\n\n2. Earnings. You receive a profit share of coins spent unlocking '
+                              'your chapters and gifts sent to your book.\n\n3. Updates. Ongoing books should update '
+                              'regularly.\n\n4. Content. The work is original and follows the Bonovela Author Policy.',
+                    style: const TextStyle(fontSize: 13, height: 1.5),
+                  ),
+                ),
               ),
               CheckboxListTile(
                 value: agreed.value,

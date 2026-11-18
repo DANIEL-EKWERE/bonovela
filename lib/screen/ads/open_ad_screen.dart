@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../core/services/ads_service.dart';
+import '../../widgets/designed_banner.dart';
 
 /// Full-screen open-screen ad shown after the splash: Skip countdown in the
 /// corner, VIEW MORE at the bottom. Arguments: {'ad': AdBanner, 'next': route}.
@@ -54,11 +55,14 @@ class _OpenAdScreenState extends State<OpenAdScreen> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          CachedNetworkImage(
-            imageUrl: ad.imageUrl,
-            fit: BoxFit.cover,
-            errorWidget: (_, _, _) => const SizedBox.shrink(),
-          ),
+          if (ad.designed)
+            DesignedBanner(ad: ad, onTap: () => _continue(viewMore: true))
+          else
+            CachedNetworkImage(
+              imageUrl: ad.imageUrl,
+              fit: BoxFit.cover,
+              errorWidget: (_, _, _) => const SizedBox.shrink(),
+            ),
           SafeArea(
             child: Align(
               alignment: Alignment.topRight,
@@ -75,15 +79,17 @@ class _OpenAdScreenState extends State<OpenAdScreen> {
               ),
             ),
           ),
-          SafeArea(
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 56),
-                child: _ViewMore(onTap: () => _continue(viewMore: true)),
+          // A designed opening screen has its own button.
+          if (!ad.designed)
+            SafeArea(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 56),
+                  child: _ViewMore(onTap: () => _continue(viewMore: true)),
+                ),
               ),
             ),
-          ),
         ],
       ),
     );
@@ -134,43 +140,58 @@ Future<void> showPopupAd(AdBanner ad) {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: Stack(
-              alignment: Alignment.bottomCenter,
-              children: [
-                CachedNetworkImage(imageUrl: ad.imageUrl, fit: BoxFit.cover, width: double.infinity),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.fromLTRB(16, 40, 16, 20),
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [Colors.transparent, Colors.black87],
+          if (ad.designed)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: AspectRatio(
+                aspectRatio: 3 / 4,
+                child: DesignedBanner(
+                  ad: ad,
+                  onTap: () {
+                    Get.back();
+                    ads.open(ad);
+                  },
+                ),
+              ),
+            )
+          else
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Stack(
+                alignment: Alignment.bottomCenter,
+                children: [
+                  CachedNetworkImage(imageUrl: ad.imageUrl, fit: BoxFit.cover, width: double.infinity),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.fromLTRB(16, 40, 16, 20),
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Colors.transparent, Colors.black87],
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        if ((ad.subtitle.isNotEmpty ? ad.subtitle : ad.title).isNotEmpty)
+                          Text(
+                            ad.subtitle.isNotEmpty ? ad.subtitle : ad.title,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
+                          ),
+                        const SizedBox(height: 14),
+                        _ViewMore(
+                          onTap: () {
+                            Get.back();
+                            ads.open(ad);
+                          },
+                        ),
+                      ],
                     ),
                   ),
-                  child: Column(
-                    children: [
-                      if ((ad.subtitle.isNotEmpty ? ad.subtitle : ad.title).isNotEmpty)
-                        Text(
-                          ad.subtitle.isNotEmpty ? ad.subtitle : ad.title,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
-                        ),
-                      const SizedBox(height: 14),
-                      _ViewMore(
-                        onTap: () {
-                          Get.back();
-                          ads.open(ad);
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
           const SizedBox(height: 18),
           GestureDetector(
             onTap: Get.back,

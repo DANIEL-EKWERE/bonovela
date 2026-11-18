@@ -21,6 +21,12 @@ class AuthorIncomeController extends GetxController {
   final RxBool canWithdraw = false.obs;
   final RxBool placedThisMonth = false.obs;
 
+  /// Withdrawals placed but not paid yet.
+  final RxInt pendingWithdrawal = 0.obs;
+
+  /// Section label → server type key (profit_share…), for the detail page.
+  final Map<String, String> _keys = {};
+
   ApiClient? get _api => Get.isRegistered<ApiClient>() ? Get.find<ApiClient>() : null;
 
   @override
@@ -35,9 +41,12 @@ class AuthorIncomeController extends GetxController {
     if (api == null || !api.signedIn) return;
     try {
       final r = await api.get('author/income/', {'month': monthLabel}) as Map;
-      amounts.assignAll({
-        for (final t in (r['types'] as List).cast<Map>()) t['label'].toString(): (t['amount_cents'] as num).toInt(),
-      });
+      final types = (r['types'] as List).cast<Map>();
+      for (final t in types) {
+        _keys[t['label'].toString()] = t['type'].toString();
+      }
+      amounts.assignAll({for (final t in types) t['label'].toString(): (t['amount_cents'] as num).toInt()});
+      pendingWithdrawal.value = (r['pending_withdrawal_cents'] as num?)?.toInt() ?? 0;
       available.value = (r['available_cents'] as num?)?.toInt() ?? 0;
       final w = r['withdraw'];
       if (w is Map) {
@@ -80,13 +89,27 @@ class AuthorIncomeController extends GetxController {
 
   void history() => Get.toNamed(AppRoutes.withdrawals);
 
-  String get withdrawNote => canWithdraw.value
+  String get withdrawNote =>
+      (pendingWithdrawal.value > 0 ? 'Pending withdrawal: ${money(pendingWithdrawal.value)} · ' : '') + _withdrawNote;
+
+  String get _withdrawNote => canWithdraw.value
       ? 'Withdraw now ›'
       : placedThisMonth.value
       ? "This month's withdrawal is placed"
       : 'Withdraw from ${money(minimum.value)}';
 
-  void openType(String type) => toast(type, 'No income from $type in $monthLabel yet.');
+  /// Tap a section: the books that earned it this month (Carry over explains itself).
+  void openType(String type) {
+    if (type == 'Carry over') {
+      return toast(
+        'Carry over',
+        'Unwithdrawn earnings from earlier months. Finance moves it to Available to withdraw.',
+      );
+    }
+    final key = _keys[type];
+    if (key == null) return toast(type, 'No income from $type in $monthLabel yet.');
+    Get.toNamed(AppRoutes.incomeDetail, arguments: {'type': key, 'label': type, 'month': monthLabel});
+  }
 
   void help() => toast(
     'How income works',

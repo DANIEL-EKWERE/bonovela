@@ -21,6 +21,16 @@ class AdBanner {
   /// No artwork: [imageUrl] is the book's cover, shown as a book card.
   final bool coverOnly;
 
+  /// Banner builder design from Marketing (empty: a plain image banner).
+  /// Background, book cover, headline, description and button, placed in
+  /// percent of the banner.
+  final Map<String, dynamic> design;
+
+  /// The promoted book's cover (used by designed banners).
+  final String coverUrl;
+
+  bool get designed => design.isNotEmpty;
+
   const AdBanner({
     required this.id,
     required this.title,
@@ -31,6 +41,8 @@ class AdBanner {
     this.dramaId,
     this.label = '',
     this.coverOnly = false,
+    this.design = const {},
+    this.coverUrl = '',
   });
 
   factory AdBanner.fromJson(Map<String, dynamic> j) => AdBanner(
@@ -43,6 +55,8 @@ class AdBanner {
     dramaId: j['drama_id']?.toString(),
     label: j['label']?.toString() ?? '',
     coverOnly: j['cover_only'] == true,
+    design: j['design'] is Map ? Map<String, dynamic>.from(j['design'] as Map) : const {},
+    coverUrl: j['cover_url']?.toString() ?? '',
   );
 }
 
@@ -72,7 +86,7 @@ class AdsService extends GetxService {
       final seen = _seen;
       for (final r in rows) {
         final ad = AdBanner.fromJson(Map<String, dynamic>.from(r));
-        if (!seen.contains(ad.id) && ad.imageUrl.isNotEmpty) return ad;
+        if (!seen.contains(ad.id) && (ad.imageUrl.isNotEmpty || ad.designed)) return ad;
       }
     } catch (_) {}
     return null;
@@ -86,7 +100,8 @@ class AdsService extends GetxService {
       final rows = await api.get('banners/', {'placement': placement}) as List;
       return [
         for (final r in rows)
-          if ((r['image_url'] ?? '').toString().isNotEmpty) AdBanner.fromJson(Map<String, dynamic>.from(r)),
+          if ((r['image_url'] ?? '').toString().isNotEmpty || (r['design'] is Map && (r['design'] as Map).isNotEmpty))
+            AdBanner.fromJson(Map<String, dynamic>.from(r)),
       ];
     } catch (_) {
       return [];

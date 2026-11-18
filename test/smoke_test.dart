@@ -70,6 +70,7 @@ void main() {
       AppRoutes.search: null,
       AppRoutes.paymentInfo: {'withdraw': true},
       AppRoutes.withdrawals: null,
+      AppRoutes.incomeDetail: {'type': 'profit_share', 'label': 'Profit Share', 'month': '2026-11'},
       AppRoutes.categories: null,
       AppRoutes.rank: null,
       AppRoutes.viewAll: {'title': 'All', 'books': MockData.books.take(5).toList()},

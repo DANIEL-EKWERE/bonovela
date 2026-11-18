@@ -217,9 +217,11 @@ class PaymentInfoController extends GetxController {
         toast('Withdrawal placed', 'It is scheduled for payment on the 28th.');
         return;
       }
-      await api.put('author/payout-method/', body);
+      final r = await api.put('author/payout-method/', body);
       Get.back();
-      toast('Payment info saved');
+      (r is Map && r['pending_change'] == true)
+          ? toast('Sent for approval', 'Payments go to your current account until the new details are approved.')
+          : toast('Payment info saved');
     } on ApiException catch (e) {
       errors.assignAll({for (final f in e.fields.entries) f.key: f.value.first});
       if (e.code == 'withdrawal') errors['amount'] = e.message;

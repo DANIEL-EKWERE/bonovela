@@ -34,6 +34,13 @@ class AuthorStory {
 
   /// After a rejection the author can apply again from this time (24 hours).
   DateTime? reapplyAt;
+
+  /// Pay-to-Read: first locked chapter once approved (null: every chapter free).
+  int? paidFromChapter;
+  bool canApplyPayToRead;
+
+  /// Latest Pay-to-Read application: '' | pending | approved | rejected.
+  String payToReadStatus;
   bool completed;
   bool signed;
   final DateTime createdAt;
@@ -86,6 +93,9 @@ class AuthorStory {
     this.applicationTitle = '',
     this.applicationMessage = '',
     this.reapplyAt,
+    this.paidFromChapter,
+    this.canApplyPayToRead = false,
+    this.payToReadStatus = '',
     this.completed = false,
     this.signed = false,
     required this.createdAt,

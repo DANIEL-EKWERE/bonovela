@@ -221,9 +221,7 @@ class _StoryCard extends GetView<AuthorStoriesController> {
                   ),
                 ],
               ),
-            ),
-          if (complete && !story.signed && story.applicationTitle.isNotEmpty)
-            _ApplicationPanel(story: story)
+            )
           else ...[
             const Text(
               'Please complete your book information before you publish it.',
@@ -240,6 +238,9 @@ class _StoryCard extends GetView<AuthorStoriesController> {
               ),
             ),
           ],
+          // Contract application state (any book) and Pay-to-Read (signed novels).
+          if (!story.signed && story.applicationTitle.isNotEmpty) _ApplicationPanel(story: story),
+          if (story.signed && !story.isShort) _PayToReadPanel(story: story),
         ],
       ),
     );
@@ -383,6 +384,60 @@ class _ApplicationPanel extends GetView<AuthorStoriesController> {
               child: TextButton(
                 onPressed: () => controller.reviewContract(story),
                 child: const Text('Review & sign ›'),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Pay-to-Read: apply at 30,000 words, then Pending Review / Approved.
+class _PayToReadPanel extends GetView<AuthorStoriesController> {
+  final AuthorStory story;
+
+  const _PayToReadPanel({required this.story});
+
+  @override
+  Widget build(BuildContext context) {
+    final String title;
+    final String message;
+    if (story.paidFromChapter != null) {
+      title = 'Approved – Pay-to-Read';
+      message = 'Chapters from ${story.paidFromChapter} onward are locked.';
+    } else if (story.payToReadStatus == 'pending') {
+      title = 'Pay-to-Read: Pending Review';
+      message = 'Your editor is reviewing your application.';
+    } else if (story.canApplyPayToRead) {
+      title = 'Pay-to-Read Application';
+      message = 'Your book has reached 30,000 words. You can now apply to monetize it.';
+    } else {
+      return const SizedBox.shrink();
+    }
+    final approved = story.paidFromChapter != null;
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(top: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: approved ? const Color(0xFFEAF8EF) : AppColors.surface,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(fontWeight: FontWeight.w700, color: approved ? const Color(0xFF1E8449) : null),
+          ),
+          const SizedBox(height: 4),
+          Text(message, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+          if (story.canApplyPayToRead && !approved)
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () => controller.applyPayToRead(story),
+                child: const Text('Apply for Pay-to-Read ›'),
               ),
             ),
         ],
