@@ -214,7 +214,7 @@ class PaymentInfoController extends GetxController {
       if (withdrawMode) {
         await api.post('author/withdrawals/', {...body, 'amount_cents': amountCents});
         Get.back();
-        toast('Withdrawal placed', 'It is processed on the 11th of next month.');
+        toast('Withdrawal placed', 'It is scheduled for payment on the 28th.');
         return;
       }
       await api.put('author/payout-method/', body);

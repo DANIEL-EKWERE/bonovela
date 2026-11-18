@@ -155,8 +155,16 @@ class _StoryCard extends GetView<AuthorStoriesController> {
                         spacing: 6,
                         children: [
                           _Chip(story.completed ? 'Completed' : 'Ongoing', AppColors.primary),
-                          _Chip(story.signed ? 'Signed' : 'Unsigned', AppColors.textSecondary),
-                          if (story.applicationStatus.isNotEmpty && !story.signed)
+                          if (story.signed)
+                            _Chip('Signed', AppColors.success)
+                          else if (story.applicationStatus == 'rejected')
+                            _Chip('Rejected', AppColors.error)
+                          else if (story.applicationStatus == 'contract_sent')
+                            _Chip('Contract Approved', AppColors.success)
+                          else
+                            _Chip('Unsigned', AppColors.textSecondary),
+                          if (const {'pending', 'se_approved', 'revision'}.contains(story.applicationStatus) &&
+                              !story.signed)
                             _Chip(story.applicationLabel, AppColors.gold),
                         ],
                       ),
@@ -184,8 +192,9 @@ class _StoryCard extends GetView<AuthorStoriesController> {
             Obx(
               () => Row(
                 children: [
-                  // Appears once the book reaches the contract word count.
-                  if (controller.canApply(story))
+                  // Appears once the book reaches the contract word count
+                  // (a rejected book shows its own button in the panel below).
+                  if (controller.canApply(story) && story.applicationStatus != 'rejected')
                     TextButton(
                       onPressed: () => controller.applyForContract(story),
                       child: const Text('Apply for Contract ›'),
@@ -195,7 +204,7 @@ class _StoryCard extends GetView<AuthorStoriesController> {
                       onPressed: () => controller.reviewContract(story),
                       child: const Text('Review & sign contract ›'),
                     )
-                  else if (!story.signed && story.mayApply)
+                  else if (!story.signed && story.mayApply && story.applicationStatus != 'rejected')
                     Expanded(
                       child: Text(
                         'Apply for Contract at ${AppConstants.contractMinWords} published words '
@@ -212,7 +221,9 @@ class _StoryCard extends GetView<AuthorStoriesController> {
                   ),
                 ],
               ),
-            )
+            ),
+          if (complete && !story.signed && story.applicationTitle.isNotEmpty)
+            _ApplicationPanel(story: story)
           else ...[
             const Text(
               'Please complete your book information before you publish it.',
@@ -315,4 +326,67 @@ class _Stat extends StatelessWidget {
       Text(value, style: const TextStyle(fontSize: 13)),
     ],
   );
+}
+
+/// "Applied:", "Application Closed:" (with the reason and Apply for contract
+/// after 24 hours) or "Contract Sent to Your email".
+class _ApplicationPanel extends GetView<AuthorStoriesController> {
+  final AuthorStory story;
+
+  const _ApplicationPanel({required this.story});
+
+  @override
+  Widget build(BuildContext context) {
+    final rejected = story.applicationStatus == 'rejected';
+    final sent = story.applicationStatus == 'contract_sent';
+    final color = rejected ? const Color(0xFFC0392B) : (sent ? const Color(0xFF1E8449) : AppColors.textPrimary);
+    final wait = story.reapplyAt?.difference(DateTime.now());
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(top: 12),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: rejected ? const Color(0xFFFFF1F1) : (sent ? const Color(0xFFEAF8EF) : AppColors.surface),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            story.applicationTitle,
+            style: TextStyle(fontWeight: FontWeight.w700, color: color),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            story.applicationMessage,
+            style: TextStyle(fontSize: 13, height: 1.45, color: rejected ? color : AppColors.textSecondary),
+          ),
+          if (rejected) ...[
+            const SizedBox(height: 10),
+            Align(
+              alignment: Alignment.centerRight,
+              child: story.mayApply
+                  ? FilledButton(
+                      style: FilledButton.styleFrom(backgroundColor: const Color(0xFF4F6CF7)),
+                      onPressed: () => controller.applyForContract(story),
+                      child: const Text('Apply for contract'),
+                    )
+                  : Text(
+                      'You can apply again in ${wait == null ? 24 : (wait.inMinutes / 60).ceil()} hours.',
+                      style: const TextStyle(fontSize: 12, color: AppColors.textHint),
+                    ),
+            ),
+          ],
+          if (sent)
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () => controller.reviewContract(story),
+                child: const Text('Review & sign ›'),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 }

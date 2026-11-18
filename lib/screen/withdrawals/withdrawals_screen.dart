@@ -104,7 +104,7 @@ class WithdrawalsScreen extends GetView<WithdrawalsController> {
     final note = switch (w.status) {
       'Successful' => 'This payment was sent successfully.',
       'Processing' => 'Approved — the transfer is being processed.',
-      'Pending' => 'Waiting to be processed on the 11th.',
+      'Pending' => 'Scheduled for payment on the 28th.',
       _ => "The transfer didn't go through. The amount is back in your available balance; check your payment info.",
     };
     Get.bottomSheet(

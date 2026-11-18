@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 
 import '../../../core/models/user_model.dart';
 import '../../../core/services/account_service.dart';
+import '../../../widgets/author_policy_sheet.dart';
 import '../../../widgets/ui_kit.dart';
 
 /// Author Center shell: intro for readers, five-tab dashboard for authors.
@@ -17,6 +18,7 @@ class AuthorCenterController extends GetxController {
   void changeTab(int i) => tab.value = i;
 
   Future<void> becomeAuthor() async {
+    if (!await showAuthorPolicySheet()) return;
     try {
       await _account.becomeAuthor();
       toast('Welcome, author ✍️', 'Tap + to start your first story.');

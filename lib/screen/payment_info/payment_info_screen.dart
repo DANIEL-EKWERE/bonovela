@@ -187,10 +187,12 @@ class PaymentInfoScreen extends GetView<PaymentInfoController> {
                     'withdrawal per month.',
               ),
               notice(
-                'Withdrawal Processing Time',
-                'Withdrawals are processed on the 11th of each month, covering the requests from the previous month '
-                    '(e.g. on 11 November, the withdrawals placed from 11 October to 10 November are processed and '
-                    'paid).',
+                'Monthly Author Payments',
+                [
+                  'Author earnings are calculated monthly based on eligible revenue generated during the previous calendar month. Approved earnings are scheduled for withdrawal on the 28th of every month.',
+                  'Payments are subject to financial reconciliation, account verification and third-party platform settlement. If Google Play or another payment provider delays the release of funds, affected earnings will remain recorded in your account until settlement is completed.',
+                  'Such delays do not mean your earnings have been cancelled or forfeited. Bonovela will process eligible outstanding payments once the funds are received and cleared.',
+                ].join('\n\n'),
               ),
             ],
           ],
@@ -212,7 +214,7 @@ class PaymentInfoScreen extends GetView<PaymentInfoController> {
                     child: OutlinedButton(
                       onPressed: controller.manageAccounts,
                       style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(46)),
-                      child: const Text('Manage Payment Accounts', textAlign: TextAlign.center),
+                      child: const Text('Modify Info', textAlign: TextAlign.center),
                     ),
                   ),
                 ],

@@ -388,7 +388,7 @@ class AccountService extends GetxService {
     final u = user.value;
     if (u == null) return;
     final api = _api;
-    if (api != null) await api.post('auth/become-author/');
+    if (api != null) await api.post('auth/become-author/', {'agree': true});
     user.value = u.copyWith(isAuthor: true);
     _save();
   }

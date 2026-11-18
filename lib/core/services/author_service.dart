@@ -171,6 +171,9 @@ class AuthorService extends GetxService {
       ..completed = j['status'] == 'completed'
       ..signed = j['is_signed'] == true
       ..applicationStatus = j['application_status']?.toString() ?? ''
+      ..applicationTitle = (j['application'] as Map?)?['title']?.toString() ?? ''
+      ..applicationMessage = (j['application'] as Map?)?['message']?.toString() ?? ''
+      ..reapplyAt = DateTime.tryParse((j['application'] as Map?)?['reapply_at']?.toString() ?? '')
       ..views = (j['views'] as num?)?.toInt() ?? 0
       ..updatedAt = DateTime.tryParse(j['updated_at']?.toString() ?? '') ?? s.updatedAt;
   }

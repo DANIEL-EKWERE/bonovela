@@ -26,6 +26,14 @@ class AuthorStory {
 
   /// Latest contract application: '' (none) or the server's status code.
   String applicationStatus;
+
+  /// The application panel on the story card, from the server:
+  /// "Applied:", "Application Closed:" (+ reason) or "Contract Sent to Your email".
+  String applicationTitle;
+  String applicationMessage;
+
+  /// After a rejection the author can apply again from this time (24 hours).
+  DateTime? reapplyAt;
   bool completed;
   bool signed;
   final DateTime createdAt;
@@ -44,18 +52,22 @@ class AuthorStory {
   int views;
 
   static const applicationLabels = {
-    'pending': 'Pending review',
+    'pending': 'Applied',
     'revision': 'Needs revision',
-    'se_approved': 'Approved · contract coming',
-    'contract_sent': 'Contract sent',
+    'se_approved': 'Applied',
+    'contract_sent': 'Contract Approved',
     'signed': 'Signed',
-    'rejected': 'Not accepted',
+    'rejected': 'Rejected',
   };
 
   String get applicationLabel => applicationLabels[applicationStatus] ?? applicationStatus;
 
-  /// No application yet, or the last one was turned down / sent back.
-  bool get mayApply => applicationStatus.isEmpty || applicationStatus == 'rejected' || applicationStatus == 'revision';
+  /// No application yet, or the last one was turned down / sent back (a
+  /// rejection only after its 24-hour wait).
+  bool get mayApply =>
+      applicationStatus.isEmpty ||
+      applicationStatus == 'revision' ||
+      (applicationStatus == 'rejected' && (reapplyAt == null || reapplyAt!.isBefore(DateTime.now())));
 
   AuthorStory({
     required this.id,
@@ -71,6 +83,9 @@ class AuthorStory {
     this.synopsis = '',
     this.isShort = false,
     this.applicationStatus = '',
+    this.applicationTitle = '',
+    this.applicationMessage = '',
+    this.reapplyAt,
     this.completed = false,
     this.signed = false,
     required this.createdAt,
@@ -115,6 +130,9 @@ class AuthorStory {
     'synopsis': synopsis,
     'isShort': isShort,
     'applicationStatus': applicationStatus,
+    'applicationTitle': applicationTitle,
+    'applicationMessage': applicationMessage,
+    'reapplyAt': reapplyAt?.toIso8601String(),
     'remoteId': remoteId,
     'coverUrl': coverUrl,
     'uploadedCover': uploadedCover,
@@ -142,6 +160,9 @@ class AuthorStory {
     applicationStatus: j['applicationStatus'] == 'Pending review'
         ? 'pending'
         : j['applicationStatus']?.toString() ?? '',
+    applicationTitle: j['applicationTitle']?.toString() ?? '',
+    applicationMessage: j['applicationMessage']?.toString() ?? '',
+    reapplyAt: DateTime.tryParse(j['reapplyAt']?.toString() ?? ''),
     remoteId: j['remoteId']?.toString() ?? '',
     coverUrl: j['coverUrl']?.toString() ?? '',
     uploadedCover: j['uploadedCover']?.toString() ?? '',
