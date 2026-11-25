@@ -41,6 +41,15 @@ class AuthorStory {
 
   /// Latest Pay-to-Read application: '' | pending | approved | rejected.
   String payToReadStatus;
+
+  /// Contract application open: no deleting or changing the book meanwhile.
+  bool underReview;
+
+  /// Signed books and books under review can't be deleted.
+  bool canDelete;
+
+  /// Why the book can't be deleted or changed (from the server).
+  String lockReason;
   bool completed;
   bool signed;
   final DateTime createdAt;
@@ -63,6 +72,7 @@ class AuthorStory {
     'revision': 'Needs revision',
     'se_approved': 'Applied',
     'contract_sent': 'Contract Approved',
+    'author_signed': 'Contract Approved',
     'signed': 'Signed',
     'rejected': 'Rejected',
   };
@@ -96,6 +106,9 @@ class AuthorStory {
     this.paidFromChapter,
     this.canApplyPayToRead = false,
     this.payToReadStatus = '',
+    this.underReview = false,
+    this.canDelete = true,
+    this.lockReason = '',
     this.completed = false,
     this.signed = false,
     required this.createdAt,

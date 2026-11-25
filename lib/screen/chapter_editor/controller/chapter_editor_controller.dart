@@ -65,6 +65,21 @@ class ChapterEditorController extends GetxController {
     if (!_isEmpty) {
       final error = saveError;
       if (error != null) return toast("Can't save this chapter", error);
+      final lock = _author.chapterLock(chapter);
+      if (lock.isNotEmpty) {
+        Get.back();
+        return toast("Can't change this chapter", lock);
+      }
+      if (_author.editNeedsReview(chapter)) {
+        _author.submitChapterEdit(
+          chapter,
+          titleController.text.trim(),
+          bodyController.text,
+          hasNote.value ? noteController.text.trim() : '',
+        );
+        Get.back();
+        return toast('Sent to your editor', 'Your edit goes live once your editor approves it.');
+      }
       _apply();
       _author.saveChapter(chapter);
       toast(isPublished ? 'Chapter updated' : 'Saved to drafts');

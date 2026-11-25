@@ -85,14 +85,16 @@ class AuthorService extends GetxService {
   /// Runs server calls one after another (a chapter needs its story first).
   /// Failures are shown, never thrown at the screen.
   /// The contract text the Chief Editor sent for [s] ('' if unavailable).
-  Future<String> contractText(AuthorStory s) async {
+  /// The contract text and the legal name the author must sign with.
+  Future<({String text, String signer})> contract(AuthorStory s) async {
     final api = _api;
-    if (api == null || s.remoteId.isEmpty) return '';
+    if (api == null || s.remoteId.isEmpty) return (text: '', signer: '');
     try {
       final r = await api.get('author/stories/${s.remoteId}/application/');
-      return r is Map ? r['contract_text']?.toString() ?? '' : '';
+      if (r is! Map) return (text: '', signer: '');
+      return (text: r['contract_text']?.toString() ?? '', signer: r['signer_name']?.toString() ?? '');
     } catch (_) {
-      return '';
+      return (text: '', signer: '');
     }
   }
 
@@ -207,6 +209,9 @@ class AuthorService extends GetxService {
       ..paidFromChapter = (j['paid_from_chapter'] as num?)?.toInt()
       ..canApplyPayToRead = j['can_apply_pay_to_read'] == true
       ..payToReadStatus = j['pay_to_read_status']?.toString() ?? ''
+      ..underReview = j['under_review'] == true
+      ..canDelete = j['can_delete'] != false
+      ..lockReason = j['lock_reason']?.toString() ?? ''
       ..views = (j['views'] as num?)?.toInt() ?? 0
       ..updatedAt = DateTime.tryParse(j['updated_at']?.toString() ?? '') ?? s.updatedAt;
   }
@@ -322,14 +327,44 @@ class AuthorService extends GetxService {
     } catch (_) {}
   }
 
-  void deleteStory(String id) {
+  /// Returns why the story can't be deleted, or null once it is.
+  String? deleteStory(String id) {
     final s = story(id);
+    if (s != null && (!s.canDelete || s.signed)) {
+      return s.lockReason.isNotEmpty ? s.lockReason : "Signed books can't be deleted.";
+    }
     deleteCoverFile(s?.coverPath ?? '');
     stories.removeWhere((s) => s.id == id);
     chapters.removeWhere((c) => c.storyId == id);
     _save();
     final rid = s?.remoteId ?? '';
     if (rid.isNotEmpty) _remote((api) => api.delete('author/stories/$rid/'));
+    return null;
+  }
+
+  /// Why an existing chapter can't be changed right now ('' when it can).
+  String chapterLock(AuthorChapter c) {
+    final s = story(c.storyId);
+    if (s == null || c.remoteId.isEmpty) return '';
+    if (s.underReview) return s.lockReason;
+    return '';
+  }
+
+  /// Signed book, published chapter: edits go to the editor for approval.
+  bool editNeedsReview(AuthorChapter c) => (story(c.storyId)?.signed ?? false) && c.status == ChapterStatus.published;
+
+  /// Sends an edit of a signed book's published chapter for review; the live
+  /// text stays until the editor approves (it syncs back then).
+  void submitChapterEdit(AuthorChapter c, String title, String content, String note) {
+    final s = story(c.storyId);
+    if (s == null || s.remoteId.isEmpty || c.remoteId.isEmpty) return;
+    _remote(
+      (api) => api.patch('author/stories/${s.remoteId}/chapters/${c.remoteId}/', {
+        'title': title,
+        'content': content,
+        'note': note,
+      }),
+    );
   }
 
   // ── Chapters ───────────────────────────────────────────────────────────────
@@ -372,6 +407,7 @@ class AuthorService extends GetxService {
   }
 
   void trashChapter(AuthorChapter c) {
+    if (chapterLock(c).isNotEmpty || editNeedsReview(c)) return;
     c.previousStatus = c.status;
     c.status = ChapterStatus.trash;
     _keep(c);
@@ -431,12 +467,14 @@ class AuthorService extends GetxService {
     _save();
   }
 
-  /// Signs the contract the Chief Editor sent; the book is then signed.
-  Future<void> signContract(AuthorStory s) async {
-    if (_online) await _api!.post('author/stories/${s.remoteId}/sign/');
+  /// The author signs electronically with their full legal name; the book
+  /// is signed once Bonovela countersigns.
+  Future<void> signContract(AuthorStory s, String name) async {
+    if (_online) await _api!.post('author/stories/${s.remoteId}/sign/', {'signature_name': name.trim()});
     s
-      ..signed = true
-      ..applicationStatus = 'signed';
+      ..applicationStatus = 'author_signed'
+      ..applicationTitle = 'You signed the contract'
+      ..applicationMessage = 'Bonovela will add its signature shortly.';
     stories.refresh();
     _save();
   }

@@ -26,6 +26,11 @@ class AppColors {
   static const Color error = Color(0xFFE5484D);
 
   /// Pill buttons (READ, TOP UP, Check in …).
+  /// The Income orange (#FFC23D → #FF8A1F): author tips, rejection notice and create buttons.
+  static const LinearGradient incomeGradient = LinearGradient(colors: [Color(0xFFFFC23D), Color(0xFFFF8A1F)]);
+  static const Color incomeTint = Color(0xFFFFF3E0);
+  static const Color incomeText = Color(0xFF8A4B00);
+
   static const LinearGradient buttonGradient = LinearGradient(colors: [primaryLight, primary]);
 
   /// Soft blush wash behind the top of the tab screens.

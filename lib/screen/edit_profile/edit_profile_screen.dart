@@ -63,8 +63,15 @@ class EditProfileScreen extends GetView<EditProfileController> {
             decoration: BoxDecoration(color: AppColors.surface, borderRadius: BorderRadius.circular(24)),
             child: Text(controller.user.email, style: const TextStyle(color: AppColors.textSecondary)),
           ),
-          label('ID'),
-          Text(controller.user.id, style: const TextStyle(color: AppColors.textSecondary)),
+          label('Reader ID'),
+          SelectableText(
+            controller.user.readerId.isNotEmpty ? controller.user.readerId : 'Sign in with email to get your Reader ID',
+            style: const TextStyle(color: AppColors.textSecondary),
+          ),
+          if (controller.user.authorId.isNotEmpty) ...[
+            label('Author ID'),
+            SelectableText(controller.user.authorId, style: const TextStyle(color: AppColors.textSecondary)),
+          ],
           label('About yourself'),
           TextField(
             controller: controller.about,

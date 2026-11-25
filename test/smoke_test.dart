@@ -140,7 +140,7 @@ void main() {
     await _settle(tester);
     Get.toNamed(AppRoutes.verifyEmail, arguments: 'new.reader@example.com');
     await _settle(tester);
-    await tester.tap(find.text('Jump to email box'));
+    await tester.tap(find.text("I've activated my account"));
     await _settle(tester, seconds: 2);
     expect(account.user.value?.email, 'new.reader@example.com');
     expect(Get.currentRoute, AppRoutes.main);

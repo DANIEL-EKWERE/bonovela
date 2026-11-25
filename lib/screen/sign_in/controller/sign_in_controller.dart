@@ -54,9 +54,11 @@ class SignInController extends GetxController {
       confirmTextColor: Colors.white,
       buttonColor: const Color(0xFFEC2A82),
       cancelTextColor: const Color(0xFF6E6A75),
-      onConfirm: () {
+      onConfirm: () async {
         Get.back();
-        toast('Reset link sent', 'Check $email');
+        final err = await _account.requestPasswordReset(email);
+        if (err != null) return toast("Couldn't send the link", err);
+        toast('Reset link sent', 'Check $email for an email from noreply@bonovela.com');
       },
     );
   }

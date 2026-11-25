@@ -12,6 +12,9 @@ class GradientButton extends StatelessWidget {
   final double fontSize;
   final bool loading;
 
+  /// Defaults to the brand pink; the Author Center uses the Income orange.
+  final Gradient? gradient;
+
   const GradientButton({
     super.key,
     required this.label,
@@ -20,6 +23,7 @@ class GradientButton extends StatelessWidget {
     this.width,
     this.fontSize = 16,
     this.loading = false,
+    this.gradient,
   });
 
   @override
@@ -35,7 +39,7 @@ class GradientButton extends StatelessWidget {
           alignment: Alignment.center,
           padding: const EdgeInsets.symmetric(horizontal: 20),
           decoration: BoxDecoration(
-            gradient: AppColors.buttonGradient,
+            gradient: gradient ?? AppColors.buttonGradient,
             borderRadius: BorderRadius.circular(height / 2),
             boxShadow: [
               BoxShadow(color: AppColors.primary.withValues(alpha: 0.25), blurRadius: 12, offset: const Offset(0, 4)),

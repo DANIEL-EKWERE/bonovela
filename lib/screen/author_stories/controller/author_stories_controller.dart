@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../../config/routes.dart';
+import '../../../core/api/api_client.dart';
 import '../../../core/models/author_models.dart';
 import '../../../core/services/author_service.dart';
 import '../../../widgets/common.dart';
@@ -79,7 +80,12 @@ class AuthorStoriesController extends GetxController {
     final signing = false.obs;
     // The Chief Editor's contract template, filled in for this book.
     final terms = ''.obs;
-    _author.contractText(s).then((t) => terms.value = t);
+    final signer = ''.obs;
+    final name = ''.obs;
+    _author.contract(s).then((c) {
+      terms.value = c.text;
+      signer.value = c.signer;
+    });
     Get.bottomSheet(
       Container(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
@@ -115,18 +121,31 @@ class AuthorStoriesController extends GetxController {
                 onChanged: (v) => agreed.value = v ?? false,
                 contentPadding: EdgeInsets.zero,
                 controlAffinity: ListTileControlAffinity.leading,
-                title: const Text('I have read and accept the contract terms.'),
+                title: const Text('I have read and accept the contract terms, and my electronic signature is binding.'),
               ),
+              TextField(
+                onChanged: (v) => name.value = v,
+                textCapitalization: TextCapitalization.words,
+                decoration: InputDecoration(
+                  labelText: 'Sign with your full legal name',
+                  hintText: signer.value.isEmpty ? null : signer.value,
+                  helperText: signer.value.isEmpty ? null : 'Type it exactly as on your application: ${signer.value}',
+                ),
+                style: const TextStyle(fontStyle: FontStyle.italic, fontSize: 18),
+              ),
+              const SizedBox(height: 12),
               GradientButton(
                 label: 'Sign contract',
                 loading: signing.value,
-                onTap: agreed.value
+                onTap: agreed.value && name.value.trim().isNotEmpty
                     ? () async {
                         signing.value = true;
                         try {
-                          await _author.signContract(s);
+                          await _author.signContract(s, name.value);
                           Get.back();
-                          toast('Signed 🎉', '"${s.displayTitle}" is under contract.');
+                          toast('Contract signed ✍️', 'Bonovela will add its signature shortly.');
+                        } on ApiException catch (e) {
+                          toast("Couldn't sign yet", e.message);
                         } catch (_) {
                           toast("Couldn't sign yet", 'Check your connection and try again.');
                         } finally {
@@ -147,7 +166,10 @@ class AuthorStoriesController extends GetxController {
 
   void newStory() => Get.toNamed(AppRoutes.storyForm);
 
-  void editStory(AuthorStory s) => Get.toNamed(AppRoutes.storyForm, arguments: s.id);
+  void editStory(AuthorStory s) {
+    if (s.underReview) return toast("Can't edit this book now", s.lockReason);
+    Get.toNamed(AppRoutes.storyForm, arguments: s.id);
+  }
 
   void openChapters(AuthorStory s) => Get.toNamed(AppRoutes.storyChapters, arguments: s.id);
 
@@ -161,7 +183,8 @@ class AuthorStoriesController extends GetxController {
   void applyForContract(AuthorStory s) => Get.toNamed(AppRoutes.contractApplication, arguments: s.id);
 
   void deleteStory(AuthorStory s) {
-    _author.deleteStory(s.id);
+    final error = _author.deleteStory(s.id);
+    if (error != null) return toast("Can't delete this book", error);
     toast('Story deleted', s.displayTitle);
   }
 }

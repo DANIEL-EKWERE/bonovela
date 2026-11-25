@@ -61,7 +61,7 @@ class SignUpController extends GetxController {
     isSubmitting.value = false;
     if (error != null) return toast("Couldn't create your account", error);
     if (_account.isLoggedIn) {
-      // Backend accounts are ready at once (no confirmation email yet).
+      // Accounts that don't need an activation link.
       AppRoutes.closeAuth();
       toast('Welcome to Bonovela 🎉', _account.user.value?.name ?? '');
     } else {

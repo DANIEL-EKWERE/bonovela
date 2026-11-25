@@ -23,7 +23,12 @@ class AuthorStoriesScreen extends GetView<AuthorStoriesController> {
         actions: [
           IconButton(
             onPressed: controller.newStory,
-            icon: const Icon(AppIcons.addCircle, color: AppColors.textPrimary, size: 30),
+            icon: Container(
+              width: 34,
+              height: 34,
+              decoration: const BoxDecoration(shape: BoxShape.circle, gradient: AppColors.incomeGradient),
+              child: const Icon(Icons.add, color: Colors.white, size: 22),
+            ),
           ),
         ],
       ),
@@ -73,7 +78,7 @@ class _Tips extends GetView<AuthorStoriesController> {
         onTap: controller.tipsExpanded.toggle,
         child: Container(
           width: double.infinity,
-          color: const Color(0xFFFFF8D9),
+          color: AppColors.incomeTint,
           padding: const EdgeInsets.fromLTRB(16, 10, 12, 10),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -159,7 +164,7 @@ class _StoryCard extends GetView<AuthorStoriesController> {
                             _Chip('Signed', AppColors.success)
                           else if (story.applicationStatus == 'rejected')
                             _Chip('Rejected', AppColors.error)
-                          else if (story.applicationStatus == 'contract_sent')
+                          else if (const {'contract_sent', 'author_signed'}.contains(story.applicationStatus))
                             _Chip('Contract Approved', AppColors.success)
                           else
                             _Chip('Unsigned', AppColors.textSecondary),
@@ -217,6 +222,7 @@ class _StoryCard extends GetView<AuthorStoriesController> {
                     label: 'Add new chapter',
                     height: 36,
                     fontSize: 13,
+                    gradient: AppColors.incomeGradient,
                     onTap: () => controller.addChapter(story),
                   ),
                 ],
@@ -240,7 +246,7 @@ class _StoryCard extends GetView<AuthorStoriesController> {
           ],
           // Contract application state (any book) and Pay-to-Read (signed novels).
           if (!story.signed && story.applicationTitle.isNotEmpty) _ApplicationPanel(story: story),
-          if (story.signed && !story.isShort) _PayToReadPanel(story: story),
+          if (story.signed) _PayToReadPanel(story: story),
         ],
       ),
     );
@@ -268,26 +274,35 @@ class _StoryCard extends GetView<AuthorStoriesController> {
                 controller.editStory(story);
               },
             ),
-            ListTile(
-              leading: const Icon(AppIcons.delete, color: AppColors.error),
-              title: const Text('Delete Story', style: TextStyle(color: AppColors.error)),
-              onTap: () {
-                Get.back();
-                Get.defaultDialog(
-                  title: 'Delete story?',
-                  middleText: '"${story.displayTitle}" and all its chapters will be deleted.',
-                  textCancel: 'Cancel',
-                  textConfirm: 'Delete',
-                  confirmTextColor: Colors.white,
-                  buttonColor: AppColors.error,
-                  cancelTextColor: AppColors.textSecondary,
-                  onConfirm: () {
-                    Get.back();
-                    controller.deleteStory(story);
-                  },
-                );
-              },
-            ),
+            if (story.canDelete && !story.signed)
+              ListTile(
+                leading: const Icon(AppIcons.delete, color: AppColors.error),
+                title: const Text('Delete Story', style: TextStyle(color: AppColors.error)),
+                onTap: () {
+                  Get.back();
+                  Get.defaultDialog(
+                    title: 'Delete story?',
+                    middleText: '"${story.displayTitle}" and all its chapters will be deleted.',
+                    textCancel: 'Cancel',
+                    textConfirm: 'Delete',
+                    confirmTextColor: Colors.white,
+                    buttonColor: AppColors.error,
+                    cancelTextColor: AppColors.textSecondary,
+                    onConfirm: () {
+                      Get.back();
+                      controller.deleteStory(story);
+                    },
+                  );
+                },
+              )
+            else
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+                child: Text(
+                  story.lockReason.isNotEmpty ? story.lockReason : "Signed books can't be deleted.",
+                  style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                ),
+              ),
           ],
         ),
       ),
@@ -339,15 +354,16 @@ class _ApplicationPanel extends GetView<AuthorStoriesController> {
   @override
   Widget build(BuildContext context) {
     final rejected = story.applicationStatus == 'rejected';
-    final sent = story.applicationStatus == 'contract_sent';
-    final color = rejected ? const Color(0xFFC0392B) : (sent ? const Color(0xFF1E8449) : AppColors.textPrimary);
+    final sent = const {'contract_sent', 'author_signed'}.contains(story.applicationStatus);
+    final color = rejected ? const Color(0xFFB85C00) : (sent ? const Color(0xFF1E8449) : AppColors.textPrimary);
     final wait = story.reapplyAt?.difference(DateTime.now());
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(top: 12),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: rejected ? const Color(0xFFFFF1F1) : (sent ? const Color(0xFFEAF8EF) : AppColors.surface),
+        color: rejected ? AppColors.incomeTint : (sent ? const Color(0xFFEAF8EF) : AppColors.surface),
+        border: rejected ? Border.all(color: const Color(0xFFFFD8A8)) : null,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -357,11 +373,16 @@ class _ApplicationPanel extends GetView<AuthorStoriesController> {
             story.applicationTitle,
             style: TextStyle(fontWeight: FontWeight.w700, color: color),
           ),
-          const SizedBox(height: 4),
-          Text(
-            story.applicationMessage,
-            style: TextStyle(fontSize: 13, height: 1.45, color: rejected ? color : AppColors.textSecondary),
-          ),
+          if (story.applicationMessage.isNotEmpty) const SizedBox(height: 4),
+          if (story.applicationMessage.isNotEmpty)
+            Text(
+              story.applicationMessage,
+              style: TextStyle(
+                fontSize: 13,
+                height: 1.45,
+                color: rejected ? AppColors.incomeText : AppColors.textSecondary,
+              ),
+            ),
           if (rejected) ...[
             const SizedBox(height: 10),
             Align(
@@ -378,14 +399,6 @@ class _ApplicationPanel extends GetView<AuthorStoriesController> {
                     ),
             ),
           ],
-          if (sent)
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: () => controller.reviewContract(story),
-                child: const Text('Review & sign ›'),
-              ),
-            ),
         ],
       ),
     );
@@ -410,7 +423,7 @@ class _PayToReadPanel extends GetView<AuthorStoriesController> {
       message = 'Your editor is reviewing your application.';
     } else if (story.canApplyPayToRead) {
       title = 'Pay-to-Read Application';
-      message = 'Your book has reached 30,000 words. You can now apply to monetize it.';
+      message = 'Your book has reached ${story.isShort ? '5,000' : '30,000'} words. You can now apply to monetize it.';
     } else {
       return const SizedBox.shrink();
     }

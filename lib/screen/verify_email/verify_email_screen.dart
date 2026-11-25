@@ -33,7 +33,7 @@ class VerifyEmailScreen extends GetView<VerifyEmailController> {
         const SizedBox(height: 48),
         Obx(
           () => GradientButton(
-            label: 'Jump to email box',
+            label: "I've activated my account",
             loading: controller.isVerifying.value,
             onTap: controller.openMailbox,
           ),
@@ -66,7 +66,7 @@ class VerifyEmailScreen extends GetView<VerifyEmailController> {
           ),
         ),
         const Text(
-          'Demo: "Jump to email box" confirms the email straight away.',
+          'Open the email from noreply@bonovela.com and tap ACTIVATE MY ACCOUNT.',
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 12, color: AppColors.textHint),
         ),

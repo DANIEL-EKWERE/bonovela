@@ -219,8 +219,7 @@ class AccountService extends GetxService {
     final api = _api;
     if (api == null) return (exists: hasAccount(key), verified: isVerified(key));
     final r = await api.post('auth/email-status/', {'email': key}) as Map;
-    // The server doesn't send verification emails yet, so existing accounts sign in.
-    return (exists: r['exists'] == true, verified: true);
+    return (exists: r['exists'] == true, verified: r['verified'] != false);
   }
 
   /// Creates the account; with a backend the user is signed in straight away.
@@ -232,7 +231,26 @@ class AccountService extends GetxService {
       return null;
     }
     try {
-      _signedIn(await api.post('auth/register/', {'email': email.trim().toLowerCase(), 'password': password}) as Map);
+      final r = await api.post('auth/register/', {'email': email.trim().toLowerCase(), 'password': password}) as Map;
+      // New accounts activate from the link emailed by noreply@bonovela.com.
+      if (r['verify_email'] != true) _signedIn(r);
+      return null;
+    } catch (e) {
+      return _apiError(e);
+    }
+  }
+
+  /// Sends the activation link again.
+  Future<void> resendVerification(String email) async {
+    await _api?.post('auth/resend-verification/', {'email': email.trim().toLowerCase()}).catchError((_) => null);
+  }
+
+  /// Forgot password: emails a reset link. Returns null on success.
+  Future<String?> requestPasswordReset(String email) async {
+    final api = _api;
+    if (api == null) return null;
+    try {
+      await api.post('auth/password-reset/', {'email': email.trim().toLowerCase()});
       return null;
     } catch (e) {
       return _apiError(e);
@@ -875,18 +893,21 @@ class AccountService extends GetxService {
     _profileSent = true;
     final platform = kIsWeb
         ? 'web'
-        : (defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.macOS ? 'ios' : 'android');
-    api.post('auth/me/marketing/', {
-      'platform': platform,
-      'country': PlatformDispatcher.instance.locale.countryCode ?? '',
-      'marketing_consent': push['activities'] ?? true,
-      'push_consent': push['all'] == true || push['activities'] == true,
-    }).catchError((_) => null);
+        : (defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.macOS
+              ? 'ios'
+              : 'android');
+    api
+        .post('auth/me/marketing/', {
+          'platform': platform,
+          'country': PlatformDispatcher.instance.locale.countryCode ?? '',
+          'marketing_consent': push['activities'] ?? true,
+          'push_consent': push['all'] == true || push['activities'] == true,
+        })
+        .catchError((_) => null);
   }
 
   void clearCache() => cacheMb.value = 0;
 }
-
 
 /// What redeeming a promo code gave, or why it was refused
 /// (invalid | used | ineligible).
